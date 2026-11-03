@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
--->
-<html>
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGIN</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login">
+        <h1>Login</h1>
+        <form action="Control" method="post">
+            <input type="text" name="user" placeholder="Usuario" required="required" />
+            <input type="password" name="password" placeholder="Contraseña" required="required" />
+            <button type="submit" name="boton" value="validar" class="btn btn-primary btn-block btn-large">Iniciar Sesion.</button>
+        </form>
+    </div>
+</body>
 </html>
