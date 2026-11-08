@@ -88,7 +88,7 @@ La base de datos `Consultorio` cuenta con las siguientes tablas principales:
 * **Capa Web (Java):** Java EE, Servlets, JSP, JDBC, JSTL.
 * **Patrón de Diseño:** MVC (Model-View-Controller) + DAO (Data Access Object).
 * **Frontend UI:** HTML5, CSS3, Bootstrap 5, SweetAlert2 (Notificaciones avanzadas).
-* **Librerías de Exportación:** iText / JasperReports (para generación de reportes PDF).
+* **Librerías de Exportación:** itextpdf (para generación de reportes PDF), jxl (exportacion de xml), sqljdbc4 (conexion de java a sql server), jfrechart & jcommon (creacion de graficas de pie).
 
 ---
 
@@ -98,7 +98,7 @@ La base de datos `Consultorio` cuenta con las siguientes tablas principales:
    * Abrir SQL Server Management Studio (SSMS).
    * Ejecutar el script `Consultorio.sql` para crear la base de datos, tablas, datos iniciales (semilla) y Stored Procedures.
 2. **Conexión JDBC:**
-   * Configurar las credenciales de conexión en la clase `Conexion.java` o `DBConnection.java` en la capa Model del proyecto Java.
+   * Configurar las credenciales de conexión en la clase `Conexion.java` o `DBConnection.java` en la capa Model (bean) del proyecto Java.
    * Asegurar que el driver JDBC de Microsoft SQL Server (`mssql-jdbc`) esté presente en las dependencias del proyecto.
 3. **Despliegue:**
    * Importar el proyecto en Apache NetBeans / Eclipse / IntelliJ.
@@ -106,6 +106,4 @@ La base de datos `Consultorio` cuenta con las siguientes tablas principales:
 ```
 eof
 
-He generado el archivo `README.md` que documenta detalladamente la arquitectura del sistema, la base de datos SQL Server, la lógica de negocio (pacientes nuevos/antiguos) y la integración con Java Web.
-
-¿Te gustaría agregar alguna sección adicional sobre las vistas JSP o la configuración del servidor Tomcat?
+Este README es temporal y se cambiara conforme a la rubrica y con el paso del proyecto...
