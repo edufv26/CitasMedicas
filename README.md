@@ -88,7 +88,7 @@ La base de datos `Consultorio` cuenta con las siguientes tablas principales:
 * **Capa Web (Java):** Java EE, Servlets, JSP, JDBC, JSTL.
 * **Patrón de Diseño:** MVC (Model-View-Controller) + DAO (Data Access Object).
 * **Frontend UI:** HTML5, CSS3, Bootstrap 5, SweetAlert2 (Notificaciones avanzadas).
-* **Librerías de Exportación:** itextpdf (para generación de reportes PDF), jxl (exportacion de xml), sqljdbc4 (conexion de java a sql server), jfrechart & jcommon (creacion de graficas de pie).
+* **Librerías de Exportación:** itextpdf (para generación de reportes PDF), jxl (exportacion de xml), sqljdbc4 (conexion de java a sql server), jfrechart & jcommon (creacion de graficas de barras y pie).
 
 ---
 
