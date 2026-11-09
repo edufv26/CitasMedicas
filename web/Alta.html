@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Alta de Pacientes y Médicos</title>
+</head>
+<body>
+    <h2>Formulario de Registro / Alta</h2>
+    <form action="#" method="post">
+        <label for="tipo">Tipo de Registro:</label>
+        <select name="tipo" id="tipo">
+            <option value="paciente">Paciente</option>
+            <option value="medico">Médico / Dentista</option>
+        </select>
+        <br><br>
+        <label for="nombre">Nombre Completo:</label>
+        <input type="text" id="nombre" name="nombre" required>
+        <br><br>
+        <label for="curp">ID / CURP / Cédula:</label>
+        <input type="text" id="id" name="id" required>
+        <br><br>
+        <button type="submit">Guardar Registro</button>
+    </form>
+    <br>
+    <a href="Menu1.html">Volver al Menú Principal</a>
+</body>
+</html>
