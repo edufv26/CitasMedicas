@@ -11,76 +11,70 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author edu
- */
 @WebServlet(urlPatterns = {"/Control"})
 public class Control extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        
+        // Obtenemos el parámetro 'accion' que envíen los formularios o menús HTML/JSP
+        String accion = request.getParameter("accion");
+        
+        // Si no viene ninguna acción, mandamos un valor por defecto
+        if (accion == null) {
+            accion = "inicio";
+        }
+
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet Control</title>");
+            out.println("<title>Controlador - CitasMedicas</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet Control at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Procesando peticiones en el Controlador (MVC)</h1>");
+            
+            // Evaluamos qué módulo o acción está solicitando la Vista
+            switch (accion) {
+                case "agendar":
+                    out.println("<p style='color:green;'>--> Acción detectada: Agendar Cita con éxito.</p>");
+                    break;
+                case "alta":
+                    out.println("<p style='color:green;'>--> Acción detectada: Registro de Alta procesado.</p>");
+                    break;
+                case "baja":
+                    out.println("<p style='color:red;'>--> Acción detectada: Baja lógica aplicada.</p>");
+                    break;
+                default:
+                    out.println("<p>Bienvenido al Sistema de Citas Médicas. Ruta del contexto: " + request.getContextPath() + "</p>");
+                    break;
+            }
+            
+            out.println("<br><a href='Menu1.html'>Volver al Menú Principal del Administrador</a>");
             out.println("</body>");
             out.println("</html>");
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Controlador Central MVC para CitasMedicas";
+    }
 }
