@@ -1,0 +1,121 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.dashboard-container {
+    width: 100%;
+    max-width: 900px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 15px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 26px;
+}
+
+.dashboard-header p {
+    margin: 5px 0 0;
+    color: #7f8c8d;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.card {
+    background: #fafbfc;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 18px;
+    color: #34495e;
+    border-left: 4px solid #3498db;
+    padding-left: 10px;
+    margin-bottom: 15px;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+/* Estilo de los enlaces convertidos en botones limpios */
+.nav-btn {
+    display: inline-block;
+    background-color: #ffffff;
+    color: #2c3e50;
+    text-decoration: none;
+    padding: 12px 18px;
+    border-radius: 30px; /* Estilo de botón en cápsula */
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.nav-btn:hover {
+    background-color: #1abc9c;
+    color: #ffffff;
+    border-color: #1abc9c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(26, 188, 156, 0.3);
+}
+
+.primary-action {
+    background-color: #e8f8f5;
+    border-color: #a3e4d7;
+    color: #117a65;
+}
+
+.primary-action:hover {
+    background-color: #16a085;
+    color: #ffffff;
+    border-color: #16a085;
+}
+
+.dashboard-footer {
+    text-align: right;
+    margin-top: 25px;
+    border-top: 1px solid #eaeaea;
+    padding-top: 15px;
+}
+
+.logout-btn {
+    display: inline-block;
+    background-color: #e74c3c;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
