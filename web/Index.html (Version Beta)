@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Dental - Portal Principal</title>
+    <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+     
+    <!-- Barra Superior (Estilo YouTube) -->
+    <header class="yt-header">
+        <div class="header-left">
+            <span class="menu-icon">☰</span>
+            <div class="logo-container">
+                <span class="logo-icon">🦷</span>
+                <span class="logo-text">ClínicaDental</span>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <div class="search-box">
+                <input type="text" placeholder="Buscar tratamientos, dentistas, horarios...">
+                <button class="search-btn">🔍</button>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <!-- Círculo de perfil que lleva al Login -->
+            <a href="Login.html" class="profile-circle" title="Iniciar Sesión / Administrar">
+                <span>W</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal con Menú Lateral y Contenido -->
+    <div class="main-layout">
+        
+        <!-- Sidebar Izquierdo -->
+        <aside class="yt-sidebar">
+            <a href="#" class="sidebar-item active">🏠 Inicio</a>
+            <a href="#" class="sidebar-item">🦷 Tratamientos</a>
+            <a href="#" class="sidebar-item">👨‍⚕️ Nuestros Especialistas</a>
+            <a href="#" class="sidebar-item">📅 Agendar Cita</a>
+            <hr class="sidebar-divider">
+            <div class="sidebar-title">INFORMACIÓN</div>
+            <a href="#" class="sidebar-item">📍 Ubicación y Contacto</a>
+            <a href="#" class="sidebar-item">🕒 Horarios de Atención</a>
+        </aside>
+
+        <!-- Contenido Central (Información de la Clínica) -->
+        <main class="content-area">
+            
+            <!-- Barra de categorías flotantes estilo chips -->
+            <div class="filter-chips">
+                <button class="chip active">Todos</button>
+                <button class="chip">Ortodoncia</button>
+                <button class="chip">Endodoncia</button>
+                <button class="chip">Limpieza Dental</button>
+                <button class="chip">Estética Dental</button>
+                <button class="chip">Cirugía Maxilofacial</button>
+            </div>
+
+            <!-- Sección de Bienvenida / Banner Principal -->
+            <div class="hero-banner">
+                <div class="hero-text">
+                    <h1>Cuidamos tu sonrisa con la mejor tecnología</h1>
+                    <p>Bienvenido al sistema integral de gestión y atención odontológica. Profesionales expertos comprometidos con tu salud bucal.</p>
+                    <a href="index.html" class="hero-btn">Acceder al Sistema</a>
+                </div>
+            </div>
+
+            <!-- Sección de Tarjetas informativas (Estilo videos de YouTube) -->
+            <h2 class="section-title">Especialidades y Servicios Destacados</h2>
+            
+            <div class="video-grid">
+                <!-- Tarjeta 1 -->
+                <div class="video-card">
+                    <div class="card-thumbnail dental-bg-1">
+                        <span class="badge-tag">Popular</span>
+                    </div>
+                    <div class="card-details">
+                        <h3>Ortodoncia Avanzada</h3>
+                        <p class="channel-name">Dr. Roberto López</p>
+                        <p class="metadata">Corrección de alineación dental y brackets estéticos de última generación.</p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2 -->
+                <div class="video-card">
+                    <div class="card-thumbnail dental-bg-2">
+                        <span class="badge-tag">Especializado</span>
+                    </div>
+                    <div class="card-details">
+                        <h3>Endodoncia sin Dolor</h3>
+                        <p class="channel-name">Dra. Laura Martínez</p>
+                        <p class="metadata">Tratamientos de conductos radiculares seguros con tecnología digital avanzada.</p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3 -->
+                <div class="video-card">
+                    <div class="card-thumbnail dental-bg-3">
+                        <span class="badge-tag">Preventivo</span>
+                    </div>
+                    <div class="card-details">
+                        <h3>Limpieza y Profilaxis</h3>
+                        <p class="channel-name">Área de Higiene Dental</p>
+                        <p class="metadata">Eliminación profunda de sarro, pulido y prevención de caries para toda la familia.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>
