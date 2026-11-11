@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal - Administrador</title>
+    <link rel="stylesheet" href="css/menu1.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Encabezado -->
+        <header class="dashboard-header">
+            <h1>Sistema de Clínica Dental</h1>
+            <p>Módulo Administrador</p>
+        </header>
+
+        <!-- Sección 1: Gestión de Pacientes y Médicos -->
+        <section class="card">
+            <h2>Gestión de Pacientes y Médicos</h2>
+            <div class="button-grid">
+                <a href="Alta.html" class="nav-btn">Alta de Pacientes / Médicos</a>
+                <a href="Baja.html" class="nav-btn">Baja de Pacientes / Médicos</a>
+                <a href="ConsultaPaciente.jsp" class="nav-btn">Consultar Pacientes</a>
+                <a href="ConsultaMedico.jsp" class="nav-btn">Consultar Médicos</a>
+                <a href="ModificaPaciente.jsp" class="nav-btn">Modificar Paciente</a>
+                <a href="ModificaMedico.jsp" class="nav-btn">Modificar Médico</a>
+            </div>
+        </section>
+
+        <!-- Sección 2: Gestión de Citas -->
+        <section class="card">
+            <h2>Gestión de Citas</h2>
+            <div class="button-grid">
+                <a href="Agendar.jsp" class="nav-btn">Agendar Cita</a>
+                <a href="Cancelar.jsp" class="nav-btn">Cancelar / Reagendar Cita</a>
+                <a href="ConsultarCitas.jsp" class="nav-btn">Consultar Citas (Día / Semana / Mes)</a>
+            </div>
+        </section>
+
+        <!-- Sección 3: Reportes e Historial -->
+        <section class="card">
+            <h2>Reportes e Historial</h2>
+            <div class="button-grid">
+                <a href="Historialdecitas.jsp" class="nav-btn primary-action">Historial General de Citas (PDF)</a>
+            </div>
+        </section>
+
+        <!-- Pie de página / Cerrar sesión -->
+        <footer class="dashboard-footer">
+            <a href="index.html" class="logout-btn">Cerrar Sesión</a>
+        </footer>
+    </div>
+
+</body>
+</html>
