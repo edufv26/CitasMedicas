@@ -81,7 +81,7 @@ public class Usuarios {
     
     public void validar(){
         try {
-           Connection cn = c.conecta("Sistemas5551");
+           Connection cn = c.conecta("Consultorio");
             if (c!=null) {
                 PreparedStatement ps=cn.prepareStatement("SELECT tipo FROM Usuarios WHERE usuario=? AND password=?");
                 ps.setString(1, usuario);
@@ -90,9 +90,9 @@ public class Usuarios {
                 if (rs.next()) {
                     int tipo=rs.getInt(1);
                     switch (tipo) {
-                        case 1: respuesta="Menu1.html"; break;
-                        case 2: respuesta="Menu2.html"; break;
-                        case 3: respuesta="Menu3.html"; break;
+                        case 1: respuesta="Admin/Menu1.html"; break;
+                        case 2: respuesta="Secretaria/Menu2.html"; break;
+                        case 3: respuesta="Dentista/Menu3.html"; break;
                     }
                 }else{
                     respuesta="Error.jsp?respuesta=No existe el usuario ";

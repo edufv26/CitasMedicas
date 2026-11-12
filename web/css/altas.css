@@ -1,0 +1,115 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 12 nov 2026, 1:13:36 p.m.
+    Author     : edu
+*/
+/* ==========================================
+   ESTILOS GENERALES Y LAYOUT
+   ========================================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* ==========================================
+   CONTENEDOR DE TARJETA (Formularios)
+   ========================================== */
+.form-container {
+    background: #ffffff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 450px;
+}
+
+/* ==========================================
+   TÍTULOS Y ENCABEZADOS
+   ========================================== */
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+
+/* ==========================================
+   CAMPOS Y ESTRUCTURA DE FORMULARIO
+   ========================================== */
+.campo {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+/* Estilos unificados para inputs y selects */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Efecto focus al interactuar */
+input:focus,
+select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+/* ==========================================
+   SECCIONES DINÁMICAS (Para el personal)
+   ========================================== */
+.seccion-extra {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px dashed #e0e0e0;
+}
+
+/* ==========================================
+   BOTÓN DE ENVÍO
+   ========================================== */
+.btn-enviar {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 15px;
+    box-sizing: border-box;
+}
+
+.btn-enviar:hover {
+    background-color: #2980b9;
+}

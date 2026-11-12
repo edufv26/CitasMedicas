@@ -13,7 +13,9 @@ import java.sql.*;
  */
 public class conexion {
     String USER = "sa";
+    //en caso de ocupar la bd cambiar // por la de tu contraseña
     String PASS = "Edu260604";
+    //String PASS = "sasa";
     String respuesta;
     
     Connection cn = null;

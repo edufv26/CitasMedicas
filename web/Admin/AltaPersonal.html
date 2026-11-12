@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alta de Personal</title>
+    <link rel="stylesheet" href="altas.css">
+    <script src="js/campos.js"></script>
+</head>
+<body>
+
+    <div class="form-container">
+        <!-- Apunta a tu Servlet de control -->
+        <form action="Control" method="post">
+            <h2>Registro de Personal</h2>
+
+            <!-- Datos Base (Comunes para todos) -->
+            <div class="campo">
+                <label for="usuario">Usuario:</label>
+                <input type="text" id="usuario" name="usuario" required maxlength="12">
+            </div>
+
+            <div class="campo">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="campo">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+
+            <div class="campo">
+                <label for="APaterno">Apellido Paterno:</label>
+                <input type="text" id="APaterno" name="APaterno" required>
+            </div>
+
+            <div class="campo">
+                <label for="AMaterno">Apellido Materno:</label>
+                <input type="text" id="AMaterno" name="AMaterno">
+            </div>
+
+            <!-- Selector del Tipo de Rol (Crucial para el SP) -->
+            <div class="campo">
+                <label for="tipo">Tipo de Personal:</label>
+                <select id="tipo" name="tipo" required onchange="mostrarCamposExtra()">
+                    <option value="" disabled selected>Seleccione un rol...</option>
+                    <option value="1">Administrador</option>
+                    <option value="2">Dentista</option>
+                    <option value="3">Secretaria</option>
+                </select>
+            </div>
+
+            <!-- Campos Extra para Dentista (Ocultos por defecto) -->
+            <div id="seccion-dentista" class="seccion-extra" style="display: none;">
+                <div class="campo">
+                    <label for="especialidad">Especialidad:</label>
+                    <input type="text" id="especialidad" name="especialidad">
+                </div>
+                <div class="campo">
+                    <label for="cedula">Cédula Profesional:</label>
+                    <input type="text" id="cedula" name="cedula">
+                </div>
+            </div>
+
+            <!-- Campos Extra para Secretaria (Ocultos por defecto) -->
+            <div id="seccion-secretaria" class="seccion-extra" style="display: none;">
+                <div class="campo">
+                    <label for="turno">Turno:</label>
+                    <input type="text" id="turno" name="turno">
+                </div>
+                <div class="campo">
+                    <label for="extension">Extensión:</label>
+                    <input type="text" id="extension" name="extension">
+                </div>
+            </div>
+
+            <input type="submit" class="btn-enviar" value="Registrar Personal" name="accion">
+        </form>
+    </div>
+</body>
+</html>
