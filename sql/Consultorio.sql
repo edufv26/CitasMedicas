@@ -231,29 +231,6 @@ BEGIN
     WHERE usuario = @usuario;
 END
 GO
--- SP: Dar de baja lógica a Secretaria
-CREATE PROCEDURE sp_BajaSecretaria
-    @id_secretaria INT
-AS
-BEGIN
-    UPDATE u SET u.estatus = 'D'
-    FROM Usuarios u
-    INNER JOIN Secretarias s ON u.usuario = s.usuario
-    WHERE s.id_secretaria = @id_secretaria;
-END
-GO
---procedure dar de baja a dentista (cambiar a INACTIVO) con UPDATE
--- SP: Dar de baja lógica a Dentista
-CREATE PROCEDURE sp_BajaDentista
-    @id_dentista INT
-AS
-BEGIN
-    UPDATE u SET u.estatus = 'D'
-    FROM Usuarios u
-    INNER JOIN Dentistas d ON u.usuario = d.usuario
-    WHERE d.id_dentista = @id_dentista;
-END
-GO
 -- SP: Dar de baja lógica a Paciente
 CREATE PROCEDURE sp_BajaPacientecc
     @id_paciente INT
