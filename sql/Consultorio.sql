@@ -6,8 +6,8 @@ GO
 -- 1. CREACIÓN DE TABLAS
 -- =========================================================
 
--- Tabla unificada de Usuarios (Admin: 1, Dentistas: 2, Secretarias: 3)
-CREATE TABLE Usuarios(
+-- Tabla unificada de Personal (Usuarios) (Admin: 1, Dentistas: 2, Secretarias: 3)
+CREATE TABLE Personal(
     usuario CHAR(12) PRIMARY KEY NOT NULL,
     password CHAR(32),
     nombre VARCHAR(30),
@@ -29,7 +29,7 @@ CREATE TABLE Dentistas(
     turno VARCHAR(20) CHECK(turno IN ('Matutino','Vespertino')) NOT NULL,
     telefono VARCHAR(15),
     correo VARCHAR(50),
-    CONSTRAINT FK_Dentista_Usuario FOREIGN KEY (usuario) REFERENCES Usuarios(usuario)
+    CONSTRAINT FK_Dentista_Usuario FOREIGN KEY (usuario) REFERENCES Personal(usuario)
 );
 GO
 GO
@@ -40,7 +40,7 @@ CREATE TABLE Secretarias(
     turno VARCHAR(20) CHECK(turno IN ('Matutino','Vespertino')) NOT NULL,
     telefono VARCHAR(15),
     correo VARCHAR(50),
-    CONSTRAINT FK_Secretaria_Usuario FOREIGN KEY (usuario) REFERENCES Usuarios(usuario)
+    CONSTRAINT FK_Secretaria_Usuario FOREIGN KEY (usuario) REFERENCES Personal(usuario)
 );
 GO
 -- 4. Pacientes (Con médico de preferencia)
@@ -81,7 +81,7 @@ GO
 -- INSERCIONES PREVIAS
 -- =========================================================
 --inserciones previas (usuarios) 3 admin, 2 dentistas, 2 secretarias
-INSERT INTO Usuarios (usuario, password, nombre, APaterno, AMaterno, telefono, correo, tipo, estatus) VALUES
+INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, telefono, correo, tipo, estatus) VALUES
 ('admin01', '26062004', 'Eduardo', 'Flores', 'Velazquez', '5511111111', 'admin1@mail.com', 1, 'A'),
 ('admin02', '123456', 'Oswaldo Yael', 'Alonso', 'Guarneros', '5522222222', 'admin2@mail.com', 1, 'A'),
 ('admin03', '098765', 'Paul Isaac', 'Mendoza', 'Lopez', '5533333333', 'admin3@mail.com', 1, 'A'),
@@ -132,7 +132,7 @@ CREATE PROCEDURE sp_RegistrarPersonal
 AS
 BEGIN
     -- 1. Insertar el registro principal en la tabla de Usuarios (aplica para los tres roles)
-    INSERT INTO Usuarios (usuario, password, nombre, APaterno, AMaterno, tipo, estatus)
+    INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, tipo, estatus)
     VALUES (@usuario, @password, @nombre, @APaterno, @AMaterno, @tipo, 'A');
 
     -- 2. Dependiendo del rol, insertar en su tabla correspondiente si la requiere
@@ -145,7 +145,7 @@ BEGIN
         INSERT INTO Secretarias (usuario) VALUES (@usuario);
     END
     -- Si el tipo es 1 (Admin), no hace falta insertar en otra tabla 
-    -- porque el administrador vive exclusivamente en la tabla Usuarios.
+    -- porque el administrador vive exclusivamente en la tabla Personal.
 END
 GO
 --procedure paciente nuevo, nuevo medico ... paciente antiguo medico  de preferencia (el mas frecuente)
@@ -166,7 +166,7 @@ BEGIN
     BEGIN
         SELECT TOP 1 @id_dentista_final = d.id_dentista 
         FROM Dentistas d
-        INNER JOIN Usuarios u ON d.usuario = u.usuario
+        INNER JOIN Personal u ON d.usuario = u.usuario
         WHERE u.estatus = 'A'
         ORDER BY NEWID();
     END
@@ -187,7 +187,7 @@ CREATE PROCEDURE sp_RegistrarSecretaria
 AS
 BEGIN
     -- 1. Insertar usuario base (Tipo 3 = Secretaria)
-    INSERT INTO Usuarios (usuario, password, nombre, APaterno, AMaterno, tipo, estatus)
+    INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, tipo, estatus)
     VALUES (@usuario, @password, @nombre, @APaterno, @AMaterno, 3, 'A');
 
     -- 2. Insertar los datos específicos de secretaria
@@ -208,8 +208,8 @@ CREATE PROCEDURE sp_RegistrarDentista
     @cedula_profesional VARCHAR(20)
 AS
 BEGIN
-    -- 1. Insertar en Usuarios incluyendo teléfono y correo
-    INSERT INTO Usuarios (usuario, password, nombre, APaterno, AMaterno, telefono, correo, tipo, estatus)
+    -- 1. Insertar en Personal incluyendo teléfono y correo
+    INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, telefono, correo, tipo, estatus)
     VALUES (@usuario, @password, @nombre, @APaterno, @AMaterno, @telefono, @correo, 2, 'A');
 
     -- 2. Insertar en Dentistas con su especialidad y cédula
@@ -226,7 +226,7 @@ CREATE PROCEDURE sp_BajaUsuario
     @usuario CHAR(12)
 AS
 BEGIN
-    UPDATE Usuarios 
+    UPDATE Personal 
     SET estatus = 'D' 
     WHERE usuario = @usuario;
 END
@@ -253,8 +253,8 @@ CREATE PROCEDURE sp_ActualizarPersonal
     @especialidad VARCHAR(50) = NULL -- Solo aplica si es dentista
 AS
 BEGIN
-    -- 1. Actualizar los datos generales en la tabla Usuarios
-    UPDATE Usuarios 
+    -- 1. Actualizar los datos generales en la tabla Personal
+    UPDATE Personal 
     SET nombre = @nombre,
         APaterno = @APaterno,
         AMaterno = @AMaterno,
@@ -275,7 +275,7 @@ BEGIN
             INSERT INTO Dentistas (usuario, especialidad) VALUES (@usuario, @especialidad);
         END
     END
-    -- Si es Secretaria o Admin, se actualiza su base en Usuarios y listo.
+    -- Si es Secretaria o Admin, se actualiza su base en Personal y listo.
 END
 GO
 -- PARA ADMIN
@@ -285,7 +285,7 @@ CREATE PROCEDURE sp_CambiarPasswordUsuario
     @nuevo_password CHAR(32)
 AS
 BEGIN
-    UPDATE Usuarios 
+    UPDATE Personal 
     SET password = @nuevo_password 
     WHERE usuario = @usuario;
 END
@@ -332,7 +332,7 @@ BEGIN
         ISNULL(d.cedula_profesional, 'N/A') AS cedula_profesional,
         ISNULL(s.turno, 'N/A') AS turno,
         ISNULL(s.extension, 'N/A') AS extension
-    FROM Usuarios u
+    FROM Personal u
     LEFT JOIN Dentistas d ON u.usuario = d.usuario
     LEFT JOIN Secretarias s ON u.usuario = s.usuario;
 END
@@ -354,7 +354,7 @@ BEGIN
         ISNULL(u.nombre + ' ' + u.APaterno, 'Sin preferencia (Asignación aleatoria)') AS DentistaPreferencia
     FROM Pacientes p
     LEFT JOIN Dentistas d ON p.id_dentista_preferencia = d.id_dentista
-    LEFT JOIN Usuarios u ON d.usuario = u.usuario;
+    LEFT JOIN Personal u ON d.usuario = u.usuario;
 END
 GO
 
@@ -369,7 +369,7 @@ BEGIN
         d.especialidad,
         d.cedulas_profesional -- o cedula_profesional según tu columna
     FROM Dentistas d
-    INNER JOIN Usuarios u ON d.usuario = u.usuario
+    INNER JOIN Personal u ON d.usuario = u.usuario
     WHERE u.estatus = 'A';
 END
 GO
@@ -467,7 +467,7 @@ BEGIN
     FROM Citas c
     INNER JOIN Pacientes p ON c.id_paciente = p.id_paciente
     INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
-    INNER JOIN Usuarios u ON d.usuario = u.usuario
+    INNER JOIN Personal u ON d.usuario = u.usuario
     LEFT JOIN Historial h ON c.id_cita = h.id_cita
     WHERE (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
       AND (@id_paciente IS NULL OR c.id_paciente = @id_paciente)
@@ -525,7 +525,7 @@ BEGIN
         COUNT(c.id_cita) AS TotalCitas
     FROM Citas c
     INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
-    INNER JOIN Usuarios u ON d.usuario = u.usuario
+    INNER JOIN Personal u ON d.usuario = u.usuario
     WHERE YEAR(c.fecha) = @anio
     GROUP BY MONTH(c.fecha), d.id_dentista, u.nombre, u.APaterno
     ORDER BY Mes, d.id_dentista;
@@ -543,7 +543,7 @@ BEGIN
         COUNT(c.id_cita) AS TotalCitas
     FROM Citas c
     INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
-    INNER JOIN Usuarios u ON d.usuario = u.usuario
+    INNER JOIN Personal u ON d.usuario = u.usuario
     WHERE MONTH(c.fecha) = @mes AND YEAR(c.fecha) = @anio
     GROUP BY d.id_dentista, u.nombre, u.APaterno;
 END

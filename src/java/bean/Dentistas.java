@@ -8,6 +8,8 @@ package bean;
  *
  * @author edu
  */
-public class Dentistas {
+public class Dentistas extends Personal {
+    private String especialidad, cedula, turno,telefono,correo;
+    private int idDen;
     
 }
