@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet(urlPatterns = {"/Control"})
 public class Control extends HttpServlet {
@@ -56,7 +57,7 @@ public class Control extends HttpServlet {
                     break;
             }
             
-            out.println("<br><a href='Admin/Menu1.html'>Volver al Menú Principal del Administrador</a>");
+            out.println("<br><a href='Admin/Menu1.jsp'>Volver al Menú Principal del Administrador</a>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -71,16 +72,29 @@ public class Control extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
+        // 1. Verificamos si la petición viene del formulario de Login (botón "validar")
         String boton = request.getParameter("boton");
-        Personal p = new Personal();
-        //acceso
-        if (boton.equals("validar")) {
+        
+        if (boton != null && boton.equals("validar")) {
+            Personal p = new Personal();
             p.setInputlogin(request.getParameter("usuario"));
-            p.setInputlogin(request.getParameter("password"));
+            p.setPassword(request.getParameter("password"));
             p.validar();
+            
+            // Si la validación es exitosa (no contiene Error.jsp)
+            if (!p.getRespuesta().contains("Error.jsp")) {
+                HttpSession session = request.getSession();
+                session.setAttribute("nombreUsuario", p.getNombre()); // Guardamos el nombre real
+            }
+            
+            // Redirigimos a la vista correspondiente (Menu1.jsp, Error.jsp, etc.)
             response.sendRedirect(p.getRespuesta());
+            return; // Detenemos la ejecución aquí para que no ejecute processRequest
         }
+        
+        // 2. Si no es login, que procese el resto normalmente por el switch de 'accion'
+        processRequest(request, response);
     }
 
     @Override

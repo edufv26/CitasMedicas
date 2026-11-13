@@ -1,145 +1,241 @@
-/*
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
-*/
-/* 
-    Created on : 9 nov 2026, 7:18:06 p.m.
-    Author     : edu
-*/
 
-/* ==========================================================================
-   CSS para Menús del Sistema de Clínica Dental (menu.css)
-   ========================================================================== */
+/* ================================
+   CONFIGURACIÓN GENERAL
+================================ */
 
-:root {
-    --primary-color: #0284c7;       /* Azul clínico / institucional */
-    --primary-hover: #0369a1;
-    --bg-color: #0f172a;            /* Dark background compatible */
-    --card-bg: #1e293b;             /* Fondo de tarjetas / contenedor */
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --accent-red: #ef4444;          /* Para botón de cerrar sesión */
-    --accent-red-hover: #dc2626;
-    --border-color: #334155;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-}
-
-/* Reset básico dentro del contenedor */
-body {
+* {
     margin: 0;
-    padding: 2rem;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-primary);
-    display: flex;
-    justify-content: center;
-}
-
-.menu-container {
-    width: 100%;
-    max-width: 850px;
-    background-color: var(--card-bg);
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border-color);
-}
-
-/* Encabezado */
-.menu-header {
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 1rem;
-    margin-bottom: 2rem;
-}
-
-.menu-header h1 {
-    margin: 0;
-    font-size: 1.75rem;
-    color: var(--primary-color);
-    font-weight: 700;
-    letter-spacing: -0.025em;
-}
-
-.menu-header .subtitle {
-    margin-top: 0.25rem;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-/* Secciones del menú */
-.menu-section {
-    margin-bottom: 2rem;
-}
-
-.menu-section h2 {
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* Reemplazo estilizado para las listas <ul> */
-.menu-grid {
-    list-style: none;
     padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 0.75rem;
+    box-sizing: border-box;
 }
 
-.menu-grid li a {
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f5f6fa;
+    color: #333;
+}
+
+/* ================================
+   BARRA DE NAVEGACIÓN
+================================ */
+
+.navbar-clinica {
+    width: 100%;
+    min-height: 60px;
+    background-color: #ffffff;
+
     display: flex;
     align-items: center;
-    padding: 0.85rem 1rem;
-    background-color: rgba(255, 255, 255, 0.03);
-    color: var(--text-primary);
+    justify-content: space-between;
+
+    padding: 0 25px;
+
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+
+    position: relative;
+    z-index: 1000;
+}
+
+/* ================================
+   IDENTIDAD DE LA CLÍNICA
+================================ */
+
+.nav-brand a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    color: #542b83;
+    font-size: 17px;
+    font-weight: bold;
+
     text-decoration: none;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.brand-icon {
+    font-size: 22px;
+}
+
+/* ================================
+   MENÚ PRINCIPAL
+================================ */
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    list-style: none;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.drop-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 12px 13px;
+
+    border: none;
+    background: transparent;
+
+    color: #542b83;
+    font-size: 14px;
     font-weight: 500;
-    transition: all 0.2s ease-in-out;
+
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
 }
 
-/* Efectos Hover en los enlaces */
-.menu-grid li a:hover {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
-}
-
-/* Footer / Cerrar Sesión */
-.menu-footer {
-    margin-top: 2.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-}
-
-.btn-logout {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1.25rem;
-    background-color: transparent;
-    color: var(--accent-red);
-    border: 1px solid var(--accent-red);
+.drop-toggle:hover,
+.nav-item.active .drop-toggle {
+    background-color: #f3edfa;
     border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
 }
 
-.btn-logout:hover {
-    background-color: var(--accent-red);
+.nav-icon {
+    font-size: 17px;
+}
+
+.arrow {
+    font-size: 11px;
+    transition: transform 0.2s;
+}
+
+.nav-item.active .arrow {
+    transform: rotate(180deg);
+}
+
+/* ================================
+   MENÚ DESPLEGABLE
+================================ */
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+
+    min-width: 220px;
+
+    display: none;
+    flex-direction: column;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+
+    padding: 6px;
+
+    z-index: 1001;
+}
+
+.nav-item.active .dropdown-menu {
+    display: flex;
+    animation: aparecer 0.18s ease;
+}
+
+.dropdown-menu a {
+    display: block;
+
+    padding: 11px 12px;
+
+    color: #444;
+    font-size: 13px;
+
+    text-decoration: none;
+    border-radius: 5px;
+
+    transition: background 0.2s, color 0.2s;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f3edfa;
+    color: #542b83;
+}
+
+/* ================================
+   BOTÓN CERRAR SESIÓN
+================================ */
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+}
+
+.btn-salir {
+    padding: 9px 15px;
+
+    background-color: #542b83;
     color: #ffffff;
+
+    font-size: 13px;
+    text-decoration: none;
+
+    border-radius: 5px;
+
+    transition: background 0.2s;
+}
+
+.btn-salir:hover {
+    background-color: #3e1e65;
+}
+
+/* ================================
+   ANIMACIÓN
+================================ */
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================================
+   DISEÑO RESPONSIVO
+================================ */
+
+@media (max-width: 700px) {
+
+    .navbar-clinica {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .nav-brand {
+        width: 100%;
+    }
+
+    .nav-menu {
+        flex-wrap: wrap;
+        gap: 3px;
+    }
+
+    .drop-toggle {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+
+    .dropdown-menu {
+        min-width: 200px;
+    }
+
+    .nav-actions {
+        margin-left: auto;
+    }
+
 }

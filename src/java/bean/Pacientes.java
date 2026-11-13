@@ -4,6 +4,9 @@
  */
 package bean;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.*;
 
 /**
@@ -12,7 +15,7 @@ import java.sql.*;
  */
 
 public class Pacientes {
-    private String nombre,aPaterno,aMaterno,telefono,correo,direccion,respuesta;
+    private String nombre, aPaterno, aMaterno, telefono, correo, direccion, respuesta;
     private int idP, idDenP;
     
     conexion Conexion = new conexion();
@@ -90,32 +93,34 @@ public class Pacientes {
     }
     
     public void llenarSelectorPacientes() {
-    try {
-        Connection c = Conexion.conecta("Consultorio");
-        if (c != null) {
-            // Ojo aquí: puedes filtrar por estatus 'A' para que solo salgan los activos
-            PreparedStatement ps = c.prepareStatement("SELECT id_paciente, nombre, APaterno FROM Pacientes WHERE estatus = 'A'");
-            ResultSet rs = ps.executeQuery();
-            
-            respuesta = "<select name='id_paciente' required>";
-            respuesta += "<option value='' disabled selected>-- Seleccione un paciente --</option>";
-            
-            while (rs.next()) {
-                int id = rs.getInt("id_paciente");
-                String nombreCompleto = rs.getString("nombre") + " " + rs.getString("APaterno");
-                respuesta += "<option value='" + id + "'>" + nombreCompleto + "</option>";
+        try {
+            Connection cn = Conexion.conecta();
+            if (cn != null) {
+                PreparedStatement ps = cn.prepareStatement("SELECT id_paciente, APaterno, AMaterno, nombre FROM Pacientes WHERE estatus = 'A' ORDER BY id_paciente");
+                ResultSet rs = ps.executeQuery();
+                
+                if (rs.next()) {
+                    respuesta = "<select name='id_paciente' required>";
+                    respuesta += "<option value='' disabled selected>-- Seleccione un paciente --</option>";
+                    do {
+                        idP = rs.getInt("id_paciente");
+                        String nombreCompleto = rs.getString("nombre") + " " + rs.getString("APaterno") + " " + rs.getString("AMaterno");
+                        respuesta += "<option value='" + idP + "'>" + nombreCompleto + "</option>";
+                    } while (rs.next());
+                    respuesta += "</select>";
+                } else {
+                    respuesta = "<select name='id_paciente' required><option disabled selected>No hay pacientes activos</option></select>";
+                }
+                
+                rs.close();
+                ps.close();
+                cn.close();
+            } else {
+                respuesta = "<select name='id_paciente' required><option disabled selected>No hay conexion a la base</option></select>";
             }
-            respuesta += "</select>";
-            
-            rs.close();
-            ps.close();
-            c.close();
-        } else {
-            respuesta = "<option>No hay conexion a la base</option>";
+        } catch (Exception e) {
+            respuesta = "<select name='id_paciente' required><option disabled selected>Error al cargar datos</option></select>";
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        respuesta = "<option>Error al cargar datos</option>";
     }
-}
-    
 }

@@ -18,17 +18,16 @@ public class conexion {
     //String PASS = "sasa";
     String respuesta;
     
-    Connection cn = null;
-    
-    public Connection conecta(String base){
+    public Connection conecta(){
+        Connection cn = null;
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             
             
-            String URL = "jdbc:sqlserver://localhost:1433;databaseName=" + base + ";encrypt=true;trustServerCertificate=true;";
+            String URL = "jdbc:sqlserver://localhost:1433;databaseName=Consultorio;encrypt=true;trustServerCertificate=true;";
             
             cn = DriverManager.getConnection(URL, USER, PASS);
-            System.out.println("¡Conexión exitosa a la base de datos: " + base + "!");
+            System.out.println("¡Conexión exitosa a la base de datos!");
             
         } catch(Exception e) {
             respuesta = "Error en la conexion " + e;
@@ -39,6 +38,7 @@ public class conexion {
     }
     
     public void desconectar() {
+            Connection cn = null;
         try {
             if (cn != null && !cn.isClosed()) {
                 cn.close();

@@ -99,36 +99,36 @@ public class Personal {
         this.tipo = tipo;
     }
 
-    public conexion getC() {
-        return c;
-    }
-
-    public void setC(conexion c) {
-        this.c = c;
-    }
 
     public void validar() {
         try {
-            Connection cn = c.conecta("Consultorio");
-            if (c != null) {
-                PreparedStatement ps = cn.prepareStatement("SELECT tipo FROM Personal WHERE (usuario=? OR correo=?) AND password=? AND estatus='A'");
-                ps.setString(1, inputlogin); // Lo que el usuario escribió (usuario o correo)
-                ps.setString(2, inputlogin); // Se repite por el OR
-                ps.setString(3, password);   // Tu contraseña (ya encriptada o como la manejes)
+            Connection cn = c.conecta();
+            if (cn != null) {
+                PreparedStatement ps = cn.prepareStatement("SELECT tipo, nombre FROM Personal WHERE (usuario=? OR correo=?) AND password=? AND estatus='A'");
+                ps.setString(1, inputlogin); 
+                ps.setString(2, inputlogin); 
+                ps.setString(3, password);   
                 ResultSet rs = ps.executeQuery();
+                
                 if (rs.next()) {
-                    int tipo = rs.getInt(1);
+                    tipo = rs.getInt(1);          
+                    nombre = rs.getString(2);     
+                    
                     switch (tipo) {
                         case 1:
-                            respuesta = "Admin/Menu1.html"; break;
+                            respuesta = "Admin/Menu1.jsp"; break;
                         case 2:
-                            respuesta = "Secretaria/Menu2.html"; break;
+                            respuesta = "Secretaria/Menu2.jsp"; break;
                         case 3:
-                            respuesta = "Dentista/Menu3.html"; break;
+                            respuesta = "Dentista/Menu3.jsp"; break;
                     }
                 } else {
                     respuesta = "Error.jsp?respuesta=No existe el usuario ";
                 }
+                
+                rs.close();
+                ps.close();
+                cn.close();
             } else {
                 respuesta = "Error.jsp?respuesta=No hay conexion a la base ";
             }
