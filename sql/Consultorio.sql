@@ -122,7 +122,7 @@ INSERT INTO Pacientes (nombre, APaterno, AMaterno, telefono, correo, direccion, 
 ('María', 'García', 'López', '5587654321', 'maria@mail.com', 'Calle Mexiquense #45', 1, 'A');
 GO
 SELECT * FROM Pacientes
-SELECT id_paciente, APaterno, AMaterno, nombre FROM Pacientes WHERE estatus = 'A' ORDER BY APaterno
+SELECT id_paciente, APaterno, AMaterno, nombre FROM Pacientes WHERE estatus = 'A' ORDER BY id_paciente
 GO
 -- =========================================================
 -- PROCEDURES
