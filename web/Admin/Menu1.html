@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal - Administrador</title>
+    <!-- Vinculación del CSS de menús -->
+    <link rel="stylesheet" href="../css/menu.css">
+</head>
+<body>
+
+    <div class="menu-container">
+        <!-- Encabezado -->
+        <header class="menu-header">
+            <h1>Sistema de Clínica Dental</h1>
+            <div class="subtitle">Módulo de Administración Principal</div>
+        </header>
+
+        <!-- Sección 1 -->
+        <section class="menu-section">
+            <h2>Gestión de Pacientes y Médicos</h2>
+            <ul class="menu-grid">
+                <li><a href="AltaPacientes.html">Alta de Pacientes</a></li>
+                <li><a href="AltaPersonal.html">Alta de Personal (Admins, Secretarias o Dentistas)</a></li>
+                <li><a href="Baja.html">Baja de Pacientes / Médicos</a></li>
+                <li><a href="ConsultaPaciente.jsp">Consultar Pacientes</a></li>
+                <li><a href="ConsultaMedico.jsp">Consultar Médicos</a></li>
+                <li><a href="ModificaPaciente.jsp">Modificar Paciente</a></li>
+                <li><a href="ModificaMédico.jsp">Modificar Médico</a></li>
+            </ul>
+        </section>
+
+        <!-- Sección 2 -->
+        <section class="menu-section">
+            <h2>Gestión de Citas</h2>
+            <ul class="menu-grid">
+                <li><a href="Agendar.jsp">Agendar Cita</a></li>
+                <li><a href="Cancelar.jsp">Cancelar / Reagendar Cita</a></li>
+                <li><a href="ConsultarCitas.jsp">Consultar Citas (Día / Semana / Mes)</a></li>
+            </ul>
+        </section>
+
+        <!-- Sección 3 -->
+        <section class="menu-section">
+            <h2>Reportes e Historial</h2>
+            <ul class="menu-grid">
+                <li><a href="Historialdecitas.jsp">Historial General de Citas (PDF)</a></li>
+            </ul>
+        </section>
+
+        <!-- Pie / Salida -->
+        <footer class="menu-footer">
+            <a href="login.html" class="btn-logout">Cerrar Sesión</a>
+        </footer>
+    </div>
+
+</body>
+</html>

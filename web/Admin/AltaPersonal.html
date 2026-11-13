@@ -4,16 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alta de Personal</title>
-    <link rel="stylesheet" href="altas.css">
-    <script src="js/campos.js"></script>
+    <link rel="stylesheet" href="../css/altas.css">
+    <script src="../js/campos.js"></script>
 </head>
-<body>
-
+<body> 
     <div class="form-container">
+<!-- Botón de Regresar al Menú -->
+    <form action="Menu1.html" method="get" style="margin-bottom: 20px;">
+    <button type="submit" class="btn-regresar" title="Volver al menú">
+        &#8592; Volver al Menú
+    </button>
+</form>
+   
         <!-- Apunta a tu Servlet de control -->
         <form action="Control" method="post">
             <h2>Registro de Personal</h2>
-
+            
             <!-- Datos Base (Comunes para todos) -->
             <div class="campo">
                 <label for="usuario">Usuario:</label>
@@ -75,7 +81,7 @@
                 </div>
             </div>
 
-            <input type="submit" class="btn-enviar" value="Registrar Personal" name="accion">
+            <input type="submit" class="btn-enviar" value="Registrar Personal" name="RegistrarPersonal">
         </form>
     </div>
 </body>

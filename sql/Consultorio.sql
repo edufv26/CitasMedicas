@@ -1,7 +1,6 @@
 CREATE DATABASE Consultorio
 GO
 USE Consultorio
-GO
 -- =========================================================
 -- 1. CREACIÓN DE TABLAS
 -- =========================================================
@@ -19,7 +18,6 @@ CREATE TABLE Personal(
     estatus CHAR(1) CHECK(estatus IN ('A','D')) DEFAULT 'A'
 );
 GO
-GO
 -- 2. Dentistas 
 CREATE TABLE Dentistas(
     id_dentista INT IDENTITY(1,1) PRIMARY KEY,
@@ -31,7 +29,6 @@ CREATE TABLE Dentistas(
     correo VARCHAR(50),
     CONSTRAINT FK_Dentista_Usuario FOREIGN KEY (usuario) REFERENCES Personal(usuario)
 );
-GO
 GO
 -- 3. Secretarias
 CREATE TABLE Secretarias(
@@ -51,11 +48,11 @@ CREATE TABLE Pacientes (
     AMaterno VARCHAR(30) NOT NULL,
     telefono VARCHAR(15),
     correo VARCHAR(50),
+    direccion VARCHAR(100),
     id_dentista_preferencia INT NULL,
     estatus CHAR(1) CHECK(estatus IN ('A','D')) DEFAULT 'A',
     CONSTRAINT FK_Paciente_DentistaPref FOREIGN KEY (id_dentista_preferencia) REFERENCES Dentistas(id_dentista)
 );
-GO
 -- 5. Citas
 CREATE TABLE Citas (
     id_cita INT IDENTITY(1,1) PRIMARY KEY,
@@ -68,7 +65,7 @@ CREATE TABLE Citas (
     CONSTRAINT FK_Cita_Dentista FOREIGN KEY (id_dentista) REFERENCES Dentistas(id_dentista)
 );
 GO
--- 6. Historial (Simplificado con Fecha, Hora implícita por la cita, Paciente y Diagnóstico)
+-- 6. Historial (Simplificado con Fecha, Hora implícita por la cita, Paciente y Diagnóstico) -- citas ya realizadas
 CREATE TABLE Historial (
     id_historial INT IDENTITY(1,1) PRIMARY KEY,
     id_cita INT NOT NULL,
@@ -77,12 +74,16 @@ CREATE TABLE Historial (
     CONSTRAINT FK_Historial_Cita FOREIGN KEY (id_cita) REFERENCES Citas(id_cita)
 );
 GO
+
+SELECT * FROM Citas
+SELECT * FROM Historial
+GO
 -- =========================================================
 -- INSERCIONES PREVIAS
 -- =========================================================
 --inserciones previas (usuarios) 3 admin, 2 dentistas, 2 secretarias
 INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, telefono, correo, tipo, estatus) VALUES
-('admin01', '26062004', 'Eduardo', 'Flores', 'Velazquez', '5511111111', 'admin1@mail.com', 1, 'A'),
+('admin01', '26062004', 'Eduardo', 'Flores', 'Velazquez', '5611748690', 'admin1@mail.com', 1, 'A'),
 ('admin02', '123456', 'Oswaldo Yael', 'Alonso', 'Guarneros', '5522222222', 'admin2@mail.com', 1, 'A'),
 ('admin03', '098765', 'Paul Isaac', 'Mendoza', 'Lopez', '5533333333', 'admin3@mail.com', 1, 'A'),
 ('dentista01', '1234', 'Laura', 'Martínez', 'Sánchez', '5544444444', 'laura@mail.com', 2, 'A'),
@@ -90,13 +91,19 @@ INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, telefono, c
 ('sec01', '676767', 'Ana', 'Torres', 'Cruz', '5566666666', 'ana@mail.com', 3, 'A'),
 ('sec02', '696969', 'Sofía', 'Jiménez', 'Ruiz', '5577777777', 'sofia@mail.com', 3, 'A');
 GO
+SELECT * FROM Personal
+-- Actualiza temporalmente o invierte los tipos si lo necesitas:
+UPDATE Personal SET tipo = 3 WHERE usuario LIKE 'dentista%';
+UPDATE Personal SET tipo = 2 WHERE usuario LIKE 'sec%';
 -- SE ASIGNA usuario-NUMERO EL PASSWORD SI ESTA ENCRIPTADO
-
+GO
 --inserciones previas (Dentistas)
 -- Inserciones de Dentistas (Con todos sus campos obligatorios)
 INSERT INTO Dentistas (usuario, especialidad, cedula_profesional, turno, telefono, correo) VALUES
 ('dentista01', 'Ortodoncia', 'CED12345', 'Matutino', '5544444444', 'laura@mail.com'),
 ('dentista02', 'Endodoncia', 'CED67890', 'Vespertino', '5555555555', 'roberto@mail.com');
+GO
+SELECT * FROM Dentistas
 GO
 -- inserciones previas (Secretarias)
 -- Ligar Secretarias
@@ -105,12 +112,16 @@ INSERT INTO Secretarias (usuario, turno, telefono, correo) VALUES
 ('sec01', 'Matutino', '5566666666', 'ana@mail.com'),
 ('sec02', 'Vespertino', '5577777777', 'sofia@mail.com');
 GO
+SELECT * FROM Secretarias
+GO
 --inserciones previas (Pacientes)
 -- Pacientes de prueba
 -- Pacientes de prueba
 INSERT INTO Pacientes (nombre, APaterno, AMaterno, telefono, correo, direccion, id_dentista_preferencia, estatus) VALUES
 ('Juan', 'Hernández', 'Pérez', '5512345678', 'juan@mail.com', 'Av. Central #123', NULL, 'A'),
 ('María', 'García', 'López', '5587654321', 'maria@mail.com', 'Calle Mexiquense #45', 1, 'A');
+GO
+SELECT * FROM Pacientes
 GO
 -- =========================================================
 -- PROCEDURES
@@ -183,7 +194,7 @@ CREATE PROCEDURE sp_RegistrarSecretaria
     @APaterno VARCHAR(30),
     @AMaterno VARCHAR(30),
     @turno VARCHAR(20),
-    @extension VARCHAR(10)
+    @telefono VARCHAR(10)
 AS
 BEGIN
     -- 1. Insertar usuario base (Tipo 3 = Secretaria)
@@ -191,8 +202,8 @@ BEGIN
     VALUES (@usuario, @password, @nombre, @APaterno, @AMaterno, 3, 'A');
 
     -- 2. Insertar los datos específicos de secretaria
-    INSERT INTO Secretarias (usuario, turno, extension) 
-    VALUES (@usuario, @turno, @extension);
+    INSERT INTO Secretarias (usuario, turno, telefono) 
+    VALUES (@usuario, @turno, @telefono);
 END
 GO
 -- SP: Alta Dentista
@@ -331,7 +342,7 @@ BEGIN
         ISNULL(d.especialidad, 'N/A') AS especialidad,
         ISNULL(d.cedula_profesional, 'N/A') AS cedula_profesional,
         ISNULL(s.turno, 'N/A') AS turno,
-        ISNULL(s.extension, 'N/A') AS extension
+        ISNULL(s.telefono, 'N/A') AS telefono
     FROM Personal u
     LEFT JOIN Dentistas d ON u.usuario = d.usuario
     LEFT JOIN Secretarias s ON u.usuario = s.usuario;
@@ -367,7 +378,7 @@ BEGIN
         u.usuario,
         u.nombre + ' ' + u.APaterno + ' ' + u.AMaterno AS NombreCompleto,
         d.especialidad,
-        d.cedulas_profesional -- o cedula_profesional según tu columna
+        d.cedula_profesional -- o cedula_profesional según tu columna
     FROM Dentistas d
     INNER JOIN Personal u ON d.usuario = u.usuario
     WHERE u.estatus = 'A';

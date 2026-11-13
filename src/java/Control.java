@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import bean.Personal;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -55,7 +56,7 @@ public class Control extends HttpServlet {
                     break;
             }
             
-            out.println("<br><a href='Menu1.html'>Volver al Menú Principal del Administrador</a>");
+            out.println("<br><a href='Admin/Menu1.html'>Volver al Menú Principal del Administrador</a>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -71,6 +72,15 @@ public class Control extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
+        String boton = request.getParameter("boton");
+        Personal p = new Personal();
+        //acceso
+        if (boton.equals("validar")) {
+            p.setInputlogin(request.getParameter("usuario"));
+            p.setInputlogin(request.getParameter("password"));
+            p.validar();
+            response.sendRedirect(p.getRespuesta());
+        }
     }
 
     @Override

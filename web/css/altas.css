@@ -113,3 +113,30 @@ select:focus {
 .btn-enviar:hover {
     background-color: #2980b9;
 }
+
+/* ==========================================
+   BOTÓN DE REGRESO PERSONALIZADO
+   ========================================== */
+.btn-regresar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background-color: #f1f5f9;  /* Fondo gris suavecito y limpio */
+    color: #334155;             /* Texto oscuro formal */
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Si lo quieres con un toque rojizo elegante al pasar el mouse: */
+.btn-regresar:hover {
+    background-color: #fee2e2;  /* Rojito claro muy estético tipo alerta suave */
+    color: #991b1b;             /* Texto rojo oscuro */
+    border-color: #fca5a5;      /* Borde rojito */
+    transform: translateY(-1px);
+}
