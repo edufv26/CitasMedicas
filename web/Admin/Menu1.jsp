@@ -11,22 +11,23 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Menú Principal - Clínica Dental</title>
         <!-- Icono de la pestaña (Favicon) -->
-        <link rel="icon" type="image/svg+xml" href="../icons/favicon.svg">
+        <link rel="icon" type="image/svg+xml" href="<%= request.getContextPath() %>/icons/favicon.svg">
         <!-- Estilos -->
-        <link rel="stylesheet" href="../css/menu.css">
-        <link rel="stylesheet" href="../css/font-awesome.css">
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/css/font-awesome.css">
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/css/menu.css">
         <!-- JavaScript -->
-        <script src="../js/menu.js"></script>
-        <script src="../js/modoOscuro.js"></script>
+        
+        <script src="<%= request.getContextPath() %>/js/modoOscuro.js" defer></script>
+        <script src="<%= request.getContextPath() %>/js/menu.js" defer></script>
         
     </head>
     <body>
-
+        <form action="Control" method="post">
         <nav class="navbar-clinica" aria-label="Menú principal">
 
             <!-- Nombre de la clínica -->
             <div class="nav-brand">
-                <a href="Menu1.html">
+                <a href="#">
                     <span class="fa fa-plus icon-menu"></span>
                     Clínica Dental - Vitalis
                 </a>
@@ -54,10 +55,11 @@
                     </button>
 
                     <div class="dropdown-menu" id="menu-pacientes">
-                        <a href="AltaPacientes.html">Alta de Pacientes</a>
+                        <%--   <a href="AltaPacientes.html">Alta de Pacientes</a>
                         <a href="BajaPacientes.jsp">Baja de Pacientes</a>
-                        <a href="ConsultaMedico.jsp"><span class="fa fa-users icon-menu"></span>    Consultar Pacientes</a>
                         <a href="ModificaPaciente.jsp">Modificar Datos de Paciente</a>
+                        --%>
+                        <a href="<%= request.getContextPath() %>/Control?accion=pacientes">Ver Pacientes</a>
                     </div>
 
                 </li>
@@ -161,5 +163,6 @@
             </div>
 
         </nav>
+       </form>
     </body>
 </html>

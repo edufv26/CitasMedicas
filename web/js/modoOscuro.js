@@ -2,47 +2,56 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/JavaScript.js to edit this template
  */
-document.addEventListener("DOMContentLoaded", function() {
-    const btnModo = document.getElementById("btn-modo-oscuro");
-    const body = document.body;
-    const icono = btnModo ? btnModo.querySelector("span") : null;
 
-    if (!btnModo) return;
+/* 
+ * Script de Modo Oscuro - Clínica Dental (Protegido contra ejecución doble)
+ */
+if (window.modoOscuroLoaded) {
+    console.warn("⚠️ modoOscuro.js ya estaba cargado. Evitando ejecución duplicada.");
+} else {
+    window.modoOscuroLoaded = true;
 
-    // 1. Revisar si hay preferencia guardada o la del sistema
-    const modoGuardado = localStorage.getItem('modoOscuro');
-    const prefiereOscuroSistema = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.addEventListener("DOMContentLoaded", () => {
+        const body = document.body;
+        const btnModo = document.getElementById("btn-modo-oscuro");
 
-    if (modoGuardado === 'activo' || (!modoGuardado && prefiereOscuroSistema)) {
-        body.classList.add('dark-mode');
-        if (icono) {
-            icono.classList.remove('fa-moon-o');
-            icono.classList.add('fa-sun-o');
-        }
-    } else {
-        body.classList.remove('dark-mode');
-        if (icono) {
-            icono.classList.remove('fa-sun-o');
-            icono.classList.add('fa-moon-o');
-        }
-    }
+        const iconSpan = btnModo ? btnModo.querySelector("span.fa") : null;
 
-    // 2. Al hacer clic en el botón
-    btnModo.addEventListener("click", function() {
-        body.classList.toggle('dark-mode');
-        
-        if (body.classList.contains('dark-mode')) {
-            if (icono) {
-                icono.classList.remove('fa-moon-o');
-                icono.classList.add('fa-sun-o');
+        // Función para actualizar el icono según el modo
+        function actualizarIcono(isDark) {
+            if (!iconSpan) return;
+            if (isDark) {
+                iconSpan.className = "fa fa-sun-o"; // Sol para volver al modo claro
+            } else {
+                iconSpan.className = "fa fa-moon-o"; // Luna para modo oscuro
             }
-            localStorage.setItem('modoOscuro', 'activo');
+        }
+
+        // 1. Al cargar la página, revisamos la preferencia guardada
+        const darkModeGuardado = localStorage.getItem("darkMode") === "true";
+        if (darkModeGuardado) {
+            body.classList.add("dark-mode");
+        }
+        actualizarIcono(darkModeGuardado);
+
+        // 2. Evento de clic en el botón (asegurando que no se duplique el evento)
+        if (btnModo) {
+            // Evitamos duplicar listeners por si acaso
+            if (!btnModo.dataset.listenerAttached) {
+                btnModo.dataset.listenerAttached = "true";
+                
+                btnModo.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    
+                    body.classList.toggle("dark-mode");
+                    const isDark = body.classList.contains("dark-mode");
+                    
+                    actualizarIcono(isDark);
+                    localStorage.setItem("darkMode", isDark);
+                });
+            }
         } else {
-            if (icono) {
-                icono.classList.remove('fa-sun-o');
-                icono.classList.add('fa-moon-o');
-            }
-            localStorage.setItem('modoOscuro', 'inactivo');
+            console.warn("⚠️ Ojo: No se encontró el botón con id='btn-modo-oscuro' en esta vista.");
         }
     });
-});
+}

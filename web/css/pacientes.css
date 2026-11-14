@@ -1,0 +1,271 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 13 nov 2026, 10:52:24 a.m.
+    Author     : edu
+*/
+/* ================================
+   ESTILOS DE LA VISTA DE PACIENTES
+================================ */
+
+.container-contenido {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-seccion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-seccion h2 {
+    color: #542b83;
+    font-size: 22px;
+}
+
+/* Botón principal de alta */
+.btn-accion-principal {
+    background-color: #542b83;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-accion-principal:hover {
+    background-color: #3e1e65;
+}
+
+/* Centrar perfectamente la ventana flotante (modal) */
+dialog#modalRegistro {
+    margin: auto; /* Esto manda el modal al centro exacto */
+    border: none;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    background-color: var(--bg-card, #ffffff);
+    color: var(--text-color, #333);
+}
+
+/* Oscurecer el fondo automáticamente cuando se abre el modal */
+dialog#modalRegistro::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Contenedor de la tabla */
+.table-responsive {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.tabla-clinica {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+.tabla-clinica th {
+    background-color: #542b83;
+    color: white;
+    padding: 14px 16px;
+    font-weight: 600;
+}
+
+.tabla-clinica td {
+    padding: 12px 16px;
+    color: #333;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tabla-clinica tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Botones de acción dentro de la tabla (Editar / Eliminar) */
+.btn-icon-tabla {
+    text-decoration: none;
+    font-size: 16px;
+    transition: transform 0.1s ease;
+    display: inline-block;
+    padding: 4px 6px;
+}
+
+.btn-icon-tabla:hover {
+    transform: scale(1.15);
+}
+
+.btn-icon-tabla.editar {
+    color: #3b82f6;
+    margin-right: 8px;
+}
+
+.btn-icon-tabla.eliminar {
+    color: #ef4444;
+}
+
+/* ================================
+   BOTÓN REGRESAR / VOLVER
+================================ */
+.btn-regresar {
+    text-decoration: none;
+    background-color: var(--bg-card, #e5e7eb);
+    color: var(--text-color, #333);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    width: fit-content;
+}
+
+.btn-regresar:hover {
+    background-color: #d4d4d8;
+}
+
+/* ================================
+   ADAPTACIÓN A MODO OSCURO
+================================ */
+body.dark-mode .header-seccion h2 {
+    color: #d8b4fe;
+}
+
+body.dark-mode .table-responsive {
+    background: #1e1b2e;
+    border: 1px solid #2d2442;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .tabla-clinica th {
+    background-color: #2d2442;
+    color: #d8b4fe;
+}
+
+/* Forzamos el fondo oscuro en las filas de la tabla */
+body.dark-mode .tabla-clinica tr {
+    background-color: #1e1b2e;
+}
+
+body.dark-mode .tabla-clinica td {
+    color: #cbd5e1;
+    background-color: transparent;
+    border-bottom: 1px solid #2d2442;
+}
+
+body.dark-mode .tabla-clinica tbody tr:hover {
+    background-color: #251f38;
+}
+
+/* Modo oscuro automático para el botón de regresar */
+body.dark-mode .btn-regresar {
+    background-color: #1e1b2e;
+    color: #d8b4fe;
+    border: 1px solid #2d2442;
+}
+
+/* ================================
+   ANIMACIÓN Y MODO OSCURO DEL MODAL
+================================ */
+
+/* Animación de apertura suave (Zoom + Fade In) */
+dialog#modalRegistro[open] {
+    animation: modalEntrada 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+dialog#modalRegistro[open]::backdrop {
+    animation: backdropEntrada 0.3s ease forwards;
+}
+
+@keyframes modalEntrada {
+    from {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes backdropEntrada {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+/* ================================
+   MODAL UNIFICADO Y OSCURO (DEFINITIVO)
+================================ */
+
+/* 1. Fondo de la tarjeta del modal en modo oscuro */
+body.dark-mode dialog#modalRegistro,
+html.dark-mode dialog#modalRegistro {
+    background-color: #1e1b2e !important;
+    color: #cbd5e1 !important;
+    border: 1px solid #2d2442 !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 2. Textos, títulos y etiquetas dentro del modal en modo oscuro */
+body.dark-mode dialog#modalRegistro h3,
+body.dark-mode dialog#modalRegistro h2,
+html.dark-mode dialog#modalRegistro h3,
+html.dark-mode dialog#modalRegistro h2 {
+    color: #d8b4fe !important;
+}
+
+body.dark-mode dialog#modalRegistro label,
+html.dark-mode dialog#modalRegistro label {
+    color: #e2e8f0 !important;
+    font-weight: 500;
+}
+
+/* 3. Inputs 100% oscuros y bien integrados en modo oscuro */
+body.dark-mode dialog#modalRegistro input,
+body.dark-mode dialog#modalRegistro select,
+body.dark-mode dialog#modalRegistro textarea,
+html.dark-mode dialog#modalRegistro input,
+html.dark-mode dialog#modalRegistro select,
+html.dark-mode dialog#modalRegistro textarea {
+    background-color: #251f38 !important;
+    color: #ffffff !important;
+    border: 1px solid #4a3b6e !important;
+}
+
+/* Al escribir o hacer clic en los inputs */
+body.dark-mode dialog#modalRegistro input:focus,
+body.dark-mode dialog#modalRegistro select:focus,
+body.dark-mode dialog#modalRegistro textarea:focus,
+html.dark-mode dialog#modalRegistro input:focus,
+html.dark-mode dialog#modalRegistro select:focus,
+html.dark-mode dialog#modalRegistro textarea:focus {
+    background-color: #2d2442 !important;
+    border-color: #d8b4fe !important;
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(216, 180, 254, 0.25) !important;
+}

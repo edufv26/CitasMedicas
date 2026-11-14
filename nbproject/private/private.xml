@@ -5,12 +5,12 @@
         <group>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/Control.java</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/AltaPersonal.html</file>
-            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/css/menu.css</file>
-            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/bean/Pacientes.java</file>
-            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/css/altas.css</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/bean/Personal.java</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/Menu1.jsp</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/bean/Pacientes.java</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/Pacientes.jsp</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/js/modoOscuro.js</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/index.html</file>
-            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/AltaPacientes.html</file>
         </group>
     </open-files>
 </project-private>

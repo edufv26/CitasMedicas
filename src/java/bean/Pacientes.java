@@ -8,16 +8,26 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author edu
  */
-
 public class Pacientes {
+
     private String nombre, aPaterno, aMaterno, telefono, correo, direccion, respuesta;
     private int idP, idDenP;
-    
+
+    public int getIdP() {
+        return idP;
+    }
+
+    public void setIdP(int idP) {
+        this.idP = idP;
+    }
+
     conexion Conexion = new conexion();
 
     public String getNombre() {
@@ -91,14 +101,66 @@ public class Pacientes {
     public void setConexion(conexion Conexion) {
         this.Conexion = Conexion;
     }
-    
+
+    public void alta() {
+
+    }
+
+    public void baja() {
+
+    }
+
+    // Método encargado de recuperar los pacientes para la tabla
+   
+public List<Pacientes> llenarTabla() {
+    List<Pacientes> lista = new ArrayList<>();
+
+    String sql = "SELECT id_paciente, nombre, APaterno, AMaterno, telefono, correo, direccion " +
+                 "FROM Pacientes WHERE estatus = 'A' ORDER BY id_paciente";
+
+    try (Connection cn = Conexion.conecta()) {
+
+        System.out.println("=== DEPURACIÓN PACIENTES ===");
+        System.out.println("Conexión: " + (cn != null ? "EXITOSA" : "NULA"));
+
+        if (cn != null) {
+            try (PreparedStatement ps = cn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    Pacientes p = new Pacientes();
+
+                    p.setIdP(rs.getInt("id_paciente"));
+                    p.setNombre(rs.getString("nombre"));
+                    p.setaPaterno(rs.getString("APaterno"));
+                    p.setaMaterno(rs.getString("AMaterno"));
+                    p.setTelefono(rs.getString("telefono"));
+                    p.setCorreo(rs.getString("correo"));
+                    p.setDireccion(rs.getString("direccion"));
+
+                    lista.add(p);
+                }
+            }
+        }
+
+        System.out.println("Pacientes recuperados: " + lista.size());
+
+    } catch (Exception e) {
+        System.out.println("ERROR AL RECUPERAR PACIENTES:");
+        e.printStackTrace();
+    }
+
+    return lista;
+}
+
+
     public void llenarSelectorPacientes() {
         try {
             Connection cn = Conexion.conecta();
             if (cn != null) {
                 PreparedStatement ps = cn.prepareStatement("SELECT id_paciente, APaterno, AMaterno, nombre FROM Pacientes WHERE estatus = 'A' ORDER BY id_paciente");
                 ResultSet rs = ps.executeQuery();
-                
+
                 if (rs.next()) {
                     respuesta = "<select name='id_paciente' required>";
                     respuesta += "<option value='' disabled selected>-- Seleccione un paciente --</option>";
@@ -111,7 +173,7 @@ public class Pacientes {
                 } else {
                     respuesta = "<select name='id_paciente' required><option disabled selected>No hay pacientes activos</option></select>";
                 }
-                
+
                 rs.close();
                 ps.close();
                 cn.close();
