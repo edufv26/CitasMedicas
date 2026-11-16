@@ -123,6 +123,12 @@ INSERT INTO Pacientes (nombre, APaterno, AMaterno, telefono, correo, direccion, 
 GO
 SELECT * FROM Pacientes
 SELECT id_paciente, APaterno, AMaterno, nombre FROM Pacientes WHERE estatus = 'A' ORDER BY id_paciente
+
+-- Actualizar el médico de preferencia de un paciente (reemplaza los números según corresponda)
+UPDATE Pacientes 
+SET id_dentista_preferencia = 2
+WHERE id_paciente = 1;           
+
 GO
 -- =========================================================
 -- PROCEDURES
