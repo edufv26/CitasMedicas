@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import bean.Dentistas;
 import bean.Pacientes;
 import bean.Personal;
 import java.io.IOException;
@@ -38,14 +39,15 @@ public class Control extends HttpServlet {
         if (accion == null || accion.trim().isEmpty()) {
             accion = "inicio";
         }
+        Personal p = new Personal();
+        Pacientes pa = new Pacientes();
 
         System.out.println("Método HTTP: " + request.getMethod());
         System.out.println("Acción recibida: " + accion);
 
         // 2. Validación de inicio de sesión
-        if ("validar".equals(accion)) {
+        if (accion.equals("validar")) {
 
-            Personal p = new Personal();
             p.setInputlogin(request.getParameter("usuario"));
             p.setPassword(request.getParameter("password"));
             p.validar();
@@ -70,11 +72,10 @@ public class Control extends HttpServlet {
         }
 
         // 3. Módulo de pacientes
-        if ("pacientes".equals(accion)) {
+        if (accion.equals("pacientes")) {
 
             System.out.println("Servlet: acción pacientes detectada");
 
-            Pacientes pa = new Pacientes();
             List<Pacientes> lista = pa.llenarTabla();
 
             System.out.println("Servlet: pacientes recibidos = " + lista.size());
@@ -84,6 +85,41 @@ public class Control extends HttpServlet {
             request.getRequestDispatcher("/Admin/Pacientes.jsp")
                     .forward(request, response);
 
+            return;
+        }
+
+        // 4. Módulo de edición de pacientes
+        if (accion.equals("editar")) {
+            int idEditar = Integer.parseInt(request.getParameter("id"));
+
+            // Buscamos al paciente por su ID real
+            Pacientes pacienteEncontrado = pa.obtenerPorId(idEditar);
+
+            request.setAttribute("pacienteEdit", pacienteEncontrado);
+            request.setAttribute("listaPacientes", pa.llenarTabla());
+
+            // En tu Servlet, al procesar la petición de Pacientes:
+            Dentistas dModel = new Dentistas();
+            request.setAttribute("listaDentistas", dModel.llenarListaDentistas());
+
+            request.getRequestDispatcher("/Admin/Pacientes.jsp")
+                    .forward(request, response);
+            return;
+        }
+        if (accion.equals("actualizar")) {
+            pa.setIdP(Integer.parseInt(request.getParameter("idP")));
+            pa.setNombre(request.getParameter("nombre"));
+            pa.setaPaterno(request.getParameter("paterno"));
+            pa.setaMaterno(request.getParameter("materno"));
+            pa.setTelefono(request.getParameter("tel"));
+            pa.setCorreo(request.getParameter("correo"));
+            pa.setDireccion(request.getParameter("direccion"));
+
+            // Ejecutamos tu método cambio para actualizar en la BD
+            pa.cambio();
+
+            // Redirigimos para limpiar la URL y refrescar la tabla
+            response.sendRedirect("Control?accion=pacientes");
             return;
         }
 
@@ -131,7 +167,7 @@ public class Control extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
-        
+
     }
 
     @Override

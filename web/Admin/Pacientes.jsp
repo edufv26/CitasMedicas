@@ -7,6 +7,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="bean.Pacientes"%>
+<%@page import="bean.Dentistas"%>
+<%
+    // Verificamos si el servlet mandó un paciente para editar
+    Pacientes pacEdit = (Pacientes) request.getAttribute("pacienteEdit");
+    boolean esEdicion = (pacEdit != null);
+%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -58,6 +64,7 @@
                                 <th style="padding: 12px 15px;">Teléfono</th>
                                 <th style="padding: 12px 15px;">Correo</th>
                                 <th style="padding: 12px 15px;">Dirección</th>
+                                <th style="padding: 12px 15px;">Doctor Asignado</th>
                                 <th style="padding: 12px 15px; text-align: center;">Acciones</th>
                             </tr>
                         </thead>
@@ -74,9 +81,17 @@
                                 <td style="padding: 12px 15px;"><%= p.getTelefono()%></td>
                                 <td style="padding: 12px 15px;"><%= p.getCorreo()%></td>
                                 <td style="padding: 12px 15px;"><%= p.getDireccion()%></td>
+                                <td style="padding: 12px 15px;">
+                                    <% if (p.getIdDenP() > 0) { %>
+                                        <b>Dr(a). <%= p.getNombreDentista() %></b>
+                                    <% } else { %>
+                                        <i>No asignado</i>
+                                    <% } %>
+                                </td>
                                 <td style="padding: 12px 15px; text-align: center;">
                                     <a href="Control?accion=editar&id=<%= p.getIdP()%>" class="btn-icon-tabla editar" title="Editar" style="color: #3b82f6; margin-right: 10px; font-size: 16px;"><span class="fa fa-pencil"></span></a>
-                                    <a href="Control?accion=eliminar&id=<%= p.getIdP()%>" class="btn-icon-tabla eliminar" title="Eliminar" style="color: #ef4444; font-size: 16px;" onclick="return confirm('¿Estás seguro de eliminar este paciente?');"><span class="fa fa-trash"></span></a>
+                                    <!-- Botón de eliminar conectado al modal personalizado -->
+                                    <a href="#" onclick="abrirModalEliminar('<%= p.getIdP()%>')" class="btn-icon-tabla eliminar" title="Eliminar" style="color: #ef4444; font-size: 16px;"><span class="fa fa-trash"></span></a>
                                 </td>
                             </tr>
                             <%
@@ -84,7 +99,7 @@
                             } else {
                             %>
                             <tr>
-                                <td colspan="6" style="padding: 20px; text-align: center; color: #666;">No hay pacientes registrados en el sistema.</td>
+                                <td colspan="7" style="padding: 20px; text-align: center; color: #666;">No hay pacientes registrados en el sistema.</td>
                             </tr>
                             <%
                                 }
@@ -94,42 +109,89 @@
                 </div>
             </div>
 
-            <!-- Ventana Flotante (Modal) con margin: auto para que salga perfectamente centrada -->
-            <dialog id="modalRegistro" style="margin: auto; border: none; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.3); background-color: var(--bg-card, #ffffff); color: var(--text-color, #333);">
+            <!-- Ventana Flotante (Modal) unificada para Registro y Edición -->
+            <dialog id="modalRegistro" <%= esEdicion ? "open" : ""%> style="margin: auto; border: none; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.3); background-color: var(--bg-card, #ffffff); color: var(--text-color, #333);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="color: #542b83;">Nuevo Paciente</h3>
+                    <h3 style="color: #542b83;"><%= esEdicion ? "Editar Paciente" : "Nuevo Paciente"%></h3>
                     <button type="button" data-cerrar style="background: transparent; border: none; font-size: 20px; cursor: pointer; color: #666;">&times;</button>
                 </div>
 
-                <input type="hidden" name="accion" value="registrar">
+                <!-- Acción dinámica para el Servlet ('actualizar' o 'registrar') -->
+                <input type="hidden" name="accion" value="<%= esEdicion ? "actualizar" : "registrar"%>">
+
+                <!-- ID oculto indispensable para saber qué registro actualizar -->
+                <% if (esEdicion) {%>
+                <input type="hidden" name="idP" value="<%= pacEdit.getIdP()%>">
+                <% }%>
 
                 <div class="campo" style="margin-bottom: 12px;">
                     <label style="display:block; font-size: 13px; margin-bottom: 4px;">Nombre:</label>
-                    <input type="text" name="nombre" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    <input type="text" name="nombre" value="<%= esEdicion ? pacEdit.getNombre() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
                 </div>
                 <div class="campo" style="margin-bottom: 12px;">
                     <label style="display:block; font-size: 13px; margin-bottom: 4px;">Apellido paterno:</label>
-                    <input type="text" name="paterno" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    <input type="text" name="paterno" value="<%= esEdicion ? pacEdit.getaPaterno() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
                 </div>
                 <div class="campo" style="margin-bottom: 12px;">
                     <label style="display:block; font-size: 13px; margin-bottom: 4px;">Apellido materno:</label>
-                    <input type="text" name="materno" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    <input type="text" name="materno" value="<%= esEdicion ? pacEdit.getaMaterno() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
                 </div>
                 <div class="campo" style="margin-bottom: 12px;">
                     <label style="display:block; font-size: 13px; margin-bottom: 4px;">Teléfono:</label>
-                    <input type="tel" name="tel" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    <input type="tel" name="tel" value="<%= esEdicion ? pacEdit.getTelefono() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
                 </div>
                 <div class="campo" style="margin-bottom: 12px;">
                     <label style="display:block; font-size: 13px; margin-bottom: 4px;">Correo:</label>
-                    <input type="email" name="correo" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    <input type="email" name="correo" value="<%= esEdicion ? pacEdit.getCorreo() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
                 </div>
-                <div class="campo" style="margin-bottom: 20px;">
+                <div class="campo" style="margin-bottom: 12px;">
                     <label style="display:block; font-size: 13px; margin-bottom: 4px;">Dirección:</label>
-                    <input type="text" name="direccion" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    <input type="text" name="direccion" value="<%= esEdicion ? pacEdit.getDireccion() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
                 </div>
 
-                <button type="submit" style="width: 100%; background: #542b83; color: white; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">Guardar Paciente</button>
+                <!-- Selector de Doctor de Preferencia (Visible SOLO en modo Edición) -->
+                <% if (esEdicion) { %>
+                <div class="campo" style="margin-bottom: 20px;">
+                    <label style="display:block; font-size: 13px; margin-bottom: 4px;">Doctor de Preferencia:</label>
+                    <select name="idDenP" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; background: var(--bg-card, #ffffff); color: var(--text-color, #333);">
+                        <option value="0" <%= (pacEdit.getIdDenP() == 0) ? "selected" : "" %>>-- No asignado --</option>
+                        <%
+                            List<Dentistas> listaDentistas = (List<Dentistas>) request.getAttribute("listaDentistas");
+                            if (listaDentistas != null && !listaDentistas.isEmpty()) {
+                                for (Dentistas d : listaDentistas) {
+                                    boolean seleccionado = (pacEdit.getIdDenP() == d.getIdDentista());
+                        %>
+                        <option value="<%= d.getIdDentista() %>" <%= seleccionado ? "selected" : "" %>>
+                            Dr(a). <%= d.getNombre() %> - <%= d.getEspecialidad() %>
+                        </option>
+                        <%
+                                }
+                            }
+                        %>
+                    </select>
+                </div>
+                <% } %>
 
+                <button type="submit" style="width: 100%; background: #542b83; color: white; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                    <%= esEdicion ? "Guardar Cambios" : "Guardar Paciente"%>
+                </button>
+            </dialog>
+                
+            <!-- Modal de Advertencia / Confirmación de Eliminación -->
+            <dialog id="modalEliminar">
+                <div class="modal-header">
+                    <h3 class="modal-titulo-peligro"><span class="fa fa-exclamation-triangle"></span> Confirmar Eliminación</h3>
+                    <button type="button" data-cerrar class="modal-btn-cerrar">&times;</button>
+                </div>
+
+                <p class="modal-texto">
+                    ¿Estás seguro de eliminar este paciente del sistema?
+                </p>
+
+                <div class="modal-acciones">
+                    <button type="button" data-cerrar class="btn-modal-cancelar">Cancelar</button>
+                    <a id="btnConfirmarEliminar" href="#" class="btn-modal-peligro">Sí, Eliminar</a>
+                </div>
             </dialog>
         </form> 
     </body>

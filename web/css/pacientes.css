@@ -7,6 +7,44 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     Author     : edu
 */
 /* ================================
+   ANIMACIÓN DE ENTRADA PARA LA VISTA
+================================ */
+
+.container-contenido {
+    animation: entradaVista 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes entradaVista {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================================
+   ANIMACIÓN DE SALIDA PARA LA VISTA
+================================ */
+
+.container-contenido.saliendo {
+    animation: salidaVista 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes salidaVista {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+}
+
+/* ================================
    ESTILOS DE LA VISTA DE PACIENTES
 ================================ */
 
@@ -48,22 +86,25 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     background-color: #3e1e65;
 }
 
-/* Centrar perfectamente la ventana flotante (modal) */
-dialog#modalRegistro {
+/* Centrar perfectamente las ventanas flotantes (modales) */
+dialog#modalRegistro,
+dialog#modalEliminar {
     margin: auto; /* Esto manda el modal al centro exacto */
     border: none;
     border-radius: 12px;
     padding: 25px;
     max-width: 500px;
     width: 90%;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
     background-color: var(--bg-card, #ffffff);
     color: var(--text-color, #333);
 }
 
-/* Oscurecer el fondo automáticamente cuando se abre el modal */
-dialog#modalRegistro::backdrop {
+/* Oscurecer y difuminar el fondo automáticamente cuando se abre cualquier modal */
+dialog#modalRegistro::backdrop,
+dialog#modalEliminar::backdrop {
     background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px); /* ¡Toque visual extra pro! */
 }
 
 /* Contenedor de la tabla */
@@ -186,51 +227,79 @@ body.dark-mode .btn-regresar {
 }
 
 /* ================================
-   ANIMACIÓN Y MODO OSCURO DEL MODAL
+   ANIMACIONES FLUIDAS CON EFECTO POP
 ================================ */
 
-/* Animación de apertura suave (Zoom + Fade In) */
-dialog#modalRegistro[open] {
-    animation: modalEntrada 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Animación cuando se abre cualquier modal (Efecto resorte suave) */
+dialog#modalRegistro[open],
+dialog#modalEliminar[open] {
+    animation: modalEntrada 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-dialog#modalRegistro[open]::backdrop {
+dialog#modalRegistro[open]::backdrop,
+dialog#modalEliminar[open]::backdrop {
     animation: backdropEntrada 0.3s ease forwards;
 }
 
+/* Animación cuando se cierra (Fade Out dinámico hacia abajo) */
+dialog#modalRegistro.cerrando,
+dialog#modalEliminar.cerrando {
+    animation: modalSalida 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+dialog#modalRegistro.cerrando::backdrop,
+dialog#modalEliminar.cerrando::backdrop {
+    animation: backdropSalida 0.25s ease forwards;
+}
+
 @keyframes modalEntrada {
-    from {
+    0% {
         opacity: 0;
-        transform: scale(0.85) translateY(20px);
+        transform: scale(0.8) translateY(30px);
     }
-    to {
+    100% {
         opacity: 1;
         transform: scale(1) translateY(0);
     }
 }
 
-@keyframes backdropEntrada {
-    from {
-        opacity: 0;
-    }
-    to {
+@keyframes modalSalida {
+    0% {
         opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
     }
 }
+
+@keyframes backdropEntrada {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to { opacity: 1; backdrop-filter: blur(4px); }
+}
+
+@keyframes backdropSalida {
+    from { opacity: 1; backdrop-filter: blur(4px); }
+    to { opacity: 0; backdrop-filter: blur(0px); }
+}
+
 /* ================================
-   MODAL UNIFICADO Y OSCURO (DEFINITIVO)
+   MODALES EN MODO OSCURO (DEFINITIVO)
 ================================ */
 
-/* 1. Fondo de la tarjeta del modal en modo oscuro */
+/* 1. Fondo de las tarjetas de los modales en modo oscuro */
 body.dark-mode dialog#modalRegistro,
-html.dark-mode dialog#modalRegistro {
+html.dark-mode dialog#modalRegistro,
+body.dark-mode dialog#modalEliminar,
+html.dark-mode dialog#modalEliminar {
     background-color: #1e1b2e !important;
     color: #cbd5e1 !important;
     border: 1px solid #2d2442 !important;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8) !important;
 }
 
-/* 2. Textos, títulos y etiquetas dentro del modal en modo oscuro */
+/* 2. Textos, títulos y etiquetas dentro de los modales en modo oscuro */
 body.dark-mode dialog#modalRegistro h3,
 body.dark-mode dialog#modalRegistro h2,
 html.dark-mode dialog#modalRegistro h3,
@@ -268,4 +337,112 @@ html.dark-mode dialog#modalRegistro textarea:focus {
     color: #ffffff !important;
     outline: none !important;
     box-shadow: 0 0 0 3px rgba(216, 180, 254, 0.25) !important;
+}
+
+/* ================================
+   ESTILOS Y ANIMACIONES DEL MODAL ELIMINAR
+================================ */
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal-titulo-peligro {
+    color: #ef4444;
+    font-size: 18px;
+}
+
+.modal-btn-cerrar {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.modal-btn-cerrar:hover {
+    color: #ef4444;
+}
+
+.modal-texto {
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.modal-acciones {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Botón Cancelar con animación */
+.btn-modal-cancelar {
+    background: #e5e7eb;
+    color: #333;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-modal-cancelar:hover {
+    background: #d1d5db;
+    transform: translateY(-1px);
+}
+
+.btn-modal-cancelar:active {
+    transform: translateY(0);
+}
+
+/* Botón Peligro / Confirmar con animación */
+.btn-modal-peligro {
+    background: #ef4444;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.btn-modal-peligro:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-modal-peligro:active {
+    transform: translateY(0);
+}
+
+/* ================================
+   MODO OSCURO PARA EL MODAL DE ELIMINAR
+================================ */
+body.dark-mode .modal-btn-cerrar,
+html.dark-mode .modal-btn-cerrar {
+    color: #94a3b8;
+}
+
+body.dark-mode .modal-btn-cerrar:hover,
+html.dark-mode .modal-btn-cerrar:hover {
+    color: #ef4444;
+}
+
+body.dark-mode .btn-modal-cancelar,
+html.dark-mode .btn-modal-cancelar {
+    background: #2d2442 !important;
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .btn-modal-cancelar:hover,
+html.dark-mode .btn-modal-cancelar:hover {
+    background: #3b2f54 !important;
 }

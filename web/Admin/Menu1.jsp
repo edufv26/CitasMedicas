@@ -59,7 +59,9 @@
                         <a href="BajaPacientes.jsp">Baja de Pacientes</a>
                         <a href="ModificaPaciente.jsp">Modificar Datos de Paciente</a>
                         --%>
-                        <a href="<%= request.getContextPath() %>/Control?accion=pacientes">Ver Pacientes</a>
+                        <a href="<%= request.getContextPath() %>/Control?accion=pacientes">
+                            <span class="fa fa-users"></span> 
+                            Gestion de Pacientes</a>
                     </div>
 
                 </li>
@@ -79,12 +81,9 @@
                     </button>
 
                     <div class="dropdown-menu" id="menu-personal">
-                        <a href="AltaPersonal.html">Alta de Personal</a>
-                        <a href="Baja.html">Baja de Personal</a>
-                        <a href="ConsultaPaciente.jsp">Consultar Personal</a>
-                        <a href="ConsultaMedico.jsp">Consultar Médicos</a>
-                        <a href="ModificaPaciente.jsp">Modificar Paciente</a>
-                        <a href="ModificaMédico.jsp">Modificar Médico</a>
+                        <a href="<%= request.getContextPath() %>/Control?accion=personal">
+                            <span class="fa fa-vcard-o"></span> 
+                            Gestion del Personal</a>
                     </div>
 
                 </li>
@@ -104,9 +103,10 @@
                     </button>
 
                     <div class="dropdown-menu" id="menu-citas">
-                        <a href="Agendar.jsp">Agendar Cita</a>
-                        <a href="Cancelar.jsp">Cancelar / Reagendar Cita</a>
-                        <a href="ConsultarCitas.jsp">Consultar Citas</a>
+                        
+                        <a href="<%= request.getContextPath() %>/Control?accion=pacientes">
+                            <span class="fa fa-calendar-o"></span> 
+                            Gestion de CItas</a>
                     </div>
 
                 </li>
