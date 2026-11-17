@@ -164,7 +164,7 @@ body {
 }
 
 /* ================================
-   BOTÓN CERRAR SESIÓN Y ACCIONES
+    BOTÓN CERRAR SESIÓN Y ACCIONES
 ================================ */
 
 .nav-actions {
@@ -176,7 +176,7 @@ body {
 .btn-salir {
     padding: 9px 15px;
 
-    background-color: #542b83;
+    background-color: #dc2626; /* Rojo elegante y moderno */
     color: #ffffff;
 
     font-size: 13px;
@@ -188,7 +188,7 @@ body {
 }
 
 .btn-salir:hover {
-    background-color: #3e1e65;
+    background-color: #b91c1c; /* Tono más oscuro al pasar el cursor */
 }
 
 /* ================================
@@ -331,4 +331,52 @@ body.dark-mode .btn-theme-toggle:hover {
         margin-left: auto;
     }
 
+}
+/* --- Pantalla de Carga --- */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.spinner {
+    width: 55px;
+    height: 55px;
+    border: 4px solid rgba(168, 85, 247, 0.15);
+    border-top: 4px solid #a855f7; /* El tono morado institucional de Vitalis */
+    border-radius: 50%;
+    animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.loading-text {
+    margin-top: 18px;
+    color: #f3f4f6;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

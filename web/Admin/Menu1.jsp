@@ -1,168 +1,38 @@
 <%-- 
     Document   : Menu1
-    Created on : 12 nov 2026, 10:45:34 p.m.
-    Author     : edu
+    Descripción: Vista principal del Administrador
+    Created:     edu
 --%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Menú Principal - Clínica Dental</title>
-        <!-- Icono de la pestaña (Favicon) -->
-        <link rel="icon" type="image/svg+xml" href="<%= request.getContextPath() %>/icons/favicon.svg">
-        <!-- Estilos -->
-        <link rel="stylesheet" href="<%= request.getContextPath() %>/css/font-awesome.css">
-        <link rel="stylesheet" href="<%= request.getContextPath() %>/css/menu.css">
-        <!-- JavaScript -->
+        <title>Menú Principal - Administrador</title>
         
-        <script src="<%= request.getContextPath() %>/js/modoOscuro.js" defer></script>
-        <script src="<%= request.getContextPath() %>/js/menu.js" defer></script>
-        
+        <!-- Favicon e Iconos -->
+        <link rel="icon" type="image/svg+xml" href="<%= request.getContextPath()%>/icons/favicon.svg">
+        <link rel="stylesheet" href="<%= request.getContextPath()%>/css/font-awesome.css">
+        <link rel="stylesheet" href="<%= request.getContextPath()%>/css/menu.css">
+
+        <!-- Scripts Globales -->
+        <script src="<%= request.getContextPath()%>/js/modoOscuro.js" defer></script>
+        <script src="<%= request.getContextPath()%>/js/menu.js" defer></script>
     </head>
     <body>
-        <form action="Control" method="post">
-        <nav class="navbar-clinica" aria-label="Menú principal">
+        <!-- Pantalla de carga (Loader) -->
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">Cargando Sistema...</div>
+        </div>
 
-            <!-- Nombre de la clínica -->
-            <div class="nav-brand">
-                <a href="#">
-                    <span class="fa fa-plus icon-menu"></span>
-                    Clínica Dental - Vitalis
-                </a>
-            </div>
-            <!-- Saludo del usuario logueado -->
+        <!-- Barra de navegación del Admin -->
+        <%@ include file="navbarAdmin.jsp" %>
 
-            <div class="nav-user-welcome" style="display: flex; align-items: center; margin-right: 15px; font-size: 13px; color: #542b83; font-weight: 500;">
-                <h2> Hola, <%= session.getAttribute("nombreUsuario") != null ? session.getAttribute("nombreUsuario") : "Usuario"%></h2>
-            </div>
-            <!-- Opciones principales -->
-            <ul class="nav-menu">
-
-                <!-- Pacientes -->
-                <li class="nav-item">
-
-                    <button
-                        type="button"
-                        class="drop-toggle"
-                        aria-expanded="false"
-                        aria-controls="menu-pacientes">
-
-                        <span class="fa fa-user icon-menu"></span>
-                        Pacientes
-                        <span class="arrow">▾</span>
-                    </button>
-
-                    <div class="dropdown-menu" id="menu-pacientes">
-                        <%--   <a href="AltaPacientes.html">Alta de Pacientes</a>
-                        <a href="BajaPacientes.jsp">Baja de Pacientes</a>
-                        <a href="ModificaPaciente.jsp">Modificar Datos de Paciente</a>
-                        --%>
-                        <a href="<%= request.getContextPath() %>/Control?accion=pacientes">
-                            <span class="fa fa-users"></span> 
-                            Gestion de Pacientes</a>
-                    </div>
-
-                </li>
-
-                <!-- Personal -->
-                <li class="nav-item">
-
-                    <button
-                        type="button"
-                        class="drop-toggle"
-                        aria-expanded="false"
-                        aria-controls="menu-personal">
-
-                        <span class="fa fa-user-md icon-menu"></span>
-                        Personal
-                        <span class="arrow">▾</span>
-                    </button>
-
-                    <div class="dropdown-menu" id="menu-personal">
-                        <a href="<%= request.getContextPath() %>/Control?accion=personal">
-                            <span class="fa fa-vcard-o"></span> 
-                            Gestion del Personal</a>
-                    </div>
-
-                </li>
-
-                <!-- Citas -->
-                <li class="nav-item">
-
-                    <button
-                        type="button"
-                        class="drop-toggle"
-                        aria-expanded="false"
-                        aria-controls="menu-citas">
-
-                        <span class="fa fa-calendar icon-menu"></span>
-                        Citas
-                        <span class="arrow">▾</span>
-                    </button>
-
-                    <div class="dropdown-menu" id="menu-citas">
-                        
-                        <a href="<%= request.getContextPath() %>/Control?accion=pacientes">
-                            <span class="fa fa-calendar-o"></span> 
-                            Gestion de CItas</a>
-                    </div>
-
-                </li>
-
-                <!-- Reportes -->
-                <li class="nav-item">
-
-                    <button
-                        type="button"
-                        class="drop-toggle"
-                        aria-expanded="false"
-                        aria-controls="menu-reportes">
-
-                        <span class="fa fa-file-text icon-menu"></span>
-                        Reportes
-                        <span class="arrow">▾</span>
-                    </button>
-
-                    <div class="dropdown-menu" id="menu-reportes">
-
-                        <a href="Historialdecitas.jsp">
-                            <span class="fa fa-file-pdf-o icon-menu"></span>
-                            Historial General de Citas
-                        </a>
-                        <a href="#">
-                            <span class="fa fa-file-pdf-o icon-menu"></span>
-                            Historial de Citas del Medico    
-                        </a>
-                        <a href="#">
-                            <span class="fa fa-bar-chart-o icon-menu"></span>
-                            Reporte con grafico de barras
-                        </a>
-                        <a href="#">
-                            <span class="fa fa-pie-chart icon-menu"></span>
-                            Reporte con grafico de barras
-                        </a>
-                    </div>
-
-                </li>
-
-            </ul>
-            <!-- Lado izquierdo o medio de la barra (El botón del modo oscuro solito) -->
-            <div class="nav-actions">
-                <button type="button" id="btn-modo-oscuro" class="btn-theme-toggle" title="Cambiar modo oscuro">
-                    <span class="fa fa-moon-o" style="font-size: 22px;"></span>
-                </button>
-            </div>
-
-            <!-- Lado derecho de la barra (Tu botón de Cerrar Sesión solito) -->
-            <div class="nav-actions">
-                <a href="../index.html" class="btn-salir">
-                    Cerrar Sesión
-                </a>
-            </div>
-
-        </nav>
-       </form>
+        <!-- Contenido del Dashboard -->
+        <div class="container-contenido" style="padding: 40px; font-family: system-ui, sans-serif;">
+            <h1>Dashboard</h1>
+            <p>Selecciona una opción en el menú superior para administrar pacientes, personal o citas.</p>
+        </div>
     </body>
 </html>

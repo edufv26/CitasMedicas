@@ -1,5 +1,5 @@
 <%-- 
-    Document   : Pacientes
+    Document   : Pacientes (ADMIN)
     Created on : 13 nov 2026, 10:38:27 a.m.
     Author     : edu
 --%>
@@ -28,12 +28,16 @@
         <!-- Scripts  -->
         <script src="<%= request.getContextPath()%>/js/modoOscuro.js" defer></script>
         <script src="<%= request.getContextPath()%>/js/modal-global.js" defer></script>
+        <script src="<%= request.getContextPath()%>/js/menu.js" defer></script>
     </head>
     <body>
         <form action="Control" method="post">
             <!-- Barra de navegación -->
-            <%@ include file="Menu1.jsp" %>
-
+            <%@ include file="navbarAdmin.jsp" %>
+            <div id="loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">Cargando...</div>
+            </div>
             <!-- Contenedor Principal Unificado -->
             <div class="container-contenido" style="padding: 30px;">
 
@@ -42,7 +46,7 @@
 
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <!-- Botón de Volver -->
-                        <a href="<%= request.getContextPath()%>/Admin/Menu1.jsp" class="btn-regresar">
+                        <a href="<%= request.getContextPath()%>/Control?accion=menu" class="btn-regresar">
                             <span class="fa fa-chevron-left"></span> Volver
                         </a>
                         <h2><span class="fa fa-users"></span> Lista de Pacientes</h2>
@@ -82,11 +86,11 @@
                                 <td style="padding: 12px 15px;"><%= p.getCorreo()%></td>
                                 <td style="padding: 12px 15px;"><%= p.getDireccion()%></td>
                                 <td style="padding: 12px 15px;">
-                                    <% if (p.getIdDenP() > 0) { %>
-                                        <b>Dr(a). <%= p.getNombreDentista() %></b>
+                                    <% if (p.getIdDenP() > 0) {%>
+                                    <b>Dr(a). <%= p.getNombreDentista()%></b>
                                     <% } else { %>
-                                        <i>No asignado</i>
-                                    <% } %>
+                                    <i>No asignado</i>
+                                    <% }%>
                                 </td>
                                 <td style="padding: 12px 15px; text-align: center;">
                                     <a href="Control?accion=editar&id=<%= p.getIdP()%>" class="btn-icon-tabla editar" title="Editar" style="color: #3b82f6; margin-right: 10px; font-size: 16px;"><span class="fa fa-pencil"></span></a>
@@ -150,19 +154,19 @@
                 </div>
 
                 <!-- Selector de Doctor de Preferencia (Visible SOLO en modo Edición) -->
-                <% if (esEdicion) { %>
+                <% if (esEdicion) {%>
                 <div class="campo" style="margin-bottom: 20px;">
                     <label style="display:block; font-size: 13px; margin-bottom: 4px;">Doctor de Preferencia:</label>
                     <select name="idDenP" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; background: var(--bg-card, #ffffff); color: var(--text-color, #333);">
-                        <option value="0" <%= (pacEdit.getIdDenP() == 0) ? "selected" : "" %>>-- No asignado --</option>
+                        <option value="0" <%= (pacEdit.getIdDenP() == 0) ? "selected" : ""%>>-- No asignado --</option>
                         <%
                             List<Dentistas> listaDentistas = (List<Dentistas>) request.getAttribute("listaDentistas");
                             if (listaDentistas != null && !listaDentistas.isEmpty()) {
                                 for (Dentistas d : listaDentistas) {
                                     boolean seleccionado = (pacEdit.getIdDenP() == d.getIdDentista());
                         %>
-                        <option value="<%= d.getIdDentista() %>" <%= seleccionado ? "selected" : "" %>>
-                            Dr(a). <%= d.getNombre() %> - <%= d.getEspecialidad() %>
+                        <option value="<%= d.getIdDentista()%>" <%= seleccionado ? "selected" : ""%>>
+                            Dr(a). <%= d.getNombre()%> - <%= d.getEspecialidad()%>
                         </option>
                         <%
                                 }
@@ -170,13 +174,13 @@
                         %>
                     </select>
                 </div>
-                <% } %>
+                <% }%>
 
                 <button type="submit" style="width: 100%; background: #542b83; color: white; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
                     <%= esEdicion ? "Guardar Cambios" : "Guardar Paciente"%>
                 </button>
             </dialog>
-                
+
             <!-- Modal de Advertencia / Confirmación de Eliminación -->
             <dialog id="modalEliminar">
                 <div class="modal-header">

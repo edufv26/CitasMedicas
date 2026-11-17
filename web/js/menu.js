@@ -1,96 +1,103 @@
 /* 
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/JavaScript.js to edit this template
+ * Archivo: menu.js
+ * Descripción: Control de menús desplegables, accesibilidad y pantalla de carga (Loader).
  */
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    // ==========================================
+    // 1. PANTALLA DE CARGA (DURACIÓN DE 1 SEGUNDO)
+    // ==========================================
+    const loader = document.getElementById("loading-overlay");
+
+    // Interceptar formularios para que se luzca el loader 1 segundo
+    const forms = document.querySelectorAll("form");
+    forms.forEach(form => {
+        form.addEventListener("submit", (e) => {
+            e.preventDefault(); // Frenamos el envío inmediato
+            if (loader) {
+                loader.classList.add("active");
+            }
+            
+            // Esperamos 1 segundo exacto y mandamos el formulario
+            setTimeout(() => {
+                form.submit();
+            }, 1000);
+        });
+    });
+
+    // Interceptar enlaces del menú, acciones y el botón Volver con el retraso de 1s
+    document.querySelectorAll(".dropdown-menu a, .nav-actions a, .btn-regresar").forEach(link => {
+        link.addEventListener("click", (e) => {
+            const href = link.getAttribute("href");
+            if (href && href !== "#" && !href.startsWith("javascript")) {
+                e.preventDefault(); // Frenamos el salto inmediato
+                if (loader) {
+                    loader.classList.add("active");
+                }
+                
+                // Esperamos 1 segundo y redirigimos manualmente
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 1000);
+            }
+        });
+    });
+
+    // ==========================================
+    // 2. LÓGICA DE MENÚS DESPLEGABLES
+    // ==========================================
     const navItems = document.querySelectorAll(".nav-item");
     const toggles = document.querySelectorAll(".drop-toggle");
 
-    // Cerrar todos los menús
     function cerrarMenus(excepto = null) {
-
         navItems.forEach(item => {
-
             if (item !== excepto) {
-
                 item.classList.remove("active");
-
                 const button = item.querySelector(".drop-toggle");
-
-                button.setAttribute("aria-expanded", "false");
+                if (button) {
+                    button.setAttribute("aria-expanded", "false");
+                }
             }
-
         });
-
     }
 
-    // Abrir o cerrar el menú seleccionado
     toggles.forEach(button => {
-
         button.addEventListener("click", (event) => {
-
             event.stopPropagation();
-
             const item = button.closest(".nav-item");
-
             const estabaAbierto = item.classList.contains("active");
-
-            // Cerrar los demás menús
             cerrarMenus();
-
-            // Alternar el menú seleccionado
             if (!estabaAbierto) {
-
                 item.classList.add("active");
-
                 button.setAttribute("aria-expanded", "true");
-
             }
-
         });
-
     });
 
-    // Cerrar al hacer clic fuera del menú
     document.addEventListener("click", (event) => {
-
         if (!event.target.closest(".navbar-clinica")) {
             cerrarMenus();
         }
-
     });
 
-    // Cerrar al seleccionar una opción
     document.querySelectorAll(".dropdown-menu a").forEach(link => {
-
         link.addEventListener("click", () => {
             cerrarMenus();
         });
-
     });
 
-    // Cerrar con la tecla Escape
     document.addEventListener("keydown", (event) => {
-
         if (event.key === "Escape") {
-
             const menuAbierto = document.querySelector(".nav-item.active");
-
             if (menuAbierto) {
-
                 const button = menuAbierto.querySelector(".drop-toggle");
-
                 cerrarMenus();
-
-                button.focus();
-
+                if (button) {
+                    button.focus();
+                }
             }
-
         }
-
     });
 
 });
-

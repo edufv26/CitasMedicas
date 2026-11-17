@@ -1,18 +1,30 @@
 <!DOCTYPE html>
+<!<!-- login final -->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOGIN</title>
+    <title>Clínica Dental - Vitalis | Login</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <!-- FontAwesome para los íconos -->
+    <link rel="stylesheet" href="css/font-awesome.css">
+    <!-- Estilos del Login -->
     <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
+    
     <div class="login">
-        <h1>Login</h1>
+        <div class="login-header">
+            <span class="fa fa-plus login-icon"></span>
+            <h1>Clínica Dental - Vitalis</h1>
+            <p class="login-subtitle">Iniciar Sesión</p>
+        </div>
+
         <form action="Control" method="post">
-            <input type="text" name="usuario" placeholder="Usuario" required="required" />
+            <input type="text" name="usuario" placeholder="Usuario o Correo" required="required" />
             <input type="password" name="password" placeholder="Contraseña" required="required" />
-            <button type="submit" name="accion" value="validar" class="btn btn-primary btn-block btn-large">Iniciar Sesion.</button>
+            <button type="submit" name="accion" value="validar" class="btn btn-primary btn-block btn-large">Ingresar</button>
         </form>
     </div>
 </body>

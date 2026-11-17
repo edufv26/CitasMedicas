@@ -86,10 +86,10 @@ INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, telefono, c
 ('admin01', '26062004', 'Eduardo', 'Flores', 'Velazquez', '5611748690', 'admin1@mail.com', 1, 'A'),
 ('admin02', '123456', 'Oswaldo Yael', 'Alonso', 'Guarneros', '5522222222', 'admin2@mail.com', 1, 'A'),
 ('admin03', '098765', 'Paul Isaac', 'Mendoza', 'Lopez', '5533333333', 'admin3@mail.com', 1, 'A'),
-('dentista01', '1234', 'Laura', 'Martínez', 'Sánchez', '5544444444', 'laura@mail.com', 2, 'A'),
-('dentista02', '3456', 'Roberto', 'López', 'Ramírez', '5555555555', 'roberto@mail.com', 2, 'A'),
-('sec01', '676767', 'Ana', 'Torres', 'Cruz', '5566666666', 'ana@mail.com', 3, 'A'),
-('sec02', '696969', 'Sofía', 'Jiménez', 'Ruiz', '5577777777', 'sofia@mail.com', 3, 'A');
+('dentista01', '1234', 'Laura', 'Martínez', 'Sánchez', '5544444444', 'laura@mail.com', 3, 'A'),
+('dentista02', '3456', 'Roberto', 'López', 'Ramírez', '5555555555', 'roberto@mail.com', 3, 'A'),
+('sec01', '676767', 'Ana', 'Torres', 'Cruz', '5566666666', 'ana@mail.com', 2, 'A'),
+('sec02', '696969', 'Sofía', 'Jiménez', 'Ruiz', '5577777777', 'sofia@mail.com', 2, 'A');
 GO
 SELECT * FROM Personal
 -- Actualiza temporalmente o invierte los tipos si lo necesitas:
@@ -115,7 +115,6 @@ GO
 SELECT * FROM Secretarias
 GO
 --inserciones previas (Pacientes)
--- Pacientes de prueba
 -- Pacientes de prueba
 INSERT INTO Pacientes (nombre, APaterno, AMaterno, telefono, correo, direccion, id_dentista_preferencia, estatus) VALUES
 ('Juan', 'Hernández', 'Pérez', '5512345678', 'juan@mail.com', 'Av. Central #123', NULL, 'A'),
@@ -528,6 +527,35 @@ BEGIN
     UPDATE Citas SET estado = 'ATENDIDA' WHERE id_cita = @id_cita;
 END
 GO
+-- =========================================================
+-- 1. DASHBOARD: Citas de Hoy (Reutilizable para Admin y Dentista)
+-- =========================================================
+-- Si @id_dentista es NULL, trae todas (para el Admin). 
+-- Si se le pasa un ID, trae solo las de ese doctor (para su panel).
+CREATE PROCEDURE sp_ListarCitasDelDia
+    @id_dentista INT = NULL
+AS
+BEGIN
+    SELECT 
+        c.id_cita,
+        p.id_paciente,
+        p.nombre + ' ' + p.APaterno + ' ' + p.AMaterno AS Paciente,
+        p.telefono,
+        u.nombre + ' ' + u.APaterno AS Dentista,
+        c.fecha,
+        c.hora,
+        c.estado
+    FROM Citas c
+    INNER JOIN Pacientes p ON c.id_paciente = p.id_paciente
+    INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
+    INNER JOIN Personal u ON d.usuario = u.usuario
+    WHERE c.fecha = CAST(GETDATE() AS DATE)
+      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
+      AND c.estado IN ('PROGRAMADA', 'REAGENDADA', 'ATENDIDA')
+    ORDER BY c.hora ASC;
+END
+GO
+-- DISCLAIMER: EN PROCESO NO USAR
 -- =========================================================
 -- GRAFICAS
 -- =========================================================
