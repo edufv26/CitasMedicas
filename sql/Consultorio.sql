@@ -559,13 +559,109 @@ GO
 -- =========================================================
 -- GRAFICAS
 -- =========================================================
--- SP para la Gráfica de Barras: Citas por mes y por dentista en un año específico
-CREATE PROCEDURE sp_EstadisticasBarrasAnual
-    @anio INT
+-- REPORTE SEMANAL
+-- CITAS POR DIA DE LA SEMANA
+CREATE PROCEDURE sp_DatosBarrasSemanal
+    @fecha_inicio DATE,
+    @fecha_fin DATE,
+    @id_dentista INT = NULL
 AS
 BEGIN
     SELECT 
-        MONTH(c.fecha) AS Mes,
+        c.fecha AS PeriodoFecha,
+        DATENAME(WEEKDAY, c.fecha) AS DiaSemana,
+        COUNT(c.id_cita) AS TotalCitas
+    FROM Citas c
+    WHERE c.fecha BETWEEN @fecha_inicio AND @fecha_fin
+      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
+    GROUP BY c.fecha, DATENAME(WEEKDAY, c.fecha)
+    ORDER BY c.fecha ASC;
+END
+GO
+-- PASTEL = PARTICIPACION DOCTOR X SEMANA
+CREATE PROCEDURE sp_DatosPastelSemanal
+    @fecha_inicio DATE,
+    @fecha_fin DATE,
+    @id_dentista INT = NULL
+AS
+BEGIN
+    SELECT 
+        d.id_dentista,
+        u.nombre + ' ' + u.APaterno AS Dentista,
+        COUNT(c.id_cita) AS TotalCitas
+    FROM Citas c
+    INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
+    INNER JOIN Personal u ON d.usuario = u.usuario
+    WHERE c.fecha BETWEEN @fecha_inicio AND @fecha_fin
+      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
+    GROUP BY d.id_dentista, u.nombre, u.APaterno
+    ORDER BY TotalCitas DESC;
+END
+GO
+-- REPORTE MENSUAL
+-- BARRAS - X SEMANA DEL MES
+CREATE PROCEDURE sp_DatosBarrasMensual
+    @mes INT,
+    @anio INT,
+    @id_dentista INT = NULL
+AS
+BEGIN
+    SELECT 
+        ((DAY(c.fecha) - 1) / 7) + 1 AS PeriodoSemana,
+        COUNT(c.id_cita) AS TotalCitas
+    FROM Citas c
+    WHERE MONTH(c.fecha) = @mes 
+      AND YEAR(c.fecha) = @anio
+      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
+    GROUP BY ((DAY(c.fecha) - 1) / 7) + 1
+    ORDER BY PeriodoSemana;
+END
+GO
+-- PASTEL - QUE DR. ATENDIO MAS
+CREATE PROCEDURE sp_DatosPastelMensual
+    @mes INT,
+    @anio INT,
+    @id_dentista INT = NULL
+AS
+BEGIN
+    SELECT 
+        d.id_dentista,
+        u.nombre + ' ' + u.APaterno AS Dentista,
+        COUNT(c.id_cita) AS TotalCitas
+    FROM Citas c
+    INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
+    INNER JOIN Personal u ON d.usuario = u.usuario
+    WHERE MONTH(c.fecha) = @mes 
+      AND YEAR(c.fecha) = @anio
+      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
+    GROUP BY d.id_dentista, u.nombre, u.APaterno
+    ORDER BY TotalCitas DESC;
+END
+GO
+-- REPORTE ANUAL
+-- BARRAS - CITAS X MES DEL AÑO
+CREATE PROCEDURE sp_DatosBarrasAnual
+    @anio INT,
+    @id_dentista INT = NULL
+AS
+BEGIN
+    SELECT 
+        MONTH(c.fecha) AS PeriodoMes,
+        COUNT(c.id_cita) AS TotalCitas
+    FROM Citas c
+    WHERE YEAR(c.fecha) = @anio
+      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
+    GROUP BY MONTH(c.fecha)
+    ORDER BY PeriodoMes ASC;
+END
+GO
+-- PASTEL - PARTICIPACION DEL DENTISTA EN TODO EL AÑO
+CREATE PROCEDURE sp_DatosPastelAnual
+    @anio INT,
+    @id_dentista INT = NULL
+AS
+BEGIN
+    SELECT 
         d.id_dentista,
         u.nombre + ' ' + u.APaterno AS Dentista,
         COUNT(c.id_cita) AS TotalCitas
@@ -573,26 +669,8 @@ BEGIN
     INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
     INNER JOIN Personal u ON d.usuario = u.usuario
     WHERE YEAR(c.fecha) = @anio
-    GROUP BY MONTH(c.fecha), d.id_dentista, u.nombre, u.APaterno
-    ORDER BY Mes, d.id_dentista;
+      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
+    GROUP BY d.id_dentista, u.nombre, u.APaterno
+    ORDER BY TotalCitas DESC;
 END
 GO
--- SP para la Gráfica de Pastel: Distribución de citas por dentista en un mes y año dados
-CREATE PROCEDURE sp_EstadisticasPastelMensual
-    @mes INT,
-    @anio INT
-AS
-BEGIN
-    SELECT 
-        d.id_dentista,
-        u.nombre + ' ' + u.APaterno AS Dentista,
-        COUNT(c.id_cita) AS TotalCitas
-    FROM Citas c
-    INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
-    INNER JOIN Personal u ON d.usuario = u.usuario
-    WHERE MONTH(c.fecha) = @mes AND YEAR(c.fecha) = @anio
-    GROUP BY d.id_dentista, u.nombre, u.APaterno;
-END
-GO
-
-
