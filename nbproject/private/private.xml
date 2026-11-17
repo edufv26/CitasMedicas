@@ -7,11 +7,11 @@
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/Menu1.jsp</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/bean/Pacientes.java</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/Pacientes.jsp</file>
-            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/index.html</file>
-            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/css/pacientes.css</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/bean/Personal.java</file>
-            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/js/menu.js</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/navbarAdmin.jsp</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Secretaria/Pacientes.jsp</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Dentista/navbarDentista.jsp</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Secretaria/navbarSecretaria.jsp</file>
         </group>
     </open-files>
 </project-private>
