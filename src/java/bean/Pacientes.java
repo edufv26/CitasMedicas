@@ -144,16 +144,16 @@ public class Pacientes {
         List<Pacientes> lista = new ArrayList<>();
 
         String sql = "SELECT p.id_paciente, p.nombre, p.APaterno, p.AMaterno, p.telefono, p.correo, p.direccion, p.id_dentista_preferencia, " +
-                     "per.nombre AS nombre_doc " +
+                     "LTRIM(RTRIM(CONCAT(ISNULL(per.nombre, ''), ' ', ISNULL(per.APaterno, ''), ' ', ISNULL(per.AMaterno, '')))) AS nombre_doc " +
                      "FROM Pacientes p " +
                      "LEFT JOIN Dentistas d ON p.id_dentista_preferencia = d.id_dentista " +
                      "LEFT JOIN Personal per ON d.usuario = per.usuario " +
                      "WHERE p.estatus = 'A' ORDER BY p.id_paciente";
 
-        try (Connection cn = Conexion.conecta();
-             PreparedStatement ps = cn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
+        try {
+            Connection cn = Conexion.conecta();
+            PreparedStatement ps = cn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Pacientes pac = new Pacientes();
                 pac.setIdP(rs.getInt("id_paciente"));

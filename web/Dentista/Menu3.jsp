@@ -32,7 +32,7 @@
 
         <!-- Contenido del Dashboard -->
         <div class="container-contenido" style="padding: 40px; font-family: system-ui, sans-serif;">
-            <h1>Dashboard</h1>
+            <h1>Bienvenido</h1>
             <p>Selecciona una opción en el menú superior para administrar pacientes o citas.</p>
         </div>
     </body>

@@ -35,12 +35,12 @@
             <%@ include file="navbarSecretaria.jsp" %>
 
             <!-- Contenedor Principal Unificado -->
-            <div class="container-contenido" style="padding: 30px;">
+            <div class="container-contenido">
 
                 <!-- Cabecera: Botón Volver + Título (Izquierda) | Botón Alta (Derecha) -->
-                <div class="header-seccion" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="header-seccion">
 
-                    <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="header-left">
                         <!-- Botón de Volver -->
                         <a href="<%= request.getContextPath()%>/Control?accion=menu" class="btn-regresar">
                             <span class="fa fa-chevron-left"></span> Volver
@@ -55,17 +55,17 @@
                 </div>
 
                 <!-- Tabla de Pacientes -->
-                <div class="table-responsive" style="background: var(--bg-card, #ffffff); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
-                    <table class="tabla-clinica" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <div class="table-responsive">
+                    <table class="tabla-clinica">
                         <thead>
-                            <tr style="background-color: #542b83; color: white;">
-                                <th style="padding: 12px 15px;">ID</th>
-                                <th style="padding: 12px 15px;">Nombre Completo</th>
-                                <th style="padding: 12px 15px;">Teléfono</th>
-                                <th style="padding: 12px 15px;">Correo</th>
-                                <th style="padding: 12px 15px;">Dirección</th>
-                                <th style="padding: 12px 15px;">Doctor Asignado</th>
-                                <th style="padding: 12px 15px; text-align: center;">Acciones</th>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre Completo</th>
+                                <th>Teléfono</th>
+                                <th>Correo</th>
+                                <th>Dirección</th>
+                                <th>Doctor Asignado</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,23 +75,23 @@
                                 if (listaPacientes != null && !listaPacientes.isEmpty()) {
                                     for (Pacientes p : listaPacientes) {
                             %>
-                            <tr style="border-bottom: 1px solid var(--border-color, #e5e7eb); color: var(--text-color, #333);">
-                                <td style="padding: 12px 15px;"><%= p.getIdP()%></td>
-                                <td style="padding: 12px 15px;"><%= p.getNombre()%> <%= p.getaPaterno()%> <%= p.getaMaterno()%></td>
-                                <td style="padding: 12px 15px;"><%= p.getTelefono()%></td>
-                                <td style="padding: 12px 15px;"><%= p.getCorreo()%></td>
-                                <td style="padding: 12px 15px;"><%= p.getDireccion()%></td>
-                                <td style="padding: 12px 15px;">
+                            <tr>
+                                <td><%= p.getIdP()%></td>
+                                <td><%= p.getNombre()%> <%= p.getaPaterno()%> <%= p.getaMaterno()%></td>
+                                <td><%= p.getTelefono()%></td>
+                                <td><%= p.getCorreo()%></td>
+                                <td><%= p.getDireccion()%></td>
+                                <td>
                                     <% if (p.getIdDenP() > 0) { %>
                                         <b>Dr(a). <%= p.getNombreDentista() %></b>
                                     <% } else { %>
                                         <i>No asignado</i>
                                     <% } %>
                                 </td>
-                                <td style="padding: 12px 15px; text-align: center;">
-                                    <a href="Control?accion=editar&id=<%= p.getIdP()%>" class="btn-icon-tabla editar" title="Editar" style="color: #3b82f6; margin-right: 10px; font-size: 16px;"><span class="fa fa-pencil"></span></a>
+                                <td class="text-center">
+                                    <a href="Control?accion=editar&id=<%= p.getIdP()%>" class="btn-icon-tabla editar" title="Editar"><span class="fa fa-pencil"></span></a>
                                     <!-- Botón de eliminar conectado al modal personalizado -->
-                                    <a href="#" onclick="abrirModalEliminar('<%= p.getIdP()%>')" class="btn-icon-tabla eliminar" title="Eliminar" style="color: #ef4444; font-size: 16px;"><span class="fa fa-trash"></span></a>
+                                    <a href="#" onclick="abrirModalEliminar('<%= p.getIdP()%>')" class="btn-icon-tabla eliminar" title="Eliminar"><span class="fa fa-trash"></span></a>
                                 </td>
                             </tr>
                             <%
@@ -99,7 +99,7 @@
                             } else {
                             %>
                             <tr>
-                                <td colspan="7" style="padding: 20px; text-align: center; color: #666;">No hay pacientes registrados en el sistema.</td>
+                                <td colspan="7" class="text-center" style="padding: 20px; color: #666;">No hay pacientes registrados en el sistema.</td>
                             </tr>
                             <%
                                 }
@@ -110,10 +110,10 @@
             </div>
 
             <!-- Ventana Flotante (Modal) unificada para Registro y Edición -->
-            <dialog id="modalRegistro" <%= esEdicion ? "open" : ""%> style="margin: auto; border: none; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.3); background-color: var(--bg-card, #ffffff); color: var(--text-color, #333);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="color: #542b83;"><%= esEdicion ? "Editar Paciente" : "Nuevo Paciente"%></h3>
-                    <button type="button" data-cerrar style="background: transparent; border: none; font-size: 20px; cursor: pointer; color: #666;">&times;</button>
+            <dialog id="modalRegistro" <%= esEdicion ? "open" : ""%>>
+                <div class="modal-header-registro">
+                    <h3><%= esEdicion ? "Editar Paciente" : "Nuevo Paciente"%></h3>
+                    <button type="button" data-cerrar class="modal-btn-x">&times;</button>
                 </div>
 
                 <!-- Acción dinámica para el Servlet ('actualizar' o 'registrar') -->
@@ -124,36 +124,36 @@
                 <input type="hidden" name="idP" value="<%= pacEdit.getIdP()%>">
                 <% }%>
 
-                <div class="campo" style="margin-bottom: 12px;">
-                    <label style="display:block; font-size: 13px; margin-bottom: 4px;">Nombre:</label>
-                    <input type="text" name="nombre" value="<%= esEdicion ? pacEdit.getNombre() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                <div class="campo-grupo">
+                    <label>Nombre:</label>
+                    <input type="text" name="nombre" value="<%= esEdicion ? pacEdit.getNombre() : ""%>" required>
                 </div>
-                <div class="campo" style="margin-bottom: 12px;">
-                    <label style="display:block; font-size: 13px; margin-bottom: 4px;">Apellido paterno:</label>
-                    <input type="text" name="paterno" value="<%= esEdicion ? pacEdit.getaPaterno() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                <div class="campo-grupo">
+                    <label>Apellido paterno:</label>
+                    <input type="text" name="paterno" value="<%= esEdicion ? pacEdit.getaPaterno() : ""%>" required>
                 </div>
-                <div class="campo" style="margin-bottom: 12px;">
-                    <label style="display:block; font-size: 13px; margin-bottom: 4px;">Apellido materno:</label>
-                    <input type="text" name="materno" value="<%= esEdicion ? pacEdit.getaMaterno() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                <div class="campo-grupo">
+                    <label>Apellido materno:</label>
+                    <input type="text" name="materno" value="<%= esEdicion ? pacEdit.getaMaterno() : ""%>" required>
                 </div>
-                <div class="campo" style="margin-bottom: 12px;">
-                    <label style="display:block; font-size: 13px; margin-bottom: 4px;">Teléfono:</label>
-                    <input type="tel" name="tel" value="<%= esEdicion ? pacEdit.getTelefono() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                <div class="campo-grupo">
+                    <label>Teléfono:</label>
+                    <input type="tel" name="tel" value="<%= esEdicion ? pacEdit.getTelefono() : ""%>" required>
                 </div>
-                <div class="campo" style="margin-bottom: 12px;">
-                    <label style="display:block; font-size: 13px; margin-bottom: 4px;">Correo:</label>
-                    <input type="email" name="correo" value="<%= esEdicion ? pacEdit.getCorreo() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                <div class="campo-grupo">
+                    <label>Correo:</label>
+                    <input type="email" name="correo" value="<%= esEdicion ? pacEdit.getCorreo() : ""%>" required>
                 </div>
-                <div class="campo" style="margin-bottom: 12px;">
-                    <label style="display:block; font-size: 13px; margin-bottom: 4px;">Dirección:</label>
-                    <input type="text" name="direccion" value="<%= esEdicion ? pacEdit.getDireccion() : ""%>" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                <div class="campo-grupo">
+                    <label>Dirección:</label>
+                    <input type="text" name="direccion" value="<%= esEdicion ? pacEdit.getDireccion() : ""%>" required>
                 </div>
 
                 <!-- Selector de Doctor de Preferencia (Visible SOLO en modo Edición) -->
                 <% if (esEdicion) { %>
-                <div class="campo" style="margin-bottom: 20px;">
-                    <label style="display:block; font-size: 13px; margin-bottom: 4px;">Doctor de Preferencia:</label>
-                    <select name="idDenP" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; background: var(--bg-card, #ffffff); color: var(--text-color, #333);">
+                <div class="campo-grupo select-doctor">
+                    <label>Doctor de Preferencia:</label>
+                    <select name="idDenP">
                         <option value="0" <%= (pacEdit.getIdDenP() == 0) ? "selected" : "" %>>-- No asignado --</option>
                         <%
                             List<Dentistas> listaDentistas = (List<Dentistas>) request.getAttribute("listaDentistas");
@@ -172,7 +172,7 @@
                 </div>
                 <% } %>
 
-                <button type="submit" style="width: 100%; background: #542b83; color: white; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                <button type="submit" class="btn-submit-modal">
                     <%= esEdicion ? "Guardar Cambios" : "Guardar Paciente"%>
                 </button>
             </dialog>

@@ -31,8 +31,10 @@
 
         <!-- Contenido del Dashboard -->
         <div class="container-contenido" style="padding: 40px; font-family: system-ui, sans-serif;">
-            <h1>Dashboard</h1>
+            <h1>Bienvenido!</h1><br>
             <p>Selecciona una opción en el menú superior para administrar pacientes, personal o citas.</p>
+            <br><br>
+            <h2> Citas del día de hoy</h2>
         </div>
     </body>
 </html>

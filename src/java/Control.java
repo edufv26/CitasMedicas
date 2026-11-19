@@ -6,6 +6,7 @@
 import bean.Dentistas;
 import bean.Pacientes;
 import bean.Personal;
+import bean.Secretarias;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -41,6 +42,8 @@ public class Control extends HttpServlet {
         }
         Personal p = new Personal();
         Pacientes pa = new Pacientes();
+        Dentistas d = new Dentistas();
+        Secretarias s = new Secretarias();
 
         System.out.println("Método HTTP: " + request.getMethod());
         System.out.println("Acción recibida: " + accion);
@@ -49,15 +52,14 @@ public class Control extends HttpServlet {
         if (accion.equals("validar")) {
 
             // Dentro de tu acción de login/validar en el Servlet:
-            p.setInputlogin(request.getParameter("usuario")); // O como recibas el input
+            p.setUsuario(request.getParameter("usuario"));
             p.setPassword(request.getParameter("password"));
             p.validar();
 
-            
             if (p.getRespuesta() != null && !p.getRespuesta().contains("Error.jsp")) {
                 HttpSession session = request.getSession();
-                session.setAttribute("tipo", p.getTipo());             // <--- Guarda el número de tipo (1, 2, 3)
-                session.setAttribute("nombreUsuario", p.getNombre());   // <--- Guarda el nombre para el saludo ("Hola, usuario")
+                session.setAttribute("tipo", p.getTipo());
+                session.setAttribute("nombreUsuario", p.getNombre());
             }
 
             //redirección a respuesta
@@ -92,7 +94,7 @@ public class Control extends HttpServlet {
             return;
         }
 
-// 4. Módulo de edición de pacientes
+        // 4. Módulo de edición de pacientes
         if (accion.equals("editar")) {
             int idEditar = Integer.parseInt(request.getParameter("id"));
 
@@ -137,7 +139,120 @@ public class Control extends HttpServlet {
             response.sendRedirect("Control?accion=pacientes");
             return;
         }
+
+        // 3. Módulo de personal
+        if (accion.equals("personal")) {
+            System.out.println("Servlet: acción personal detectada");
+
+            // Validamos sesión y rol (Solo Admin = 1)
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            if (tipoUsuario != 1) {
+                System.out.println("Servlet: Acceso no autorizado a personal por rol: " + tipoUsuario);
+                response.sendRedirect("index.jsp");
+                return;
+            }
+
+            List<Personal> listaAdmins = p.llenarListaAdmins();
+            List<Dentistas> listaDentistas = d.llenarListaDentistas();
+            List<Secretarias> listaSecretarias = s.llenarListaSecretarias();
+
+            System.out.println("Servlet: Admins = " + listaAdmins.size()
+                    + " | Dentistas = " + listaDentistas.size()
+                    + " | Secretarias = " + listaSecretarias.size());
+
+            request.setAttribute("listaAdmins", listaAdmins);
+            request.setAttribute("listaDentistas", listaDentistas);
+            request.setAttribute("listaSecretarias", listaSecretarias);
+
+            String vistaDestino = "Admin/Personal.jsp";
+            System.out.println("Servlet: redirigiendo a -> " + vistaDestino);
+
+            request.getRequestDispatcher(vistaDestino).forward(request, response);
+            return;
+        }
         
+        // 4. Módulo de edición de personal
+        if (accion.equals("editarPersonal")) {
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            if (tipoUsuario != 1) {
+                response.sendRedirect("index.jsp");
+                return;
+            }
+
+            String usuarioEditar = request.getParameter("usuario");
+            int tipoEditar = Integer.parseInt(request.getParameter("tipo"));
+
+            Personal personalEncontrado = null;
+            if (tipoEditar == 2) {
+                personalEncontrado = d.obtenerPorUsuario(usuarioEditar);
+            } else if (tipoEditar == 3) {
+                personalEncontrado = s.obtenerPorUsuario(usuarioEditar);
+            } else {
+                personalEncontrado = p.obtenerPorUsuario(usuarioEditar);
+            }
+
+            request.setAttribute("personalEdit", personalEncontrado);
+            request.setAttribute("listaAdmins", p.llenarListaAdmins());
+            request.setAttribute("listaDentistas", d.llenarListaDentistas());
+            request.setAttribute("listaSecretarias", s.llenarListaSecretarias());
+
+            request.getRequestDispatcher("Admin/Personal.jsp").forward(request, response);
+            return;
+        }
+
+        if (accion.equals("actualizarPersonal")) {
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            if (tipoUsuario != 1) {
+                response.sendRedirect("index.jsp");
+                return;
+            }
+
+            String usuario = request.getParameter("usuario");
+            String nombre = request.getParameter("nombre");
+            String aPaterno = request.getParameter("APaterno");
+            String aMaterno = request.getParameter("AMaterno");
+            String telefono = request.getParameter("telefono");
+            String correo = request.getParameter("correo");
+            int nuevoTipo = Integer.parseInt(request.getParameter("tipo"));
+
+            p.setUsuario(usuario);
+            p.setNombre(nombre);
+            p.setPaterno(aPaterno);
+            p.setMaterno(aMaterno);
+            p.setTelefono(telefono);
+            p.setCorreo(correo);
+            p.setTipo(nuevoTipo);
+            p.actualizarPersonal();
+
+            if (nuevoTipo == 2) {
+                d.setUsuario(usuario);
+                d.setEspecialidad(request.getParameter("especialidad"));
+                d.setCedula(request.getParameter("cedula"));
+                d.setTurno(request.getParameter("turnoDentista"));
+                d.setTelefono(telefono);
+                d.setCorreo(correo);
+                d.actualizarDentista();
+            } else if (nuevoTipo == 3) {
+                s.setUsuario(usuario);
+                s.setTurno(request.getParameter("turnoSecretaria"));
+                s.setTelefono(telefono);
+                s.setCorreo(correo);
+                s.actualizarSecretaria();
+            }
+
+            response.sendRedirect("Control?accion=personal");
+            return;
+        }
+
         // 5. Módulo para regresar al Menú Principal según el rol
         if (accion.equals("menu")) {
             HttpSession session = request.getSession();
@@ -145,17 +260,20 @@ public class Control extends HttpServlet {
             int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
 
             String menuDestino = "Admin/Menu1.jsp";
-            if (tipoUsuario == 2) menuDestino = "Secretaria/Menu2.jsp";
-            else if (tipoUsuario == 3) menuDestino = "Dentista/Menu3.jsp";
+            if (tipoUsuario == 2) {
+                menuDestino = "Secretaria/Menu2.jsp";
+            } else if (tipoUsuario == 3) {
+                menuDestino = "Dentista/Menu3.jsp";
+            }
 
             System.out.println("Servlet (menu): redirigiendo al menú de rol " + tipoUsuario + " -> " + menuDestino);
             request.getRequestDispatcher(menuDestino).forward(request, response);
             return;
         }
-        
-        if(accion.equals("logout")){
+
+        if (accion.equals("logout")) {
             response.sendRedirect("index.html");
-            
+
         }
 
         // 6. Procesamiento de las demás acciones
