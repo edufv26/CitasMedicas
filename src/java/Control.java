@@ -93,6 +93,55 @@ public class Control extends HttpServlet {
             request.getRequestDispatcher(vistaDestino).forward(request, response);
             return;
         }
+        if (accion.equals("registrar")) {
+            Pacientes tempo = new Pacientes();
+            tempo.setNombre(request.getParameter("nombre"));
+            tempo.setaPaterno(request.getParameter("paterno"));
+            tempo.setaMaterno(request.getParameter("materno"));
+            tempo.setTelefono(request.getParameter("tel"));
+            tempo.setCorreo(request.getParameter("correo"));
+            tempo.setDireccion(request.getParameter("direccion"));
+
+            String idDenParam = request.getParameter("idDenP");
+            int idDen = 0;
+            if (idDenParam != null && !idDenParam.trim().isEmpty()) {
+                try {
+                    idDen = Integer.parseInt(idDenParam.trim());
+                } catch (NumberFormatException ex) {
+                    idDen = 0;
+                }
+            }
+            tempo.setIdDenP(idDen);
+
+            String mensajeAlta = pa.alta(tempo);
+            request.getSession().setAttribute("mensajeDialog", mensajeAlta);
+
+            response.sendRedirect(request.getContextPath() + "/Control?accion=pacientes");
+            return;
+        }
+
+        if (accion.equals("eliminar")) {
+            String idParam = request.getParameter("id");
+            int idPac = 0;
+
+            if (idParam != null && !idParam.trim().isEmpty()) {
+                try {
+                    idPac = Integer.parseInt(idParam.trim());
+                } catch (NumberFormatException ex) {
+                    idPac = 0;
+                }
+            }
+
+            if (idPac > 0) {
+                pa.baja(idPac);
+                request.getSession().setAttribute("mensajeDialog", pa.getRespuesta());
+            } else {
+                request.getSession().setAttribute("mensajeDialog", "ID de paciente no válido");
+            }
+
+            response.sendRedirect(request.getContextPath() + "/Control?accion=pacientes");
+            return;
+        }
 
         // 4. Módulo de edición de pacientes
         if (accion.equals("editar")) {
@@ -131,11 +180,20 @@ public class Control extends HttpServlet {
             pa.setCorreo(request.getParameter("correo"));
             pa.setDireccion(request.getParameter("direccion"));
 
-            // Ejecutamos tu método cambio para actualizar en la BD
+            String idDenParam = request.getParameter("idDenP");
+            if (idDenParam != null && !idDenParam.trim().isEmpty()) {
+                pa.setIdDenP(Integer.parseInt(idDenParam));
+            } else {
+                pa.setIdDenP(0);
+            }
+
+            // Ejecutamos el SP de actualización en la BD
             pa.cambio();
 
-            // Redirigimos para limpiar la URL y refrescar la tabla 
-            // (Al entrar a "accion=pacientes", automáticamente caerá en la lógica dinámica)
+            if (pa.getRespuesta() != null && !pa.getRespuesta().trim().isEmpty()) {
+                request.getSession().setAttribute("mensajeDialog", pa.getRespuesta());
+            }
+
             response.sendRedirect("Control?accion=pacientes");
             return;
         }
@@ -173,7 +231,7 @@ public class Control extends HttpServlet {
             request.getRequestDispatcher(vistaDestino).forward(request, response);
             return;
         }
-        
+
         // 4. Módulo de edición de personal
         if (accion.equals("editarPersonal")) {
             HttpSession session = request.getSession();

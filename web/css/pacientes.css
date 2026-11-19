@@ -177,8 +177,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
    ESTILOS DE LOS MODALES (GENERAL)
 ================================ */
 dialog#modalRegistro,
-dialog#modalEliminar {
+dialog#modalEliminar,
+dialog#modalRespuesta {
     margin: auto;
+    inset: 0;
     border: none;
     border-radius: 12px;
     padding: 25px;
@@ -189,9 +191,14 @@ dialog#modalEliminar {
     color: var(--text-color, #333);
 }
 
+dialog#modalRespuesta {
+    max-width: 450px;
+}
+
 /* Backdrop difuminado */
 dialog#modalRegistro::backdrop,
-dialog#modalEliminar::backdrop {
+dialog#modalEliminar::backdrop,
+dialog#modalRespuesta::backdrop {
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
 }
@@ -265,7 +272,7 @@ dialog#modalEliminar::backdrop {
 }
 
 /* ================================
-   MODAL DE ELIMINAR (ELEMENTOS)
+   MODAL DE ELIMINAR Y AVISO
 ================================ */
 .modal-header {
     display: flex;
@@ -276,6 +283,12 @@ dialog#modalEliminar::backdrop {
 
 .modal-titulo-peligro {
     color: #ef4444;
+    font-size: 18px;
+    margin: 0;
+}
+
+.modal-titulo-aviso {
+    color: #542b83;
     font-size: 18px;
     margin: 0;
 }
@@ -342,22 +355,26 @@ dialog#modalEliminar::backdrop {
    ANIMACIONES FLUIDAS DE LOS MODALES
 ================================ */
 dialog#modalRegistro[open],
-dialog#modalEliminar[open] {
+dialog#modalEliminar[open],
+dialog#modalRespuesta[open] {
     animation: modalEntrada 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 dialog#modalRegistro[open]::backdrop,
-dialog#modalEliminar[open]::backdrop {
+dialog#modalEliminar[open]::backdrop,
+dialog#modalRespuesta[open]::backdrop {
     animation: backdropEntrada 0.3s ease forwards;
 }
 
 dialog#modalRegistro.cerrando,
-dialog#modalEliminar.cerrando {
+dialog#modalEliminar.cerrando,
+dialog#modalRespuesta.cerrando {
     animation: modalSalida 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
 dialog#modalRegistro.cerrando::backdrop,
-dialog#modalEliminar.cerrando::backdrop {
+dialog#modalEliminar.cerrando::backdrop,
+dialog#modalRespuesta.cerrando::backdrop {
     animation: backdropSalida 0.25s ease forwards;
 }
 
@@ -435,7 +452,9 @@ body.dark-mode .btn-regresar {
 body.dark-mode dialog#modalRegistro,
 html.dark-mode dialog#modalRegistro,
 body.dark-mode dialog#modalEliminar,
-html.dark-mode dialog#modalEliminar {
+html.dark-mode dialog#modalEliminar,
+body.dark-mode dialog#modalRespuesta,
+html.dark-mode dialog#modalRespuesta {
     background-color: #1e1b2e !important;
     color: #cbd5e1 !important;
     border: 1px solid #2d2442 !important;
@@ -444,7 +463,9 @@ html.dark-mode dialog#modalEliminar {
 
 body.dark-mode .modal-header-registro h3,
 body.dark-mode dialog#modalRegistro h3,
-html.dark-mode .modal-header-registro h3 {
+html.dark-mode .modal-header-registro h3,
+body.dark-mode .modal-titulo-aviso,
+html.dark-mode .modal-titulo-aviso {
     color: #d8b4fe !important;
 }
 

@@ -8,10 +8,11 @@
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/bean/Personal.java</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/bean/Pacientes.java</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/bean/Dentistas.java</file>
-            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/AltaPersonal.html</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/src/java/bean/Secretarias.java</file>
-            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/js/personal.js</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/Citas.jsp</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/Admin/Pacientes.jsp</file>
             <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/js/modal-global.js</file>
+            <file>file:/home/edu/Documentos/NetBeansProjects/CitasMedicas/web/css/pacientes.css</file>
         </group>
     </open-files>
 </project-private>

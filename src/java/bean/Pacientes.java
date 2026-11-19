@@ -102,53 +102,158 @@ public class Pacientes {
         this.nombreDentista = nombreDentista;
     }
 
-    public void alta() {
+    //procedure dar de alta a pacientes
+    public String alta(Pacientes p) {
+        String sql = "{CALL sp_RegistrarPaciente(?, ?, ?, ?, ?, ?, ?, ?)}";
+        String respuesta = "No se pudo completar el registro";
+        Connection cn = null;
+        CallableStatement cs = null;
 
-    }
+        try {
+            cn = Conexion.conecta();
+            cs = cn.prepareCall(sql);
+            cs.setString(1, p.getNombre());
+            cs.setString(2, p.getaPaterno());
+            cs.setString(3, p.getaMaterno());
+            cs.setString(4, p.getTelefono());
+            cs.setString(5, p.getCorreo());
+            cs.setString(6, p.getDireccion());
 
-    public void baja() {
-
-    }
-    
-// Al actualizar (método cambio)
-    public void cambio() {
-        String sql = "UPDATE Pacientes SET nombre = ?, APaterno = ?, AMaterno = ?, telefono = ?, correo = ?, direccion = ?, id_dentista_preferencia = ? WHERE id_paciente = ?";
-        
-        try (Connection cn = Conexion.conecta();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
-            
-            ps.setString(1, nombre);
-            ps.setString(2, aPaterno);
-            ps.setString(3, aMaterno);
-            ps.setString(4, telefono);
-            ps.setString(5, correo);
-            ps.setString(6, direccion);
-            
-            // Si es 0 (No asignado), mandamos SQL NULL a la base de datos para evitar error de FK
-            if (idDenP > 0) {
-                ps.setInt(7, idDenP);
+            if (p.getIdDenP() > 0) {
+                cs.setInt(7, p.getIdDenP());
             } else {
-                ps.setNull(7, java.sql.Types.INTEGER);
+                cs.setNull(7, java.sql.Types.INTEGER);
             }
-            
-            ps.setInt(8, idP);
-            ps.executeUpdate();
-            
-        } catch (Exception e) {
+
+            // Registramos el parámetro OUTPUT en la posición 8
+            cs.registerOutParameter(8, java.sql.Types.VARCHAR);
+
+            cs.execute();
+
+            String salida = cs.getString(8);
+            if (salida != null && !salida.trim().isEmpty()) {
+                respuesta = salida;
+            }
+
+        } catch (SQLException e) {
             e.printStackTrace();
+            respuesta = "Error de conexión/BD: " + e.getMessage();
+        } finally {
+            try {
+                if (cs != null) {
+                    cs.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return respuesta;
+    }
+
+    //procedure baja a pacientes (cambiar a 'D')
+    public void baja(int idPaciente) {
+        String sql = "{CALL sp_BajaPaciente(?, ?)}";
+        this.setRespuesta("No se pudo dar de baja al paciente");
+        Connection cn = null;
+        CallableStatement cs = null;
+
+        try {
+            cn = Conexion.conecta();
+            cs = cn.prepareCall(sql);
+            cs.setInt(1, idPaciente);
+            cs.registerOutParameter(2, java.sql.Types.VARCHAR);
+
+            cs.execute();
+
+            String salida = cs.getString(2);
+            if (salida != null && !salida.trim().isEmpty()) {
+                this.setRespuesta(salida);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            this.setRespuesta("Error al dar de baja: " + e.getMessage());
+        } finally {
+            try {
+                if (cs != null) {
+                    cs.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
-    // Al llenar la tabla
+// Al actualizar (método cambio)
+    public void cambio() {
+        String sql = "{call dbo.sp_ActualizarPaciente(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        Connection cn = null;
+        CallableStatement cs = null;
+
+        try {
+            cn = Conexion.conecta();
+            cs = cn.prepareCall(sql);
+
+            cs.setInt(1, idP);
+            cs.setString(2, nombre);
+            cs.setString(3, aPaterno);
+            cs.setString(4, aMaterno);
+            cs.setString(5, telefono);
+            cs.setString(6, correo);
+            cs.setString(7, direccion);
+
+            if (idDenP > 0) {
+                cs.setInt(8, idDenP);
+            } else {
+                cs.setNull(8, java.sql.Types.INTEGER);
+            }
+
+            cs.registerOutParameter(9, java.sql.Types.VARCHAR);
+            cs.execute();
+
+            this.respuesta = cs.getString(9);
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.respuesta = "Error al actualizar paciente: " + e.getMessage();
+        } finally {
+            try {
+                if (cs != null) {
+                    cs.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    //Llenar la tabla (para los jsp)
     public List<Pacientes> llenarTabla() {
         List<Pacientes> lista = new ArrayList<>();
 
-        String sql = "SELECT p.id_paciente, p.nombre, p.APaterno, p.AMaterno, p.telefono, p.correo, p.direccion, p.id_dentista_preferencia, " +
-                     "LTRIM(RTRIM(CONCAT(ISNULL(per.nombre, ''), ' ', ISNULL(per.APaterno, ''), ' ', ISNULL(per.AMaterno, '')))) AS nombre_doc " +
-                     "FROM Pacientes p " +
-                     "LEFT JOIN Dentistas d ON p.id_dentista_preferencia = d.id_dentista " +
-                     "LEFT JOIN Personal per ON d.usuario = per.usuario " +
-                     "WHERE p.estatus = 'A' ORDER BY p.id_paciente";
+        String sql = "SELECT p.id_paciente, p.nombre, p.APaterno, p.AMaterno, p.telefono, p.correo, p.direccion, p.id_dentista_preferencia, "
+                + "LTRIM(RTRIM(CONCAT(ISNULL(per.nombre, ''), ' ', ISNULL(per.APaterno, ''), ' ', ISNULL(per.AMaterno, '')))) AS nombre_doc "
+                + "FROM Pacientes p "
+                + "LEFT JOIN Dentistas d ON p.id_dentista_preferencia = d.id_dentista "
+                + "LEFT JOIN Personal per ON d.usuario = per.usuario "
+                + "WHERE p.estatus = 'A' ORDER BY p.id_paciente";
 
         try {
             Connection cn = Conexion.conecta();
@@ -163,10 +268,10 @@ public class Pacientes {
                 pac.setTelefono(rs.getString("telefono"));
                 pac.setCorreo(rs.getString("correo"));
                 pac.setDireccion(rs.getString("direccion"));
-                
+
                 int denPref = rs.getInt("id_dentista_preferencia");
                 pac.setIdDenP(rs.wasNull() ? 0 : denPref);
-                
+
                 // Guardamos el nombre del doctor o "No asignado" si viene null
                 String docNombre = rs.getString("nombre_doc");
                 pac.setNombreDentista(docNombre != null ? docNombre : "No asignado");
@@ -183,10 +288,9 @@ public class Pacientes {
     public Pacientes obtenerPorId(int idBusqueda) {
         Pacientes p = null;
         String sql = "SELECT id_paciente, nombre, APaterno, AMaterno, telefono, correo, direccion, id_dentista_preferencia FROM Pacientes WHERE id_paciente = ?";
-        
-        try (Connection cn = Conexion.conecta();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
-            
+
+        try (Connection cn = Conexion.conecta(); PreparedStatement ps = cn.prepareStatement(sql)) {
+
             ps.setInt(1, idBusqueda);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -198,7 +302,7 @@ public class Pacientes {
                     p.setTelefono(rs.getString("telefono"));
                     p.setCorreo(rs.getString("correo"));
                     p.setDireccion(rs.getString("direccion"));
-                    
+
                     int denPref = rs.getInt("id_dentista_preferencia");
                     p.setIdDenP(rs.wasNull() ? 0 : denPref);
                 }
@@ -242,6 +346,5 @@ public class Pacientes {
             e.printStackTrace();
         }
     }
-*/
-
+     */
 }

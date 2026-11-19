@@ -9,10 +9,26 @@
 <%@page import="bean.Pacientes"%>
 <%@page import="bean.Dentistas"%>
 <%@page import="bean.Personal"%>
+
 <%
     // Verificamos si el servlet mandó un paciente para editar
     Pacientes pacEdit = (Pacientes) request.getAttribute("pacienteEdit");
     boolean esEdicion = (pacEdit != null);
+
+    // Mensaje devuelto por el Servlet (desde el OUTPUT del SP en alta/baja o mensaje en edición)
+    String mensajeDialog = (String) session.getAttribute("mensajeDialog");
+    if (mensajeDialog != null) {
+        session.removeAttribute("mensajeDialog");
+    }
+
+    String mensajeAttr = "";
+    if (mensajeDialog != null) {
+        mensajeAttr = mensajeDialog
+                .replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
+    }
 %>
 <!DOCTYPE html>
 <html>
@@ -31,7 +47,7 @@
         <script src="<%= request.getContextPath()%>/js/modal-global.js" defer></script>
         <script src="<%= request.getContextPath()%>/js/menu.js" defer></script>
     </head>
-    <body>
+    <body data-mensaje-respuesta="<%= mensajeAttr%>">
         <form action="Control" method="post">
             <!-- Barra de navegación -->
             <%@ include file="navbarAdmin.jsp" %>
@@ -155,19 +171,29 @@
                 </div>
 
                 <!-- Selector de Doctor de Preferencia (Visible SOLO en modo Edición) -->
-                <% if (esEdicion) { %>
+                <% if (esEdicion) {%>
                 <div class="campo-grupo select-doctor">
                     <label>Doctor de Preferencia:</label>
                     <select name="idDenP">
-                        <option value="0" <%= (pacEdit.getIdDenP() == 0) ? "selected" : "" %>>-- No asignado --</option>
+                        <option value="0" <%= (pacEdit.getIdDenP() == 0) ? "selected" : ""%>>-- No asignado --</option>
                         <%
                             List<Dentistas> listaDentistas = (List<Dentistas>) request.getAttribute("listaDentistas");
                             if (listaDentistas != null && !listaDentistas.isEmpty()) {
+                                boolean mostrarNombreCompleto = listaDentistas.size() > 5;
                                 for (Dentistas d : listaDentistas) {
-                                    boolean seleccionado = (pacEdit.getIdDenP() == d.getIdDentista());
+                                    boolean seleccionado = (pacEdit.getIdDenP() == d.getIdDen());
+
+                                    String nom = (d.getNombre() != null) ? d.getNombre().trim() : "";
+                                    String pat = (d.getPaterno() != null) ? d.getPaterno().trim() : "";
+                                    String mat = (d.getMaterno() != null) ? d.getMaterno().trim() : "";
+
+                                    String etiquetaDoctor = nom;
+                                    if (mostrarNombreCompleto) {
+                                        etiquetaDoctor = (nom + " " + pat + " " + mat).trim().replaceAll("\\s+", " ");
+                                    }
                         %>
-                        <option value="<%= d.getIdDentista() %>" <%= seleccionado ? "selected" : "" %>>
-                            Dr(a). <%= d.getNombre() %> - <%= d.getEspecialidad() %>
+                        <option value="<%= d.getIdDen()%>" <%= seleccionado ? "selected" : ""%>>
+                            Dr(a). <%= etiquetaDoctor%> - <%= d.getEspecialidad()%>
                         </option>
                         <%
                                 }
@@ -175,7 +201,7 @@
                         %>
                     </select>
                 </div>
-                <% } %>
+                <% }%>
 
                 <button type="submit" class="btn-submit-modal">
                     <%= esEdicion ? "Guardar Cambios" : "Guardar Paciente"%>

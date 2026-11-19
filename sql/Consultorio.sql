@@ -165,53 +165,112 @@ BEGIN
     -- porque el administrador vive exclusivamente en la tabla Personal.
 END
 GO
---procedure paciente nuevo, nuevo medico ... paciente antiguo medico  de preferencia (el mas frecuente)
-CREATE PROCEDURE sp_RegistrarPaciente
-    @nombre VARCHAR(30),
-    @APaterno VARCHAR(30),
-    @AMaterno VARCHAR(30),
-    @telefono VARCHAR(15),
-    @correo VARCHAR(50),
-    @direccion VARCHAR(150), -- Nuevo campo
-    @id_dentista_preferencia INT = NULL
+USE Consultorio
+-- 1. Ver si existe el stored procedure y en qué esquema está
+SELECT 
+    SCHEMA_NAME(schema_id) AS esquema,
+    name AS nombre_sp,
+    create_date,
+    modify_date
+FROM sys.procedures
+WHERE name = 'sp_RegistrarPaciente';
+GO
+
+IF OBJECT_ID('dbo.sp_RegistrarPaciente', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_RegistrarPaciente;
+GO
+
+CREATE PROCEDURE dbo.sp_RegistrarPaciente
+    @nombre        VARCHAR(30),
+    @a_paterno     VARCHAR(30),
+    @a_materno     VARCHAR(30),
+    @telefono      VARCHAR(15),
+    @correo        VARCHAR(50),
+    @direccion     VARCHAR(100),
+    @id_den_p      INT = NULL,
+    @respuesta     VARCHAR(200) OUTPUT
 AS
 BEGIN
-    DECLARE @id_dentista_final INT;
-    SET @id_dentista_final = @id_dentista_preferencia;
+    SET NOCOUNT ON;
 
-    IF @id_dentista_final IS NULL
+    DECLARE @id_medico_asignado INT = NULL;
+    DECLARE @nombre_medico VARCHAR(120) = 'No asignado';
+
+    -- 1. Si viene preferencia (> 0), validamos que exista y esté activo; si no, elegimos uno aleatorio activo
+    IF @id_den_p IS NOT NULL AND @id_den_p > 0
     BEGIN
-        SELECT TOP 1 @id_dentista_final = d.id_dentista 
+        SELECT TOP 1
+            @id_medico_asignado = d.id_dentista,
+            @nombre_medico = LTRIM(RTRIM(
+                COALESCE(per.nombre, '') + ' ' + COALESCE(per.APaterno, '') + ' ' + COALESCE(per.AMaterno, '')
+            ))
         FROM Dentistas d
-        INNER JOIN Personal u ON d.usuario = u.usuario
-        WHERE u.estatus = 'A'
+        INNER JOIN Personal per ON d.usuario = per.usuario
+        WHERE d.id_dentista = @id_den_p
+          AND per.estatus = 'A';
+
+        IF @id_medico_asignado IS NULL
+        BEGIN
+            SET @respuesta = 'El médico de preferencia seleccionado no existe o está inactivo';
+            RETURN;
+        END
+    END
+    ELSE
+    BEGIN
+        SELECT TOP 1
+            @id_medico_asignado = d.id_dentista,
+            @nombre_medico = LTRIM(RTRIM(
+                COALESCE(per.nombre, '') + ' ' + COALESCE(per.APaterno, '') + ' ' + COALESCE(per.AMaterno, '')
+            ))
+        FROM Dentistas d
+        INNER JOIN Personal per ON d.usuario = per.usuario
+        WHERE per.estatus = 'A'
         ORDER BY NEWID();
+
+        IF @id_medico_asignado IS NULL
+        BEGIN
+            SET @respuesta = 'No hay médicos activos disponibles para asignar';
+            RETURN;
+        END
     END
 
-    INSERT INTO Pacientes (nombre, APaterno, AMaterno, telefono, correo, direccion, id_dentista_preferencia, estatus)
-    VALUES (@nombre, @APaterno, @AMaterno, @telefono, @correo, @direccion, @id_dentista_final, 'A');
-END
-GO
--- SP: Registrar Secretaria
-CREATE PROCEDURE sp_RegistrarSecretaria
-    @usuario CHAR(12),
-    @password CHAR(32),
-    @nombre VARCHAR(30),
-    @APaterno VARCHAR(30),
-    @AMaterno VARCHAR(30),
-    @turno VARCHAR(20),
-    @telefono VARCHAR(10)
-AS
-BEGIN
-    -- 1. Insertar usuario base (Tipo 3 = Secretaria)
-    INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, tipo, estatus)
-    VALUES (@usuario, @password, @nombre, @APaterno, @AMaterno, 3, 'A');
+    -- 2. Insertar paciente con el médico asignado
+    BEGIN TRY
+        BEGIN TRANSACTION;
 
-    -- 2. Insertar los datos específicos de secretaria
-    INSERT INTO Secretarias (usuario, turno, telefono) 
-    VALUES (@usuario, @turno, @telefono);
+        INSERT INTO Pacientes (
+            nombre,
+            APaterno,
+            AMaterno,
+            telefono,
+            correo,
+            direccion,
+            id_dentista_preferencia,
+            estatus
+        )
+        VALUES (
+            @nombre,
+            @a_paterno,
+            @a_materno,
+            @telefono,
+            @correo,
+            @direccion,
+            @id_medico_asignado,
+            'A'
+        );
+
+        COMMIT TRANSACTION;
+        SET @respuesta = 'Paciente registrado, médico asignado: Dr(a). ' + @nombre_medico;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        SET @respuesta = 'Error al registrar paciente: ' + ERROR_MESSAGE();
+    END CATCH
 END
 GO
+
 -- SP: Alta Dentista
 CREATE PROCEDURE sp_RegistrarDentista
     @usuario CHAR(12),
@@ -248,12 +307,41 @@ BEGIN
     WHERE usuario = @usuario;
 END
 GO
--- SP: Dar de baja lógica a Paciente
-CREATE PROCEDURE sp_BajaPacientecc
-    @id_paciente INT
+-- PROCEDURE - BAJA PACIENTES
+CREATE PROCEDURE sp_BajaPaciente
+    @id_paciente INT,
+    @respuesta VARCHAR(150) OUTPUT
 AS
 BEGIN
-    UPDATE Pacientes SET estatus = 'D' WHERE id_paciente = @id_paciente;
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM Pacientes WHERE id_paciente = @id_paciente)
+    BEGIN
+        SET @respuesta = 'El paciente no existe';
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM Pacientes WHERE id_paciente = @id_paciente AND estatus = 'D')
+    BEGIN
+        SET @respuesta = 'El paciente ya estaba dado de baja';
+        RETURN;
+    END
+
+    BEGIN TRANSACTION;
+
+    UPDATE Pacientes
+    SET estatus = 'D'
+    WHERE id_paciente = @id_paciente;
+
+    IF (@@ERROR > 0)
+    BEGIN
+        ROLLBACK TRANSACTION;
+        SET @respuesta = 'Error al dar de baja al paciente';
+        RETURN;
+    END
+
+    COMMIT TRANSACTION;
+    SET @respuesta = 'Paciente dado de baja correctamente';
 END
 GO
 -- =========================================================
@@ -309,24 +397,61 @@ END
 GO
 --PARA SECRETARIAS Y ADMIN
 -- SP: Actualizar datos de un paciente (para corregir nombres, teléfonos, correo o preferencia)
-CREATE PROCEDURE sp_ActualizarPaciente
-    @id_paciente INT,
-    @nombre VARCHAR(30),
-    @APaterno VARCHAR(30),
-    @AMaterno VARCHAR(30),
-    @telefono VARCHAR(15),
-    @correo VARCHAR(50),
-    @id_dentista_preferencia INT = NULL
+CREATE PROCEDURE dbo.sp_ActualizarPaciente
+    @id_paciente             INT,
+    @nombre                  VARCHAR(30),
+    @APaterno                VARCHAR(30),
+    @AMaterno                VARCHAR(30),
+    @telefono                VARCHAR(15),
+    @correo                  VARCHAR(50),
+    @direccion               VARCHAR(100),
+    @id_dentista_preferencia INT = NULL,
+    @respuesta               VARCHAR(200) OUTPUT
 AS
 BEGIN
-    UPDATE Pacientes 
-    SET nombre = @nombre,
-        APaterno = @APaterno,
-        AMaterno = @AMaterno,
-        telefono = @telefono,
-        correo = @correo,
-        id_dentista_preferencia = @id_dentista_preferencia
-    WHERE id_paciente = @id_paciente;
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM Pacientes WHERE id_paciente = @id_paciente)
+    BEGIN
+        SET @respuesta = 'El paciente no existe';
+        RETURN;
+    END
+
+    IF @id_dentista_preferencia IS NOT NULL AND @id_dentista_preferencia > 0
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM Dentistas WHERE id_dentista = @id_dentista_preferencia)
+        BEGIN
+            SET @respuesta = 'El médico de preferencia seleccionado no existe';
+            RETURN;
+        END
+    END
+    ELSE
+    BEGIN
+        SET @id_dentista_preferencia = NULL;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        UPDATE Pacientes
+        SET nombre = @nombre,
+            APaterno = @APaterno,
+            AMaterno = @AMaterno,
+            telefono = @telefono,
+            correo = @correo,
+            direccion = @direccion,
+            id_dentista_preferencia = @id_dentista_preferencia
+        WHERE id_paciente = @id_paciente;
+
+        COMMIT TRANSACTION;
+        SET @respuesta = 'Datos del paciente actualizados correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        SET @respuesta = 'Error al actualizar paciente: ' + ERROR_MESSAGE();
+    END CATCH
 END
 GO
 -- =========================================================

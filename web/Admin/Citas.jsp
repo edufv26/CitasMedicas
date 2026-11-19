@@ -1,5 +1,5 @@
 <%-- 
-    Document   : Citas
+    Document   : Citas (ADMIN)
     Created on : 18 nov 2026, 10:45:11 p.m.
     Author     : edu
 --%>
