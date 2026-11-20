@@ -70,12 +70,19 @@ public class Control extends HttpServlet {
         if (accion.equals("pacientes")) {
             System.out.println("Servlet: acción pacientes detectada");
 
-            List<Pacientes> lista = pa.llenarTabla();
-            System.out.println("Servlet: pacientes recibidos = " + lista.size());
-            request.setAttribute("listaPacientes", lista);
+            pa.mostrarTabla();
+            request.setAttribute("tablaPacientesHtml", pa.getRespuesta());
+
+            HttpSession session = request.getSession();
+            String msg = (String) session.getAttribute("mensajeDialog");
+            if (msg != null) {
+                session.removeAttribute("mensajeDialog");
+            }
+            Pacientes mensajeBean = new Pacientes();
+            mensajeBean.setRespuesta(msg != null ? msg : "");
+            request.setAttribute("mensajeBean", mensajeBean);
 
             // Obtenemos el tipo de usuario de la sesión (1 = Admin, 2 = Secretaria, 3 = Dentista)
-            HttpSession session = request.getSession();
             Integer tipoObj = (Integer) session.getAttribute("tipo");
             int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
 
@@ -93,6 +100,8 @@ public class Control extends HttpServlet {
             request.getRequestDispatcher(vistaDestino).forward(request, response);
             return;
         }
+
+        //dar de alta a pacientes
         if (accion.equals("registrar")) {
             Pacientes tempo = new Pacientes();
             tempo.setNombre(request.getParameter("nombre"));
@@ -120,6 +129,7 @@ public class Control extends HttpServlet {
             return;
         }
 
+        //dar de baja a pacientes
         if (accion.equals("eliminar")) {
             String idParam = request.getParameter("id");
             int idPac = 0;
@@ -148,14 +158,29 @@ public class Control extends HttpServlet {
             int idEditar = Integer.parseInt(request.getParameter("id"));
 
             Pacientes pacienteEncontrado = pa.obtenerPorId(idEditar);
-            request.setAttribute("pacienteEdit", pacienteEncontrado);
-            request.setAttribute("listaPacientes", pa.llenarTabla());
+            boolean esEdicion = (pacienteEncontrado != null);
 
-            Dentistas dModel = new Dentistas();
-            request.setAttribute("listaDentistas", dModel.llenarListaDentistas());
+            // Filas de la tabla de fondo
+            pa.mostrarTabla();
+            request.setAttribute("tablaPacientesHtml", pa.getRespuesta());
+
+            // Selector de doctor de preferencia desde Dentistas
+            int idDoctorPref = esEdicion ? pacienteEncontrado.getIdDenP() : 0;
+            d.generarSelectDoctor(idDoctorPref, esEdicion);
+
+            request.setAttribute("pacienteEdit", pacienteEncontrado);
+            request.setAttribute("selectDoctorHtml", d.getRespuesta());
+
+            HttpSession session = request.getSession();
+            String msg = (String) session.getAttribute("mensajeDialog");
+            if (msg != null) {
+                session.removeAttribute("mensajeDialog");
+            }
+            Pacientes mensajeBean = new Pacientes();
+            mensajeBean.setRespuesta(msg != null ? msg : "");
+            request.setAttribute("mensajeBean", mensajeBean);
 
             // Obtenemos el tipo de usuario de la sesión para la redirección dinámica
-            HttpSession session = request.getSession();
             Integer tipoObj = (Integer) session.getAttribute("tipo");
             int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
 

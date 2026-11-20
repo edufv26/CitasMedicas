@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class Dentistas extends Personal {
 
-    private String especialidad, cedula, turno, telefono, correo;
-    private int idDen;
+    private String especialidad, cedula, turno, telefono, correo, respuesta;
+    private int idDentista;
 
     private final conexion Conexion = new conexion();
 
@@ -61,18 +61,22 @@ public class Dentistas extends Personal {
         this.correo = correo;
     }
 
-    public int getIdDen() {
-        return idDen;
-    }
-
-    public void setIdDen(int idDen) {
-        this.idDen = idDen;
-    }
-
-    // Alias para que coincida exactamente con el llamado d.getIdDentista() del JSP
     public int getIdDentista() {
-        return idDen;
+        return idDentista;
     }
+
+    public void setIdDentista(int idDentista) {
+        this.idDentista = idDentista;
+    }
+
+    public String getRespuesta() {
+        return respuesta;
+    }
+
+    public void setRespuesta(String respuesta) {
+        this.respuesta = respuesta;
+    }
+    
 
     public boolean actualizarDentista() {
         String updateSql = "UPDATE Dentistas SET especialidad = ?, cedula_profesional = ?, "
@@ -85,8 +89,7 @@ public class Dentistas extends Personal {
         String ced = (cedula != null) ? cedula.trim() : "";
         String tur = (turno != null && !turno.trim().isEmpty()) ? turno.trim() : "Matutino";
 
-        try (Connection cn = Conexion.conecta();
-             PreparedStatement psUpd = cn.prepareStatement(updateSql)) {
+        try (Connection cn = Conexion.conecta(); PreparedStatement psUpd = cn.prepareStatement(updateSql)) {
 
             psUpd.setString(1, esp);
             psUpd.setString(2, ced);
@@ -126,13 +129,11 @@ public class Dentistas extends Personal {
                 + "WHERE p.estatus = 'A' "
                 + "ORDER BY d.id_dentista";
 
-        try (Connection cn = Conexion.conecta();
-             PreparedStatement ps = cn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection cn = Conexion.conecta(); PreparedStatement ps = cn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Dentistas d = new Dentistas();
-                d.setIdDen(rs.getInt("id_dentista"));
+                d.setIdDentista(rs.getInt("id_dentista"));
                 d.setUsuario(rs.getString("usuario"));
                 d.setEspecialidad(rs.getString("especialidad"));
                 d.setCedula(rs.getString("cedula_profesional"));
@@ -162,15 +163,14 @@ public class Dentistas extends Personal {
                 + "JOIN Personal p ON d.usuario = p.usuario "
                 + "WHERE d.usuario = ?";
 
-        try (Connection cn = Conexion.conecta();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
+        try (Connection cn = Conexion.conecta(); PreparedStatement ps = cn.prepareStatement(sql)) {
 
             ps.setString(1, usr);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     d = new Dentistas();
-                    d.setIdDen(rs.getInt("id_dentista"));
+                    d.setIdDentista(rs.getInt("id_dentista"));
                     d.setUsuario(rs.getString("usuario"));
                     d.setEspecialidad(rs.getString("especialidad"));
                     d.setCedula(rs.getString("cedula_profesional"));
@@ -190,5 +190,48 @@ public class Dentistas extends Personal {
         }
 
         return d;
+    }
+
+    public void generarSelectDoctor(int idDoctorSeleccionado, boolean esEdicion) {
+        if (!esEdicion) {
+            respuesta = "";
+            return;
+        }
+
+        StringBuilder html = new StringBuilder();
+        html.append("<div class=\"campo-grupo select-doctor\">");
+        html.append("<label>Doctor de Preferencia:</label>");
+        html.append("<select name=\"idDenP\">");
+        html.append("<option value=\"0\"")
+                .append(idDoctorSeleccionado == 0 ? " selected" : "")
+                .append(">-- No asignado --</option>");
+
+        List<Dentistas> listaDentistas = llenarListaDentistas();
+        if (listaDentistas != null && !listaDentistas.isEmpty()) {
+            for (Dentistas d : listaDentistas) {
+                boolean seleccionado = (idDoctorSeleccionado == d.getIdDentista());
+
+                String nom = (d.getNombre() != null) ? d.getNombre().trim() : "";
+                String pat = (d.getPaterno() != null) ? d.getPaterno().trim() : "";
+                String mat = (d.getMaterno() != null) ? d.getMaterno().trim() : "";
+                String esp = (d.getEspecialidad() != null) ? d.getEspecialidad().trim() : "";
+
+                String nombreCompletoDoc = (nom + " " + pat + " " + mat).trim().replaceAll("\\s+", " ");
+
+                html.append("<option value=\"").append(d.getIdDentista()).append("\"")
+                        .append(seleccionado ? " selected" : "")
+                        .append(">Dr(a). ").append(nombreCompletoDoc);
+
+                if (!esp.isEmpty()) {
+                    html.append(" - ").append(esp);
+                }
+                html.append("</option>");
+            }
+        }
+
+        html.append("</select>");
+        html.append("</div>");
+
+        respuesta = html.toString();
     }
 }

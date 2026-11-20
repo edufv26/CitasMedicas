@@ -10,25 +10,17 @@
 <%@page import="bean.Dentistas"%>
 <%@page import="bean.Personal"%>
 
+<jsp:useBean id="pacienteEdit" class="bean.Pacientes" scope="request"/>
+<jsp:useBean id="mensajeBean" class="bean.Pacientes" scope="request"/>
+<jsp:useBean id="tablaPacientes" class="bean.Pacientes" scope="page"/>
+<jsp:setProperty name="tablaPacientes" property="respuesta" value="${requestScope.tablaPacientesHtml}"/>
+
+<jsp:useBean id="selectorDoctor" class="bean.Dentistas" scope="page"/>
+<jsp:setProperty name="selectorDoctor" property="respuesta" value="${requestScope.selectDoctorHtml}"/>
+
 <%
-    // Verificamos si el servlet mandó un paciente para editar
-    Pacientes pacEdit = (Pacientes) request.getAttribute("pacienteEdit");
-    boolean esEdicion = (pacEdit != null);
-
-    // Mensaje devuelto por el Servlet (desde el OUTPUT del SP en alta/baja o mensaje en edición)
-    String mensajeDialog = (String) session.getAttribute("mensajeDialog");
-    if (mensajeDialog != null) {
-        session.removeAttribute("mensajeDialog");
-    }
-
-    String mensajeAttr = "";
-    if (mensajeDialog != null) {
-        mensajeAttr = mensajeDialog
-                .replace("&", "&amp;")
-                .replace("\"", "&quot;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;");
-    }
+    // Si el Servlet mandó un paciente para editar, vendrá con idP > 0
+    boolean esEdicion = (pacienteEdit.getIdP() > 0);
 %>
 <!DOCTYPE html>
 <html>
@@ -47,7 +39,8 @@
         <script src="<%= request.getContextPath()%>/js/modal-global.js" defer></script>
         <script src="<%= request.getContextPath()%>/js/menu.js" defer></script>
     </head>
-    <body data-mensaje-respuesta="<%= mensajeAttr%>">
+    <body data-mensaje-respuesta="<jsp:getProperty name="mensajeBean" property="mensajeAttr"/>">
+        <!-- CONTROL DEL SERVLET -->
         <form action="Control" method="post">
             <!-- Barra de navegación -->
             <%@ include file="navbarAdmin.jsp" %>
@@ -90,41 +83,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <%
-                                // Recibimos la lista enviada desde el Servlet
-                                List<Pacientes> listaPacientes = (List<Pacientes>) request.getAttribute("listaPacientes");
-                                if (listaPacientes != null && !listaPacientes.isEmpty()) {
-                                    for (Pacientes p : listaPacientes) {
-                            %>
-                            <tr>
-                                <td><%= p.getIdP()%></td>
-                                <td><%= p.getNombre()%> <%= p.getaPaterno()%> <%= p.getaMaterno()%></td>
-                                <td><%= p.getTelefono()%></td>
-                                <td><%= p.getCorreo()%></td>
-                                <td><%= p.getDireccion()%></td>
-                                <td>
-                                    <% if (p.getIdDenP() > 0) {%>
-                                    <b>Dr(a). <%= p.getNombreDentista()%></b>
-                                    <% } else { %>
-                                    <i>No asignado</i>
-                                    <% }%>
-                                </td>
-                                <td class="text-center">
-                                    <a href="Control?accion=editar&id=<%= p.getIdP()%>" class="btn-icon-tabla editar" title="Editar"><span class="fa fa-pencil"></span></a>
-                                    <!-- Botón de eliminar conectado al modal personalizado -->
-                                    <a href="#" onclick="abrirModalEliminar('<%= p.getIdP()%>')" class="btn-icon-tabla eliminar" title="Eliminar"><span class="fa fa-trash"></span></a>
-                                </td>
-                            </tr>
-                            <%
-                                }
-                            } else {
-                            %>
-                            <tr>
-                                <td colspan="7" class="text-center" style="padding: 20px; color: #666;">No hay pacientes registrados en el sistema.</td>
-                            </tr>
-                            <%
-                                }
-                            %>
+                            <jsp:getProperty name="tablaPacientes" property="respuesta"/>
                         </tbody>
                     </table>
                 </div>
@@ -142,66 +101,36 @@
 
                 <!-- ID oculto indispensable para saber qué registro actualizar -->
                 <% if (esEdicion) {%>
-                <input type="hidden" name="idP" value="<%= pacEdit.getIdP()%>">
+                <input type="hidden" name="idP" value="<jsp:getProperty name="pacienteEdit" property="idP"/>">
                 <% }%>
 
                 <div class="campo-grupo">
                     <label>Nombre:</label>
-                    <input type="text" name="nombre" value="<%= esEdicion ? pacEdit.getNombre() : ""%>" required>
+                    <input type="text" name="nombre" value="<% if (esEdicion && pacienteEdit.getNombre() != null) { %><jsp:getProperty name="pacienteEdit" property="nombre"/><% } %>" required>
                 </div>
                 <div class="campo-grupo">
                     <label>Apellido paterno:</label>
-                    <input type="text" name="paterno" value="<%= esEdicion ? pacEdit.getaPaterno() : ""%>" required>
+                    <input type="text" name="paterno" value="<% if (esEdicion && pacienteEdit.getaPaterno() != null) { %><jsp:getProperty name="pacienteEdit" property="aPaterno"/><% } %>" required>
                 </div>
                 <div class="campo-grupo">
                     <label>Apellido materno:</label>
-                    <input type="text" name="materno" value="<%= esEdicion ? pacEdit.getaMaterno() : ""%>" required>
+                    <input type="text" name="materno" value="<% if (esEdicion && pacienteEdit.getaMaterno() != null) { %><jsp:getProperty name="pacienteEdit" property="aMaterno"/><% } %>" required>
                 </div>
                 <div class="campo-grupo">
                     <label>Teléfono:</label>
-                    <input type="tel" name="tel" value="<%= esEdicion ? pacEdit.getTelefono() : ""%>" required>
+                    <input type="tel" name="tel" value="<% if (esEdicion && pacienteEdit.getTelefono() != null) { %><jsp:getProperty name="pacienteEdit" property="telefono"/><% } %>" required>
                 </div>
                 <div class="campo-grupo">
                     <label>Correo:</label>
-                    <input type="email" name="correo" value="<%= esEdicion ? pacEdit.getCorreo() : ""%>" required>
+                    <input type="email" name="correo" value="<% if (esEdicion && pacienteEdit.getCorreo() != null) { %><jsp:getProperty name="pacienteEdit" property="correo"/><% } %>" required>
                 </div>
                 <div class="campo-grupo">
                     <label>Dirección:</label>
-                    <input type="text" name="direccion" value="<%= esEdicion ? pacEdit.getDireccion() : ""%>" required>
+                    <input type="text" name="direccion" value="<% if (esEdicion && pacienteEdit.getDireccion() != null) { %><jsp:getProperty name="pacienteEdit" property="direccion"/><% } %>" required>
                 </div>
 
                 <!-- Selector de Doctor de Preferencia (Visible SOLO en modo Edición) -->
-                <% if (esEdicion) {%>
-                <div class="campo-grupo select-doctor">
-                    <label>Doctor de Preferencia:</label>
-                    <select name="idDenP">
-                        <option value="0" <%= (pacEdit.getIdDenP() == 0) ? "selected" : ""%>>-- No asignado --</option>
-                        <%
-                            List<Dentistas> listaDentistas = (List<Dentistas>) request.getAttribute("listaDentistas");
-                            if (listaDentistas != null && !listaDentistas.isEmpty()) {
-                                boolean mostrarNombreCompleto = listaDentistas.size() > 5;
-                                for (Dentistas d : listaDentistas) {
-                                    boolean seleccionado = (pacEdit.getIdDenP() == d.getIdDen());
-
-                                    String nom = (d.getNombre() != null) ? d.getNombre().trim() : "";
-                                    String pat = (d.getPaterno() != null) ? d.getPaterno().trim() : "";
-                                    String mat = (d.getMaterno() != null) ? d.getMaterno().trim() : "";
-
-                                    String etiquetaDoctor = nom;
-                                    if (mostrarNombreCompleto) {
-                                        etiquetaDoctor = (nom + " " + pat + " " + mat).trim().replaceAll("\\s+", " ");
-                                    }
-                        %>
-                        <option value="<%= d.getIdDen()%>" <%= seleccionado ? "selected" : ""%>>
-                            Dr(a). <%= etiquetaDoctor%> - <%= d.getEspecialidad()%>
-                        </option>
-                        <%
-                                }
-                            }
-                        %>
-                    </select>
-                </div>
-                <% }%>
+                <jsp:getProperty name="selectorDoctor" property="respuesta"/>
 
                 <button type="submit" class="btn-submit-modal">
                     <%= esEdicion ? "Guardar Cambios" : "Guardar Paciente"%>

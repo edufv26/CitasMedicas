@@ -102,6 +102,21 @@ public class Pacientes {
         this.nombreDentista = nombreDentista;
     }
 
+    public String getMensajeAttr() {
+        if (respuesta == null) {
+            return "";
+        }
+        return respuesta
+                .replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
+    }
+
+    public boolean isEsEdicion() {
+        return this.idP > 0;
+    }
+
     //procedure dar de alta a pacientes
     public String alta(Pacientes p) {
         String sql = "{CALL sp_RegistrarPaciente(?, ?, ?, ?, ?, ?, ?, ?)}";
@@ -313,6 +328,52 @@ public class Pacientes {
         return p;
     }
 
+    public void mostrarTabla() {
+        StringBuilder html = new StringBuilder();
+        List<Pacientes> lista = llenarTabla();
+
+        if (lista != null && !lista.isEmpty()) {
+            for (Pacientes p : lista) {
+                String nom = p.getNombre() != null ? p.getNombre() : "";
+                String pat = p.getaPaterno() != null ? p.getaPaterno() : "";
+                String mat = p.getaMaterno() != null ? p.getaMaterno() : "";
+                String tel = p.getTelefono() != null ? p.getTelefono() : "";
+                String cor = p.getCorreo() != null ? p.getCorreo() : "";
+                String dir = p.getDireccion() != null ? p.getDireccion() : "";
+
+                html.append("<tr>");
+                html.append("<td>").append(p.getIdP()).append("</td>");
+                html.append("<td>").append(nom).append(" ").append(pat).append(" ").append(mat).append("</td>");
+                html.append("<td>").append(tel).append("</td>");
+                html.append("<td>").append(cor).append("</td>");
+                html.append("<td>").append(dir).append("</td>");
+
+                html.append("<td>");
+                if (p.getIdDenP() > 0 && p.getNombreDentista() != null && !p.getNombreDentista().equals("No asignado")) {
+                    html.append("<b>Dr(a). ").append(p.getNombreDentista()).append("</b>");
+                } else {
+                    html.append("<i>No asignado</i>");
+                }
+                html.append("</td>");
+
+                html.append("<td class=\"text-center\">");
+                html.append("<a href=\"Control?accion=editar&id=").append(p.getIdP())
+                        .append("\" class=\"btn-icon-tabla editar\" title=\"Editar\"><span class=\"fa fa-pencil\"></span></a>");
+                html.append("<a href=\"#\" onclick=\"abrirModalEliminar('").append(p.getIdP())
+                        .append("')\" class=\"btn-icon-tabla eliminar\" title=\"Eliminar\"><span class=\"fa fa-trash\"></span></a>");
+                html.append("</td>");
+                html.append("</tr>");
+            }
+        } else {
+            html.append("<tr><td colspan=\"7\" class=\"text-center\" style=\"padding: 20px; color: #666;\">")
+                    .append("No hay pacientes registrados en el sistema.</td></tr>");
+        }
+
+        this.respuesta = html.toString();
+    }
+
+}
+
 //este lo guardamos para cambiar contraseña de parte del admin :)
 /*
     public void llenarSelectorPacientes() {
@@ -346,5 +407,4 @@ public class Pacientes {
             e.printStackTrace();
         }
     }
-     */
-}
+ */
