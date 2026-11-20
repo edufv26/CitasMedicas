@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import bean.Citas;
 import bean.Dentistas;
 import bean.Pacientes;
 import bean.Personal;
@@ -44,6 +45,7 @@ public class Control extends HttpServlet {
         Pacientes pa = new Pacientes();
         Dentistas d = new Dentistas();
         Secretarias s = new Secretarias();
+        Citas ci = new Citas();
 
         System.out.println("Método HTTP: " + request.getMethod());
         System.out.println("Acción recibida: " + accion);
@@ -60,6 +62,7 @@ public class Control extends HttpServlet {
                 HttpSession session = request.getSession();
                 session.setAttribute("tipo", p.getTipo());
                 session.setAttribute("nombreUsuario", p.getNombre());
+                session.setAttribute("usuarioLogin", p.getUsuario());
             }
 
             //redirección a respuesta
@@ -333,6 +336,107 @@ public class Control extends HttpServlet {
             }
 
             response.sendRedirect("Control?accion=personal");
+            return;
+        }
+
+        if (accion.equals("citas")) {
+            System.out.println("Servlet: acción citas detectada");
+
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            // Filtros (fecha, doctor, paciente, vista) y restricción por rol
+            ci.setFiltros(request.getParameter("fecha"), request.getParameter("idDentista"),
+                    request.getParameter("idPaciente"), request.getParameter("vista"));
+            ci.aplicarRol(tipoUsuario, (String) session.getAttribute("usuarioLogin"));
+
+            // Filas de la tabla y opciones de los select
+            ci.mostrarTabla(tipoUsuario);
+            ci.generarOpciones();
+
+            String msg = (String) session.getAttribute("mensajeDialog");
+            if (msg != null) {
+                session.removeAttribute("mensajeDialog");
+            }
+            ci.setRespuesta(msg != null ? msg : "");
+            request.setAttribute("citasVista", ci);
+
+            // Determinamos la carpeta dinámicamente
+            String carpeta = "Admin/";
+            if (tipoUsuario == 2) {
+                carpeta = "Secretaria/";
+            } else if (tipoUsuario == 3) {
+                carpeta = "Dentista/";
+            }
+
+            String vistaDestino = carpeta + "Citas.jsp";
+            System.out.println("Servlet: redirigiendo a -> " + vistaDestino);
+
+            request.getRequestDispatcher(vistaDestino).forward(request, response);
+            return;
+        }
+
+        //agendar citas
+        if (accion.equals("agendar")) {
+            ci.setDatos(null, request.getParameter("paciente"), request.getParameter("medico"),
+                    request.getParameter("fecha"), request.getParameter("hora"));
+            ci.agendar();
+
+            request.getSession().setAttribute("mensajeDialog", ci.getRespuesta());
+            response.sendRedirect(request.getContextPath() + "/Control?accion=citas");
+            return;
+        }
+
+        //reagendar citas
+        if (accion.equals("reagendar")) {
+            ci.setDatos(request.getParameter("idCita"), null, null,
+                    request.getParameter("nuevaFecha"), request.getParameter("nuevaHora"));
+            ci.reagendar();
+
+            request.getSession().setAttribute("mensajeDialog", ci.getRespuesta());
+            response.sendRedirect(request.getContextPath() + "/Control?accion=citas");
+            return;
+        }
+
+        //cancelar citas
+        if (accion.equals("cancelar")) {
+            ci.setDatos(request.getParameter("idCita"), null, null, null, null);
+            ci.cancelar();
+
+            request.getSession().setAttribute("mensajeDialog", ci.getRespuesta());
+            response.sendRedirect(request.getContextPath() + "/Control?accion=citas");
+            return;
+        }
+
+        //atender citas (dentista: registra el diagnóstico)
+        if (accion.equals("atender")) {
+            ci.setDatos(request.getParameter("idCita"), null, null, null, null);
+            ci.setDiagnostico(request.getParameter("diagnostico"));
+            ci.atender();
+
+            request.getSession().setAttribute("mensajeDialog", ci.getRespuesta());
+            response.sendRedirect(request.getContextPath() + "/Control?accion=citas");
+            return;
+        }
+
+        //exportar historial de citas a pdf
+        if (accion.equals("pdfCitas")) {
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            ci.setFiltros(request.getParameter("fecha"), request.getParameter("idDentista"),
+                    request.getParameter("idPaciente"), "historial");
+            ci.aplicarRol(tipoUsuario, (String) session.getAttribute("usuarioLogin"));
+
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=Historial_Citas.pdf");
+            try {
+                ci.generarPdf(response.getOutputStream());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return;
         }
 
