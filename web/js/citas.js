@@ -69,4 +69,18 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("input[data-fecha-min]").forEach(function (input) {
         input.min = minimo;
     });
+    
+    const btnPdf = document.querySelector(".btn-pdf");
+if (btnPdf) {
+    btnPdf.addEventListener("click", function (e) {
+        const fecha = document.getElementById("fFecha")?.value || "";
+        const idDentista = document.getElementById("fDoctor")?.value || "";
+        const idPaciente = document.getElementById("fPaciente")?.value || "";
+
+        const baseUrl = this.getAttribute("href").split("&fecha=")[0];
+        this.setAttribute("href",
+            `${baseUrl}&fecha=${encodeURIComponent(fecha)}&idDentista=${encodeURIComponent(idDentista)}&idPaciente=${encodeURIComponent(idPaciente)}`
+        );
+    });
+}
 });

@@ -17,8 +17,9 @@ import java.util.List;
  */
 public class Pacientes {
 
-    private String nombre, aPaterno, aMaterno, telefono, correo, direccion, respuesta, nombreDentista;
-    private int idP, idDenP;
+    private String nombre, aPaterno, aMaterno, telefono, correo, direccion, respuesta, nombreDentista, ultimoDiagnostico, filtroBusqueda;
+    private int idP, idDenP, filtroIdDentista,filtroIdPaciente;
+    private String opcionesPacientesFiltro = "";
 
     public int getIdP() {
         return idP;
@@ -100,6 +101,34 @@ public class Pacientes {
 
     public void setNombreDentista(String nombreDentista) {
         this.nombreDentista = nombreDentista;
+    }
+
+    public String getUltimoDiagnostico() {
+        return ultimoDiagnostico;
+    }
+
+    public void setUltimoDiagnostico(String ultimoDiagnostico) {
+        this.ultimoDiagnostico = ultimoDiagnostico;
+    }
+
+    public String getFiltroBusqueda() {
+        return filtroBusqueda;
+    }
+
+    public void setFiltroBusqueda(String filtroBusqueda) {
+        this.filtroBusqueda = (filtroBusqueda != null) ? filtroBusqueda.trim() : "";
+    }
+    
+    public int getFiltroIdPaciente() {
+        return filtroIdPaciente;
+    }
+
+    public void setFiltroIdPaciente(int filtroIdPaciente) {
+        this.filtroIdPaciente = filtroIdPaciente;
+    }
+    
+    public String getOpcionesPacientesFiltro() {
+        return opcionesPacientesFiltro;
     }
 
     public String getMensajeAttr() {
@@ -372,6 +401,132 @@ public class Pacientes {
         this.respuesta = html.toString();
     }
 
+    // Filtra solo los pacientes asignados al dentista logueado (id_dentista_preferencia)
+    public void aplicarRolDentista(String usuarioLogin) {
+        Dentistas d = new Dentistas().obtenerPorUsuario(usuarioLogin != null ? usuarioLogin.trim() : "");
+        this.filtroIdDentista = (d != null) ? d.getIdDentista() : -1;
+    }
+
+    public List<Pacientes> llenarTablaDentista() {
+        List<Pacientes> lista = new ArrayList<>();
+        if (filtroIdDentista <= 0) {
+            return lista;
+        }
+
+        String sql = "SELECT p.id_paciente, p.nombre, p.APaterno, p.AMaterno, p.telefono, p.correo, "
+                + "ult.diagnostico AS ultimo_diagnostico "
+                + "FROM Pacientes p "
+                + "OUTER APPLY ( "
+                + "    SELECT TOP 1 h.diagnostico "
+                + "    FROM Citas c "
+                + "    INNER JOIN Historial h ON c.id_cita = h.id_cita "
+                + "    WHERE c.id_paciente = p.id_paciente "
+                + "    ORDER BY c.fecha DESC, c.hora DESC, c.id_cita DESC "
+                + ") ult "
+                + "WHERE p.estatus = 'A' AND p.id_dentista_preferencia = ? ";
+
+        boolean filtrarPaciente = (filtroIdPaciente > 0);
+        if (filtrarPaciente) {
+            sql += "AND p.id_paciente = ? ";
+        }
+        sql += "ORDER BY p.id_paciente";
+
+        try (Connection cn = Conexion.conecta()) {
+            if (cn == null) {
+                return lista;
+            }
+            try (PreparedStatement ps = cn.prepareStatement(sql)) {
+                ps.setInt(1, filtroIdDentista);
+                if (filtrarPaciente) {
+                    ps.setInt(2, filtroIdPaciente);
+                }
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Pacientes pac = new Pacientes();
+                        pac.setIdP(rs.getInt("id_paciente"));
+                        pac.setNombre(rs.getString("nombre"));
+                        pac.setaPaterno(rs.getString("APaterno"));
+                        pac.setaMaterno(rs.getString("AMaterno"));
+                        pac.setTelefono(rs.getString("telefono"));
+                        pac.setCorreo(rs.getString("correo"));
+                        pac.setUltimoDiagnostico(rs.getString("ultimo_diagnostico"));
+                        lista.add(pac);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    public void mostrarTablaDentista() {
+        StringBuilder html = new StringBuilder();
+        List<Pacientes> lista = llenarTablaDentista();
+
+        if (lista != null && !lista.isEmpty()) {
+            for (Pacientes p : lista) {
+                String nombreComp = ((p.getNombre() != null ? p.getNombre() : "") + " "
+                        + (p.getaPaterno() != null ? p.getaPaterno() : "") + " "
+                        + (p.getaMaterno() != null ? p.getaMaterno() : "")).trim();
+                String tel = p.getTelefono() != null ? p.getTelefono() : "";
+                String cor = p.getCorreo() != null ? p.getCorreo() : "";
+                String diag = (p.getUltimoDiagnostico() != null && !p.getUltimoDiagnostico().trim().isEmpty())
+                        ? p.getUltimoDiagnostico().trim()
+                        : "Sin diagnóstico registrado";
+
+                html.append("<tr>");
+                html.append("<td>").append(p.getIdP()).append("</td>");
+                html.append("<td>").append(nombreComp).append("</td>");
+                html.append("<td>").append(tel).append("</td>");
+                html.append("<td>").append(cor).append("</td>");
+                html.append("<td class=\"diagnostico\">").append(diag).append("</td>");
+                html.append("</tr>");
+            }
+        } else {
+            html.append("<tr><td colspan=\"5\" class=\"text-center\" style=\"padding: 20px; color: #666;\">")
+                    .append("No tienes pacientes asignados con los filtros seleccionados.</td></tr>");
+        }
+
+        this.respuesta = html.toString();
+    }
+    
+    public void generarOpcionesDentista() {
+        StringBuilder sb = new StringBuilder();
+        if (filtroIdDentista <= 0) {
+            this.opcionesPacientesFiltro = "";
+            return;
+        }
+
+        String sql = "SELECT id_paciente, nombre, APaterno, AMaterno "
+                + "FROM Pacientes "
+                + "WHERE estatus = 'A' AND id_dentista_preferencia = ? "
+                + "ORDER BY id_paciente";
+
+        try (Connection cn = Conexion.conecta();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setInt(1, filtroIdDentista);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int idPac = rs.getInt("id_paciente");
+                    String nom = rs.getString("nombre") != null ? rs.getString("nombre").trim() : "";
+                    String pat = rs.getString("APaterno") != null ? rs.getString("APaterno").trim() : "";
+                    String mat = rs.getString("AMaterno") != null ? rs.getString("AMaterno").trim() : "";
+                    String texto = (nom + " " + pat + " " + mat).trim().replaceAll("\\s+", " ");
+                    String sel = (idPac == filtroIdPaciente) ? " selected" : "";
+
+                    sb.append("<option value=\"").append(idPac).append("\"").append(sel).append(">")
+                            .append(texto)
+                            .append("</option>");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        this.opcionesPacientesFiltro = sb.toString();
+    }
 }
 
 //este lo guardamos para cambiar contraseña de parte del admin :)

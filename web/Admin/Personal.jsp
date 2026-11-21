@@ -5,17 +5,22 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List"%>
-<%@page import="bean.Personal"%>
-<%@page import="bean.Dentistas"%>
-<%@page import="bean.Secretarias"%>
-<%
-    Personal perEdit = (Personal) request.getAttribute("personalEdit");
-    boolean esEdicion = (perEdit != null);
 
-    List<Personal> listaAdmins = (List<Personal>) request.getAttribute("listaAdmins");
-    List<Dentistas> listaDentistas = (List<Dentistas>) request.getAttribute("listaDentistas");
-    List<Secretarias> listaSecretarias = (List<Secretarias>) request.getAttribute("listaSecretarias");
+<jsp:useBean id="perEdit" class="bean.Personal" scope="request"/>
+<jsp:useBean id="denEdit" class="bean.Dentistas" scope="request"/>
+<jsp:useBean id="secEdit" class="bean.Secretarias" scope="request"/>
+
+<jsp:useBean id="adminVista" class="bean.Personal" scope="page"/>
+<jsp:setProperty name="adminVista" property="respuesta" value="${requestScope.tablaAdminsHtml}"/>
+
+<jsp:useBean id="dentistaVista" class="bean.Dentistas" scope="page"/>
+<jsp:setProperty name="dentistaVista" property="respuesta" value="${requestScope.tablaDentistasHtml}"/>
+
+<jsp:useBean id="secretariaVista" class="bean.Secretarias" scope="page"/>
+<jsp:setProperty name="secretariaVista" property="respuesta" value="${requestScope.tablaSecretariasHtml}"/>
+
+<%
+    boolean esEdicion = (perEdit.getUsuario() != null && !perEdit.getUsuario().trim().isEmpty());
 %>
 <!DOCTYPE html>
 <html>
@@ -35,7 +40,7 @@
         <script src="<%= request.getContextPath()%>/js/menu.js" defer></script>
         <script src="<%= request.getContextPath()%>/js/personal.js" defer></script>
     </head>
-    <body>
+    <body data-es-edicion="<%= esEdicion%>" data-tipo-edicion="<jsp:getProperty name="perEdit" property="tipo"/>" data-turno-dentista="<jsp:getProperty name="denEdit" property="turno"/>" data-turno-secretaria="<jsp:getProperty name="secEdit" property="turno"/>">
         <%@ include file="navbarAdmin.jsp" %>
         <div id="loading-overlay">
             <div class="spinner"></div>
@@ -57,145 +62,100 @@
                 </button>
             </div>
 
+            <!-- Filtros de Personal (Tipo + Búsqueda general, activado con botón Filtrar) -->
+            <div id="filtrosPersonal" class="filtros">
+                <div class="campo-grupo">
+                    <label for="fPerTipo">Tipo de personal:</label>
+                    <select id="fPerTipo">
+                        <option value="todos">Todos</option>
+                        <option value="admin">Solo Administradores</option>
+                        <option value="dentista">Solo Dentistas</option>
+                        <option value="secretaria">Solo Secretarias</option>
+                    </select>
+                </div>
+
+                <div class="campo-grupo">
+                    <label for="fPerBuscar">Buscar por nombre, usuario, especialidad, cédula, turno, teléfono o correo:</label>
+                    <input type="text" id="fPerBuscar" placeholder="Ej. Eduardo, Matutino, Ortodoncia...">
+                </div>
+
+                <div class="filtros-acciones">
+                    <button type="button" id="btnFiltrarPersonal" class="btn-accion-principal">
+                        <span class="fa fa-filter"></span> Filtrar
+                    </button>
+                    <button type="button" id="btnLimpiarPersonal" class="btn-limpiar">
+                        <span class="fa fa-eraser"></span> Limpiar
+                    </button>
+                </div>
+            </div>
+
             <!-- 1. TABLA DE ADMINISTRADORES -->
-            <h3 style="margin-top: 20px;"><span class="fa fa-shield"></span> Administradores</h3>
-            <div class="table-responsive">
-                <table class="tabla-clinica">
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Nombre Completo</th>
-                            <th>Teléfono</th>
-                            <th>Correo</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <%
-                            if (listaAdmins != null && !listaAdmins.isEmpty()) {
-                                for (Personal a : listaAdmins) {
-                        %>
-                        <tr>
-                            <td><b><%= a.getUsuario()%></b></td>
-                            <td><%= a.getNombre()%> <%= a.getPaterno()%> <%= a.getMaterno() != null ? a.getMaterno() : ""%></td>
-                            <td><%= a.getTelefono() != null ? a.getTelefono() : "-"%></td>
-                            <td><%= a.getCorreo() != null ? a.getCorreo() : "-"%></td>
-                            <td class="text-center">
-                                <a href="Control?accion=editarPersonal&usuario=<%= a.getUsuario()%>&tipo=1" class="btn-icon-tabla editar" title="Editar"><span class="fa fa-pencil"></span></a>
-                                <button type="button" class="btn-icon-tabla" title="Cambiar contraseña" onclick="abrirModalPassword('<%= a.getUsuario()%>')"><span class="fa fa-key"></span></button>
-                                <a href="#" onclick="abrirModalEliminar('<%= a.getUsuario()%>')" class="btn-icon-tabla eliminar" title="Eliminar"><span class="fa fa-trash"></span></a>
-                            </td>
-                        </tr>
-                        <%
-                                }
-                            } else {
-                        %>
-                        <tr>
-                            <td colspan="5" class="text-center" style="padding: 16px; color: #666;">No hay administradores registrados.</td>
-                        </tr>
-                        <%
-                            }
-                        %>
-                    </tbody>
-                </table>
+            <div data-rol-personal="admin">
+                <h3 style="margin-top: 20px;"><span class="fa fa-shield"></span> Administradores</h3>
+                <div class="table-responsive">
+                    <table class="tabla-clinica">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Nombre Completo</th>
+                                <th>Teléfono</th>
+                                <th>Correo</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <jsp:getProperty name="adminVista" property="respuesta"/>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- 2. TABLA DE DENTISTAS -->
-            <h3 style="margin-top: 28px;"><span class="fa fa-user-md"></span> Dentistas</h3>
-            <div class="table-responsive">
-                <table class="tabla-clinica">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Nombre Completo</th>
-                            <th>Especialidad</th>
-                            <th>Cédula</th>
-                            <th>Turno</th>
-                            <th>Teléfono</th>
-                            <th>Correo</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <%
-                            if (listaDentistas != null && !listaDentistas.isEmpty()) {
-                                for (Dentistas d : listaDentistas) {
-                        %>
-                        <tr>
-                            <td><%= d.getIdDentista()%></td>
-                            <td><b><%= d.getUsuario()%></b></td>
-                            <td><%= d.getNombre()%> <%= d.getPaterno() != null ? d.getPaterno() : ""%> <%= d.getMaterno() != null ? d.getMaterno() : ""%></td>
-                            <td><%= d.getEspecialidad()%></td>
-                            <td><%= d.getCedula()%></td>
-                            <td><%= d.getTurno()%></td>
-                            <td><%= d.getTelefono() != null ? d.getTelefono() : "-"%></td>
-                            <td><%= d.getCorreo() != null ? d.getCorreo() : "-"%></td>
-                            <td class="text-center">
-                                <a href="Control?accion=editarPersonal&usuario=<%= d.getUsuario()%>&tipo=2" class="btn-icon-tabla editar" title="Editar"><span class="fa fa-pencil"></span></a>
-                                <button type="button" class="btn-icon-tabla" title="Cambiar contraseña" onclick="abrirModalPassword('<%= d.getUsuario()%>')"><span class="fa fa-key"></span></button>
-                                <a href="#" onclick="abrirModalEliminar('<%= d.getUsuario()%>')" class="btn-icon-tabla eliminar" title="Eliminar"><span class="fa fa-trash"></span></a>
-                            </td>
-                        </tr>
-                        <%
-                                }
-                            } else {
-                        %>
-                        <tr>
-                            <td colspan="9" class="text-center" style="padding: 16px; color: #666;">No hay dentistas registrados.</td>
-                        </tr>
-                        <%
-                            }
-                        %>
-                    </tbody>
-                </table>
+            <div data-rol-personal="dentista">
+                <h3 style="margin-top: 28px;"><span class="fa fa-user-md"></span> Dentistas</h3>
+                <div class="table-responsive">
+                    <table class="tabla-clinica">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Nombre Completo</th>
+                                <th>Especialidad</th>
+                                <th>Cédula</th>
+                                <th>Turno</th>
+                                <th>Teléfono</th>
+                                <th>Correo</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <jsp:getProperty name="dentistaVista" property="respuesta"/>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- 3. TABLA DE SECRETARIAS -->
-            <h3 style="margin-top: 28px;"><span class="fa fa-headphones"></span> Secretarias</h3>
-            <div class="table-responsive">
-                <table class="tabla-clinica">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Nombre Completo</th>
-                            <th>Turno</th>
-                            <th>Teléfono</th>
-                            <th>Correo</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <%
-                            if (listaSecretarias != null && !listaSecretarias.isEmpty()) {
-                                for (Secretarias s : listaSecretarias) {
-                        %>
-                        <tr>
-                            <td><%= s.getIdSec()%></td>
-                            <td><b><%= s.getUsuario()%></b></td>
-                            <td><%= s.getNombre()%> <%= s.getPaterno() != null ? s.getPaterno() : ""%> <%= s.getMaterno() != null ? s.getMaterno() : ""%></td>
-                            <td><%= s.getTurno()%></td>
-                            <td><%= s.getTelefono() != null ? s.getTelefono() : "-"%></td>
-                            <td><%= s.getCorreo() != null ? s.getCorreo() : "-"%></td>
-                            <td class="text-center">
-                                <a href="Control?accion=editarPersonal&usuario=<%= s.getUsuario()%>&tipo=3" class="btn-icon-tabla editar" title="Editar"><span class="fa fa-pencil"></span></a>
-                                <button type="button" class="btn-icon-tabla" title="Cambiar contraseña" onclick="abrirModalPassword('<%= s.getUsuario()%>')"><span class="fa fa-key"></span></button>
-                                <a href="#" onclick="abrirModalEliminar('<%= s.getUsuario()%>')" class="btn-icon-tabla eliminar" title="Eliminar"><span class="fa fa-trash"></span></a>
-                            </td>
-                        </tr>
-                        <%
-                                }
-                            } else {
-                        %>
-                        <tr>
-                            <td colspan="7" class="text-center" style="padding: 16px; color: #666;">No hay secretarias registradas.</td>
-                        </tr>
-                        <%
-                            }
-                        %>
-                    </tbody>
-                </table>
+            <div data-rol-personal="secretaria">
+                <h3 style="margin-top: 28px;"><span class="fa fa-headphones"></span> Secretarias</h3>
+                <div class="table-responsive">
+                    <table class="tabla-clinica">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Nombre Completo</th>
+                                <th>Turno</th>
+                                <th>Teléfono</th>
+                                <th>Correo</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <jsp:getProperty name="secretariaVista" property="respuesta"/>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -211,7 +171,7 @@
 
                 <div class="campo-grupo">
                     <label for="usuario">Usuario:</label>
-                    <input type="text" id="usuario" name="usuario" maxlength="12" value="<%= esEdicion ? perEdit.getUsuario() : ""%>" <%= esEdicion ? "readonly" : "required"%>>
+                    <input type="text" id="usuario" name="usuario" maxlength="12" value="<jsp:getProperty name="perEdit" property="usuario"/>" <%= esEdicion ? "readonly" : "required"%>>
                 </div>
 
                 <% if (!esEdicion) { %>
@@ -223,32 +183,32 @@
 
                 <div class="campo-grupo">
                     <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" value="<%= esEdicion ? perEdit.getNombre() : ""%>" required>
+                    <input type="text" id="nombre" name="nombre" value="<jsp:getProperty name="perEdit" property="nombre"/>" required>
                 </div>
                 <div class="campo-grupo">
                     <label for="APaterno">Apellido paterno:</label>
-                    <input type="text" id="APaterno" name="APaterno" value="<%= esEdicion ? perEdit.getPaterno() : ""%>" required>
+                    <input type="text" id="APaterno" name="APaterno" value="<jsp:getProperty name="perEdit" property="paterno"/>" required>
                 </div>
                 <div class="campo-grupo">
                     <label for="AMaterno">Apellido materno:</label>
-                    <input type="text" id="AMaterno" name="AMaterno" value="<%= esEdicion && perEdit.getMaterno() != null ? perEdit.getMaterno() : ""%>">
+                    <input type="text" id="AMaterno" name="AMaterno" value="<jsp:getProperty name="perEdit" property="materno"/>">
                 </div>
                 <div class="campo-grupo">
                     <label for="telefono">Teléfono:</label>
-                    <input type="tel" id="telefono" name="telefono" maxlength="15" value="<%= esEdicion && perEdit.getTelefono() != null ? perEdit.getTelefono() : ""%>">
+                    <input type="tel" id="telefono" name="telefono" maxlength="15" value="<jsp:getProperty name="perEdit" property="telefono"/>">
                 </div>
                 <div class="campo-grupo">
                     <label for="correo">Correo:</label>
-                    <input type="email" id="correo" name="correo" maxlength="50" value="<%= esEdicion && perEdit.getCorreo() != null ? perEdit.getCorreo() : ""%>">
+                    <input type="email" id="correo" name="correo" maxlength="50" value="<jsp:getProperty name="perEdit" property="correo"/>">
                 </div>
 
                 <div class="campo-grupo">
                     <label for="tipo">Tipo de Personal:</label>
                     <select id="tipo" name="tipo" onchange="mostrarCamposExtra()" required>
-                        <option value="" disabled <%= !esEdicion ? "selected" : ""%>>Seleccione un rol...</option>
-                        <option value="1" <%= (esEdicion && perEdit.getTipo() == 1) ? "selected" : ""%>>Administrador</option>
-                        <option value="2" <%= (esEdicion && perEdit.getTipo() == 2) ? "selected" : ""%>>Secretaria</option>
-                        <option value="3" <%= (esEdicion && perEdit.getTipo() == 3) ? "selected" : ""%>>Dentista</option>
+                        <option value="">Seleccione un rol...</option>
+                        <option value="1">Administrador</option>
+                        <option value="2">Dentista</option>
+                        <option value="3">Secretaria</option>
                     </select>
                 </div>
 
@@ -256,17 +216,17 @@
                 <div id="seccion-dentista" class="seccion-extra" style="display: none;">
                     <div class="campo-grupo">
                         <label for="especialidad">Especialidad:</label>
-                        <input type="text" id="especialidad" name="especialidad" maxlength="50" value="<%= (esEdicion && perEdit instanceof Dentistas && ((Dentistas) perEdit).getEspecialidad() != null) ? ((Dentistas) perEdit).getEspecialidad() : ""%>">
+                        <input type="text" id="especialidad" name="especialidad" maxlength="50" value="<jsp:getProperty name="denEdit" property="especialidad"/>">
                     </div>
                     <div class="campo-grupo">
                         <label for="cedula">Cédula Profesional:</label>
-                        <input type="text" id="cedula" name="cedula" maxlength="20" value="<%= (esEdicion && perEdit instanceof Dentistas && ((Dentistas) perEdit).getCedula() != null) ? ((Dentistas) perEdit).getCedula() : ""%>">
+                        <input type="text" id="cedula" name="cedula" maxlength="20" value="<jsp:getProperty name="denEdit" property="cedula"/>">
                     </div>
                     <div class="campo-grupo">
                         <label for="turnoDentista">Turno:</label>
                         <select id="turnoDentista" name="turnoDentista">
-                            <option value="Matutino" <%= (esEdicion && perEdit instanceof Dentistas && "Matutino".equals(((Dentistas) perEdit).getTurno())) ? "selected" : ""%>>Matutino</option>
-                            <option value="Vespertino" <%= (esEdicion && perEdit instanceof Dentistas && "Vespertino".equals(((Dentistas) perEdit).getTurno())) ? "selected" : ""%>>Vespertino</option>
+                            <option value="Matutino">Matutino</option>
+                            <option value="Vespertino">Vespertino</option>
                         </select>
                     </div>
                 </div>
@@ -276,8 +236,8 @@
                     <div class="campo-grupo">
                         <label for="turnoSecretaria">Turno:</label>
                         <select id="turnoSecretaria" name="turnoSecretaria">
-                            <option value="Matutino" <%= (esEdicion && perEdit instanceof Secretarias && "Matutino".equals(((Secretarias) perEdit).getTurno())) ? "selected" : ""%>>Matutino</option>
-                            <option value="Vespertino" <%= (esEdicion && perEdit instanceof Secretarias && "Vespertino".equals(((Secretarias) perEdit).getTurno())) ? "selected" : ""%>>Vespertino</option>
+                            <option value="Matutino">Matutino</option>
+                            <option value="Vespertino">Vespertino</option>
                         </select>
                     </div>
                 </div>

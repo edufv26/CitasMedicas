@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class Secretarias extends Personal {
 
-    private String turno, telefono, correo;
+    private String turno, telefono, correo, respuesta;
     private int idSec;
 
     private final conexion Conexion = new conexion();
@@ -53,6 +53,13 @@ public class Secretarias extends Personal {
         this.idSec = idSec;
     }
 
+    public String getRespuesta() {
+        return respuesta;
+    }
+
+    public void setRespuesta(String respuesta) {
+        this.respuesta = respuesta;
+    }
     public boolean actualizarSecretaria() {
         String updateSql = "UPDATE Secretarias SET turno = ?, telefono = ?, correo = ? WHERE usuario = ?";
         String insertSql = "INSERT INTO Secretarias (usuario, turno, telefono, correo) VALUES (?, ?, ?, ?)";
@@ -156,5 +163,39 @@ public class Secretarias extends Personal {
         }
 
         return sec;
+    }
+    
+    public String generarFilasSecretariasHtml(List<Secretarias> lista) {
+        StringBuilder sb = new StringBuilder();
+
+        if (lista != null && !lista.isEmpty()) {
+            for (Secretarias sec : lista) {
+                String usr = sec.getUsuario() != null ? sec.getUsuario() : "";
+                String nom = sec.getNombre() != null ? sec.getNombre() : "";
+                String pat = sec.getPaterno() != null ? sec.getPaterno() : "";
+                String mat = sec.getMaterno() != null ? sec.getMaterno() : "";
+                String tur = sec.getTurno() != null ? sec.getTurno() : "";
+                String tel = (sec.getTelefono() != null && !sec.getTelefono().isEmpty()) ? sec.getTelefono() : "-";
+                String cor = (sec.getCorreo() != null && !sec.getCorreo().isEmpty()) ? sec.getCorreo() : "-";
+
+                sb.append("<tr>")
+                  .append("<td>").append(sec.getIdSec()).append("</td>")
+                  .append("<td><b>").append(usr).append("</b></td>")
+                  .append("<td>").append(nom).append(" ").append(pat).append(" ").append(mat).append("</td>")
+                  .append("<td>").append(tur).append("</td>")
+                  .append("<td>").append(tel).append("</td>")
+                  .append("<td>").append(cor).append("</td>")
+                  .append("<td class=\"text-center\">")
+                  .append("<a href=\"Control?accion=editarPersonal&usuario=").append(usr).append("&tipo=3\" class=\"btn-icon-tabla editar\" title=\"Editar\"><span class=\"fa fa-pencil\"></span></a>")
+                  .append("<button type=\"button\" class=\"btn-icon-tabla\" title=\"Cambiar contraseña\" onclick=\"abrirModalPassword('").append(usr).append("')\"><span class=\"fa fa-key\"></span></button>")
+                  .append("<a href=\"#\" onclick=\"abrirModalEliminar('").append(usr).append("')\" class=\"btn-icon-tabla eliminar\" title=\"Eliminar\"><span class=\"fa fa-trash\"></span></a>")
+                  .append("</td>")
+                  .append("</tr>");
+            }
+        } else {
+            sb.append("<tr><td colspan=\"7\" class=\"text-center\" style=\"padding: 16px; color: #666;\">No hay secretarias registradas.</td></tr>");
+        }
+
+        return sb.toString();
     }
 }

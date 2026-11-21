@@ -200,6 +200,41 @@ public class Personal {
     public boolean actualizarPersonal() {
         return actualizarPersonal(null, null, null);
     }
+    
+    public String getTablaAdminsHtml() {
+        return generarFilasAdminsHtml(llenarListaAdmins());
+    }
+
+    public String generarFilasAdminsHtml(List<Personal> lista) {
+        StringBuilder sb = new StringBuilder();
+
+        if (lista != null && !lista.isEmpty()) {
+            for (Personal a : lista) {
+                String usr = a.getUsuario() != null ? a.getUsuario() : "";
+                String nom = a.getNombre() != null ? a.getNombre() : "";
+                String pat = a.getPaterno() != null ? a.getPaterno() : "";
+                String mat = a.getMaterno() != null ? a.getMaterno() : "";
+                String tel = (a.getTelefono() != null && !a.getTelefono().isEmpty()) ? a.getTelefono() : "-";
+                String cor = (a.getCorreo() != null && !a.getCorreo().isEmpty()) ? a.getCorreo() : "-";
+
+                sb.append("<tr>")
+                  .append("<td><b>").append(usr).append("</b></td>")
+                  .append("<td>").append(nom).append(" ").append(pat).append(" ").append(mat).append("</td>")
+                  .append("<td>").append(tel).append("</td>")
+                  .append("<td>").append(cor).append("</td>")
+                  .append("<td class=\"text-center\">")
+                  .append("<a href=\"Control?accion=editarPersonal&usuario=").append(usr).append("&tipo=1\" class=\"btn-icon-tabla editar\" title=\"Editar\"><span class=\"fa fa-pencil\"></span></a>")
+                  .append("<button type=\"button\" class=\"btn-icon-tabla\" title=\"Cambiar contraseña\" onclick=\"abrirModalPassword('").append(usr).append("')\"><span class=\"fa fa-key\"></span></button>")
+                  .append("<a href=\"#\" onclick=\"abrirModalEliminar('").append(usr).append("')\" class=\"btn-icon-tabla eliminar\" title=\"Eliminar\"><span class=\"fa fa-trash\"></span></a>")
+                  .append("</td>")
+                  .append("</tr>");
+            }
+        } else {
+            sb.append("<tr><td colspan=\"5\" class=\"text-center\" style=\"padding: 16px; color: #666;\">No hay administradores registrados.</td></tr>");
+        }
+
+        return sb.toString();
+    }
 
     public boolean actualizarPersonal(String especialidad, String cedula, String turno) {
         String sql = "UPDATE Personal SET nombre = ?, APaterno = ?, AMaterno = ?, "

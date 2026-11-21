@@ -24,7 +24,6 @@ import java.util.List;
 
 /**
  *
- *
  * @author edu
  */
 public class Citas {
@@ -34,7 +33,7 @@ public class Citas {
     private String nombrePaciente, nombreDentista, estado, diagnostico, respuesta;
     private Date fecha;
     private Time hora;
-    private boolean exito, datosValidos = true;
+    private boolean datosValidos = true;
 
     // Filtros de la vista (fecha, doctor, paciente y vista: pendientes / historial)
     private String filtroFecha = "", vista = "pendientes";
@@ -44,6 +43,11 @@ public class Citas {
     private String tablaHtml = "";
     private String opcionesDentistas = "", opcionesDentistasFiltro = "";
     private String opcionesPacientes = "", opcionesPacientesFiltro = "";
+
+    //vista dashboard principal (citas del dia)
+    private String miniTablaCitasHoy;
+    private int tipoRol = 1;
+    private String usuarioLogin;
 
     conexion Conexion = new conexion();
 
@@ -63,14 +67,6 @@ public class Citas {
         this.idPaciente = idPaciente;
     }
 
-    public String getNombrePaciente() {
-        return nombrePaciente;
-    }
-
-    public void setNombrePaciente(String nombrePaciente) {
-        this.nombrePaciente = nombrePaciente;
-    }
-
     public int getIdDentista() {
         return idDentista;
     }
@@ -79,12 +75,28 @@ public class Citas {
         this.idDentista = idDentista;
     }
 
+    public String getNombrePaciente() {
+        return nombrePaciente;
+    }
+
+    public void setNombrePaciente(String nombrePaciente) {
+        this.nombrePaciente = nombrePaciente;
+    }
+
     public String getNombreDentista() {
         return nombreDentista;
     }
 
     public void setNombreDentista(String nombreDentista) {
         this.nombreDentista = nombreDentista;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
     public Date getFecha() {
@@ -103,12 +115,28 @@ public class Citas {
         this.hora = hora;
     }
 
-    public String getEstado() {
-        return estado;
+    public boolean isDatosValidos() {
+        return datosValidos;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setDatosValidos(boolean datosValidos) {
+        this.datosValidos = datosValidos;
+    }
+
+    public int getFiltroDentista() {
+        return filtroDentista;
+    }
+
+    public void setFiltroDentista(int filtroDentista) {
+        this.filtroDentista = filtroDentista;
+    }
+
+    public int getFiltroPaciente() {
+        return filtroPaciente;
+    }
+
+    public void setFiltroPaciente(int filtroPaciente) {
+        this.filtroPaciente = filtroPaciente;
     }
 
     public String getDiagnostico() {
@@ -127,24 +155,8 @@ public class Citas {
         this.respuesta = respuesta;
     }
 
-    public boolean isExito() {
-        return exito;
-    }
-
-    public void setExito(boolean exito) {
-        this.exito = exito;
-    }
-
     public String getFiltroFecha() {
         return filtroFecha;
-    }
-
-    public int getFiltroDentista() {
-        return filtroDentista;
-    }
-
-    public int getFiltroPaciente() {
-        return filtroPaciente;
     }
 
     public String getVista() {
@@ -175,6 +187,32 @@ public class Citas {
         return opcionesPacientesFiltro;
     }
 
+    public String getMiniTablaCitasHoy() {
+        return miniTablaCitasHoy;
+    }
+
+    public void setMiniTablaCitasHoy(String miniTablaCitasHoy) {
+        this.miniTablaCitasHoy = miniTablaCitasHoy;
+    }
+
+    public int getTipoRol() {
+        return tipoRol;
+    }
+
+    public void setTipoRol(int tipoRol) {
+        this.tipoRol = tipoRol;
+        cargarMiniTablaPorRol(this.tipoRol, this.usuarioLogin);
+    }
+
+    public String getUsuarioLogin() {
+        return usuarioLogin;
+    }
+
+    public void setUsuarioLogin(String usuarioLogin) {
+        this.usuarioLogin = usuarioLogin;
+        cargarMiniTablaPorRol(this.tipoRol, this.usuarioLogin);
+    }
+
     // Mensaje listo para usarse dentro de un atributo HTML (data-mensaje-respuesta)
     public String getMensajeAttr() {
         return (respuesta == null) ? "" : esc(respuesta);
@@ -185,6 +223,118 @@ public class Citas {
         return "&fecha=" + filtroFecha
                 + "&idDentista=" + (filtroDentista > 0 ? String.valueOf(filtroDentista) : "")
                 + "&idPaciente=" + (filtroPaciente > 0 ? String.valueOf(filtroPaciente) : "");
+    }
+
+    public String getPestanasHtml() {
+        String clasePendientes = isHistorial() ? "tab-cita" : "tab-cita activo";
+        String claseHistorial = isHistorial() ? "tab-cita activo" : "tab-cita";
+
+        return "<div class=\"tabs-citas\" data-seccion-cita=\"pestanas\">"
+                + "<a href=\"Control?accion=citas&vista=pendientes\" class=\"" + clasePendientes + "\">"
+                + "<span class=\"fa fa-clock-o\"></span> Pendientes</a>"
+                + "<a href=\"Control?accion=citas&vista=historial\" class=\"" + claseHistorial + "\">"
+                + "<span class=\"fa fa-history\"></span> Historial</a>"
+                + "</div>";
+    }
+
+    public String getPestanaPendientesClass() {
+        return isHistorial() ? "tab-cita" : "tab-cita activo";
+    }
+
+    public String getPestanaHistorialClass() {
+        return isHistorial() ? "tab-cita activo" : "tab-cita";
+    }
+
+    public String getBotonPdfHtml() {
+        if (!isHistorial()) {
+            return "";
+        }
+        return "<a href=\"Control?accion=pdfCitas" + getQueryFiltros()
+                + "\" class=\"btn-pdf\">"
+                + "<span class=\"fa fa-file-pdf-o\"></span> Exportar PDF</a>";
+    }
+
+    public String getBotonPdfDentistaHtml() {
+        if (!isHistorial()) {
+            return "";
+        }
+        return "<a href=\"Control?accion=pdfCitas" + getQueryFiltros()
+                + "\" target=\"_blank\" class=\"btn-pdf\">"
+                + "<span class=\"fa fa-file-pdf-o\"></span> Exportar PDF</a>";
+    }
+
+    public String getEncabezadoDinamicoHtml() {
+        if (isHistorial()) {
+            return "<th>Diagnóstico</th>";
+        }
+        return "<th class=\"text-center\">Acciones</th>";
+    }
+
+    // Si idDentista es null -> manda SQL NULL (Admin / Secretaria)
+    // Si idDentista tiene valor -> manda el ID del dentista
+    public void mostrarMiniTablaCitasDelDia(Integer idDentista) {
+        StringBuilder html = new StringBuilder();
+        String sql = "{CALL sp_ListarCitasDelDia(?)}";
+
+        try (Connection cn = Conexion.conecta()) {
+            if (cn == null) {
+                miniTablaCitasHoy = "<tr><td colspan=\"5\" class=\"text-center\">No hay conexión a la base de datos.</td></tr>";
+                return;
+            }
+
+            try (CallableStatement cs = cn.prepareCall(sql)) {
+                if (idDentista != null && idDentista > 0) {
+                    cs.setInt(1, idDentista);
+                } else {
+                    cs.setNull(1, java.sql.Types.INTEGER);
+                }
+
+                boolean hayFilas = false;
+                try (ResultSet rs = cs.executeQuery()) {
+                    while (rs.next()) {
+                        hayFilas = true;
+                        Time horaSql = rs.getTime("hora");
+                        String hora = (horaSql != null) ? horaCorta(horaSql) : "";
+                        String paciente = rs.getString("Paciente") != null ? rs.getString("Paciente") : "";
+                        String telefono = rs.getString("telefono") != null ? rs.getString("telefono") : "";
+                        String dentista = rs.getString("Dentista") != null ? rs.getString("Dentista") : "";
+                        String estado = rs.getString("estado") != null ? rs.getString("estado") : "";
+                        String claseEst = estado.trim().toLowerCase();
+
+                        html.append("<tr>");
+                        html.append("<td class=\"col-hora\">").append(esc(hora)).append("</td>");
+                        html.append("<td>").append(esc(paciente)).append("</td>");
+                        html.append("<td class=\"col-tel\">").append(esc(telefono)).append("</td>");
+                        html.append("<td>").append(esc(dentista)).append("</td>");
+                        html.append("<td><span class=\"badge-citashoy ").append(esc(claseEst)).append("\">")
+                                .append(esc(estado)).append("</span></td>");
+                        html.append("</tr>");
+                    }
+                }
+                if (!hayFilas) {
+                    html.append("<tr><td colspan=\"5\" class=\"text-center\">No hay citas programadas para hoy.</td></tr>");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            html.setLength(0);
+            html.append("<tr><td colspan=\"5\" class=\"text-center\">Error al cargar las citas del día.</td></tr>");
+        }
+
+        miniTablaCitasHoy = html.toString();
+    }
+
+    public void cargarMiniTablaPorRol(int rol, String usuario) {
+        Integer idDentistaFiltro = null;
+        if (rol == 3) {
+            if (usuario != null && !usuario.trim().isEmpty()) {
+                Dentistas den = new Dentistas().obtenerPorUsuario(usuario.trim());
+                idDentistaFiltro = (den != null && den.getIdDentista() > 0) ? den.getIdDentista() : -1;
+            } else {
+                idDentistaFiltro = -1;
+            }
+        }
+        mostrarMiniTablaCitasDelDia(idDentistaFiltro);
     }
 
     // ================================
@@ -246,7 +396,7 @@ public class Citas {
         resultado(error, "Cita #" + idCita + " cancelada correctamente.", "No se pudo cancelar la cita: ");
     }
 
-    // procedure reagendar cita (valida disponibilidad del dentista)
+    // procedure reagendar cita (valida turno/disponibilidad del doctor y mantiene PROGRAMADA)
     public void reagendar() {
         if (!datosValidos || idCita <= 0 || fecha == null || hora == null) {
             resultado("Verifica el folio, la nueva fecha y la nueva hora.", null, null);
@@ -288,7 +438,7 @@ public class Citas {
                 cs.setNull(2, Types.INTEGER);
             }
             if (filtroFecha != null && !filtroFecha.isEmpty()) {
-                cs.setDate(3, java.sql.Date.valueOf(filtroFecha));
+                cs.setDate(3, Date.valueOf(filtroFecha));
             } else {
                 cs.setNull(3, Types.DATE);
             }
@@ -297,14 +447,13 @@ public class Citas {
             try (ResultSet rs = cs.executeQuery()) {
                 while (rs.next()) {
                     Citas c = new Citas();
-                    c.setIdCita(rs.getInt("id_cita"));
-                    c.setNombrePaciente(rs.getString("Paciente"));
-                    c.setNombreDentista(rs.getString("Dentista"));
-                    c.setFecha(rs.getDate("fecha"));
-                    c.setHora(rs.getTime("hora"));
-                    c.setEstado(rs.getString("estado"));
-                    c.setDiagnostico(rs.getString("diagnostico"));
-
+                    c.idCita = rs.getInt("id_cita");
+                    c.nombrePaciente = rs.getString("Paciente");
+                    c.nombreDentista = rs.getString("Dentista");
+                    c.fecha = rs.getDate("fecha");
+                    c.hora = rs.getTime("hora");
+                    c.estado = rs.getString("estado");
+                    c.diagnostico = rs.getString("diagnostico");
                     lista.add(c);
                 }
             }
@@ -322,27 +471,27 @@ public class Citas {
         if (lista != null && !lista.isEmpty()) {
             for (Citas c : lista) {
                 html.append("<tr>");
-                html.append("<td>#").append(c.getIdCita()).append("</td>");
-                html.append("<td>").append(esc(c.getNombrePaciente())).append("</td>");
-                html.append("<td>Dr(a). ").append(esc(c.getNombreDentista())).append("</td>");
-                html.append("<td>").append(c.getFecha()).append("</td>");
-                html.append("<td>").append(horaCorta(c.getHora())).append("</td>");
+                html.append("<td>#").append(c.idCita).append("</td>");
+                html.append("<td>").append(esc(c.nombrePaciente)).append("</td>");
+                html.append("<td>Dr(a). ").append(esc(c.nombreDentista)).append("</td>");
+                html.append("<td>").append(c.fecha).append("</td>");
+                html.append("<td>").append(horaCorta(c.hora)).append("</td>");
                 html.append("<td><span class=\"badge-estado ").append(c.claseEstado()).append("\">")
-                        .append(esc(c.getEstado())).append("</span></td>");
+                        .append(esc(c.estado)).append("</span></td>");
 
                 if (isHistorial()) {
-                    html.append("<td class=\"diagnostico\">").append(esc(c.getDiagnostico())).append("</td>");
+                    html.append("<td class=\"diagnostico\">").append(esc(c.diagnostico)).append("</td>");
                 } else {
                     html.append("<td class=\"text-center\">");
                     if (tipoUsuario == 3) {
                         html.append("<button type=\"button\" class=\"btn-icon-tabla atender\" title=\"Atender cita\" onclick=\"abrirModalAtender(")
-                                .append(c.getIdCita()).append(")\"><span class=\"fa fa-stethoscope\"></span></button>");
+                                .append(c.idCita).append(")\"><span class=\"fa fa-stethoscope\"></span></button>");
                     } else {
                         html.append("<button type=\"button\" class=\"btn-icon-tabla reagendar\" title=\"Reagendar\" onclick=\"abrirModalReagendar(")
-                                .append(c.getIdCita()).append(",'").append(c.getFecha()).append("','")
-                                .append(horaCorta(c.getHora())).append("')\"><span class=\"fa fa-calendar-check-o\"></span></button>");
+                                .append(c.idCita).append(",'").append(c.fecha).append("','")
+                                .append(horaCorta(c.hora)).append("')\"><span class=\"fa fa-calendar-check-o\"></span></button>");
                         html.append("<button type=\"button\" class=\"btn-icon-tabla eliminar\" title=\"Cancelar cita\" onclick=\"abrirModalCancelar(")
-                                .append(c.getIdCita()).append(")\"><span class=\"fa fa-calendar-times-o\"></span></button>");
+                                .append(c.idCita).append(")\"><span class=\"fa fa-calendar-times-o\"></span></button>");
                     }
                     html.append("</td>");
                 }
@@ -389,7 +538,7 @@ public class Citas {
         this.opcionesPacientesFiltro = pacFiltro.toString();
     }
 
-    // Historial de citas en PDF (itextpdf-5.4.1.jar) con los filtros actuales
+    // Historial de citas en PDF (itextpdf-5.4.1.jar) enviado directo al OutputStream de descarga
     public void generarPdf(OutputStream salida) throws DocumentException {
         List<Citas> lista = llenarTabla(false);
 
@@ -409,12 +558,12 @@ public class Citas {
             tabla.addCell(new Phrase(titulo, headerFont));
         }
         for (Citas c : lista) {
-            tabla.addCell(new Phrase(String.valueOf(c.getFecha()), cellFont));
-            tabla.addCell(new Phrase(horaCorta(c.getHora()), cellFont));
-            tabla.addCell(new Phrase(c.getNombrePaciente() != null ? c.getNombrePaciente() : "", cellFont));
-            tabla.addCell(new Phrase(c.getNombreDentista() != null ? c.getNombreDentista() : "", cellFont));
-            tabla.addCell(new Phrase(c.getEstado() != null ? c.getEstado() : "", cellFont));
-            tabla.addCell(new Phrase(c.getDiagnostico() != null ? c.getDiagnostico() : "", cellFont));
+            tabla.addCell(new Phrase(String.valueOf(c.fecha), cellFont));
+            tabla.addCell(new Phrase(horaCorta(c.hora), cellFont));
+            tabla.addCell(new Phrase(c.nombrePaciente != null ? c.nombrePaciente : "", cellFont));
+            tabla.addCell(new Phrase(c.nombreDentista != null ? c.nombreDentista : "", cellFont));
+            tabla.addCell(new Phrase(c.estado != null ? c.estado : "", cellFont));
+            tabla.addCell(new Phrase(c.diagnostico != null ? c.diagnostico : "", cellFont));
         }
         document.add(tabla);
         document.close();
@@ -423,8 +572,6 @@ public class Citas {
     // ================================
     //  AUXILIARES
     // ================================
-    // Ejecuta un procedure con parámetros (Integer, Date, Time o String; null = INTEGER nulo).
-    // Regresa null si todo salió bien o el mensaje de error de la BD.
     private String ejecutarSP(String sql, Object... params) {
         try (Connection cn = Conexion.conecta()) {
             if (cn == null) {
@@ -454,18 +601,12 @@ public class Citas {
         }
     }
 
-    // Arma el mensaje final: error == null es éxito. Sin textos (ok/fallo) el error se muestra tal cual.
     private void resultado(String error, String ok, String fallo) {
-        this.exito = (error == null);
-        this.respuesta = (ok == null) ? error : (exito ? ok : fallo + error);
+        boolean okFlag = (error == null);
+        this.respuesta = (ok == null) ? error : (okFlag ? ok : fallo + error);
     }
 
-    private boolean esPendiente() {
-        String e = (estado != null) ? estado.trim().toUpperCase() : "";
-        return !"ATENDIDA".equals(e) && !"CANCELADA".equals(e);
-    }
-
-    // Clase css del badge de estado (programada, reagendada, atendida, cancelada)
+    // Clase css del badge de estado (programada, atendida, cancelada)
     private String claseEstado() {
         return (estado != null) ? estado.trim().toLowerCase() : "";
     }

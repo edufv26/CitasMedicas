@@ -38,6 +38,7 @@
         <script src="<%= request.getContextPath()%>/js/modoOscuro.js" defer></script>
         <script src="<%= request.getContextPath()%>/js/modal-global.js" defer></script>
         <script src="<%= request.getContextPath()%>/js/menu.js" defer></script>
+        <script src="<%= request.getContextPath()%>/js/pacientes.js" defer></script>
     </head>
     <body data-mensaje-respuesta="<jsp:getProperty name="mensajeBean" property="mensajeAttr"/>">
         <!-- CONTROL DEL SERVLET -->
@@ -66,6 +67,30 @@
                     <button type="button" data-abrir="modalRegistro" class="btn-accion-principal">
                         <span class="fa fa-user-plus"></span> Dar de alta a paciente
                     </button>
+                </div>
+
+                <!-- Filtros de Pacientes (Búsqueda general + Doctor Asignado) -->
+                <div id="filtrosPacientes" class="filtros">
+                    <div class="campo-grupo">
+                        <label for="fPacBuscar">Buscar (nombre, correo, teléfono o dirección):</label>
+                        <input type="text" id="fPacBuscar" placeholder="Ej. Camila, @gmail.com, Ecatepec, 5512...">
+                    </div>
+
+                    <div class="campo-grupo">
+                        <label for="fPacDoctor">Doctor asignado:</label>
+                        <select id="fPacDoctor">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+
+                    <div class="filtros-acciones">
+                        <button type="button" id="btnFiltrarPacientes" class="btn-accion-principal">
+                            <span class="fa fa-filter"></span> Filtrar
+                        </button>
+                        <button type="button" id="btnLimpiarPacientes" class="btn-limpiar">
+                            <span class="fa fa-eraser"></span> Limpiar
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Tabla de Pacientes -->
@@ -126,7 +151,7 @@
                 </div>
                 <div class="campo-grupo">
                     <label>Dirección:</label>
-                    <input type="text" name="direccion" value="<% if (esEdicion && pacienteEdit.getDireccion() != null) { %><jsp:getProperty name="pacienteEdit" property="direccion"/><% } %>" required>
+                    <input type="text" name="direccion" value="<% if (esEdicion && pacienteEdit.getDireccion() != null) { %><jsp:getProperty name="pacienteEdit" property="direccion"/><% }%>" required>
                 </div>
 
                 <!-- Selector de Doctor de Preferencia (Visible SOLO en modo Edición) -->

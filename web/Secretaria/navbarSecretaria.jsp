@@ -40,7 +40,7 @@
                 <span class="fa fa-calendar icon-menu"></span> Citas <span class="arrow">▾</span>
             </button>
             <div class="dropdown-menu" id="menu-citas">
-                <a href="<%= request.getContextPath()%>/Control?accion=pacientes">
+                <a href="<%= request.getContextPath()%>/Control?accion=citas">
                     <span class="fa fa-calendar-o"></span> Gestion de Citas
                 </a>
             </div>

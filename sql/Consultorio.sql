@@ -469,84 +469,235 @@ GO
 -- =========================================================
 --procedure agendar citas (verificar si fecha-hora y medico esta disponible(logica de paciente antiguo o nuevo))
 -- SP: Agendar cita (Verifica disponibilidad de fecha/hora/médico y maneja médico preferido o nuevo)
-CREATE PROCEDURE sp_AgendarCita
+USE Consultorio
+GO
+CREATE OR ALTER PROCEDURE sp_AgendarCita
     @id_paciente INT,
-    @id_dentista_forzado INT = NULL, 
+    @id_dentista_forzado INT = NULL,
     @fecha DATE,
     @hora TIME
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     DECLARE @id_dentista_final INT;
+    DECLARE @turno_dentista VARCHAR(20);
 
-    -- Si no se fuerza un médico, evaluamos si el paciente es antiguo y tiene preferencia
-    IF @id_dentista_forzado IS NULL
+    -- 1. Validar que la hora esté dentro de Matutino (08:00 - 14:00) o Vespertino (15:00 - 20:00)
+    IF NOT (
+        (@hora >= '08:00:00' AND @hora <= '14:00:00')
+        OR
+        (@hora >= '15:00:00' AND @hora <= '20:00:00')
+    )
     BEGIN
-        SELECT @id_dentista_final = id_dentista_preferencia 
-        FROM Pacientes 
-        WHERE id_paciente = @id_paciente;
+        RAISERROR('La hora está fuera del horario de atención (Matutino 08:00-14:00 / Vespertino 15:00-20:00).', 16, 1);
+        RETURN;
+    END
 
-        -- Si no tiene preferencia (paciente nuevo), asignamos el primer dentista disponible o por defecto
+    -- 2. Si se eligió un médico específico
+    IF @id_dentista_forzado IS NOT NULL
+    BEGIN
+        SELECT @id_dentista_final = id_dentista,
+               @turno_dentista = LTRIM(RTRIM(turno))
+        FROM dbo.Dentistas
+        WHERE id_dentista = @id_dentista_forzado;
+
         IF @id_dentista_final IS NULL
         BEGIN
-            SELECT TOP 1 @id_dentista_final = id_dentista FROM Dentistas;
+            RAISERROR('El dentista seleccionado no existe.', 16, 1);
+            RETURN;
+        END
+
+        -- Validar que el turno del dentista cubra la hora solicitada
+        IF NOT (
+            (@turno_dentista = 'Matutino' AND @hora >= '08:00:00' AND @hora <= '14:00:00')
+            OR
+            (@turno_dentista = 'Vespertino' AND @hora >= '15:00:00' AND @hora <= '20:00:00')
+        )
+        BEGIN
+            RAISERROR('La hora seleccionada no corresponde al turno del dentista.', 16, 1);
+            RETURN;
+        END
+
+        -- Validar disponibilidad en fecha y hora
+        IF EXISTS (
+            SELECT 1
+            FROM dbo.Citas
+            WHERE id_dentista = @id_dentista_final
+              AND fecha = @fecha
+              AND hora = @hora
+              AND estado = 'PROGRAMADA'
+        )
+        BEGIN
+            RAISERROR('El dentista ya tiene una cita programada en esa fecha y hora.', 16, 1);
+            RETURN;
         END
     END
     ELSE
     BEGIN
-        SET @id_dentista_final = @id_dentista_forzado;
+        -- 3. Modo automático: revisar primero si el paciente tiene médico de preferencia
+        DECLARE @id_pref INT;
+        SELECT @id_pref = id_dentista_preferencia
+        FROM dbo.Pacientes
+        WHERE id_paciente = @id_paciente;
+
+        IF @id_pref IS NOT NULL
+        BEGIN
+            SELECT @turno_dentista = LTRIM(RTRIM(turno))
+            FROM dbo.Dentistas
+            WHERE id_dentista = @id_pref;
+
+            -- Si el médico de preferencia cumple el turno y está libre, se le asigna
+            IF (
+                (@turno_dentista = 'Matutino' AND @hora >= '08:00:00' AND @hora <= '14:00:00')
+                OR
+                (@turno_dentista = 'Vespertino' AND @hora >= '15:00:00' AND @hora <= '20:00:00')
+            )
+            AND NOT EXISTS (
+                SELECT 1
+                FROM dbo.Citas
+                WHERE id_dentista = @id_pref
+                  AND fecha = @fecha
+                  AND hora = @hora
+                  AND estado = 'PROGRAMADA'
+            )
+            BEGIN
+                SET @id_dentista_final = @id_pref;
+            END
+        END
+
+        -- 4. Si no tenía preferencia o su médico de preferencia no tenía ese turno / estaba ocupado,
+        --    buscar un dentista que sí cubra el turno a esa hora y esté disponible
+        IF @id_dentista_final IS NULL
+        BEGIN
+            SELECT TOP 1 @id_dentista_final = d.id_dentista
+            FROM dbo.Dentistas d
+            WHERE (
+                (LTRIM(RTRIM(d.turno)) = 'Matutino' AND @hora >= '08:00:00' AND @hora <= '14:00:00')
+                OR
+                (LTRIM(RTRIM(d.turno)) = 'Vespertino' AND @hora >= '15:00:00' AND @hora <= '20:00:00')
+            )
+            AND NOT EXISTS (
+                SELECT 1
+                FROM dbo.Citas c
+                WHERE c.id_dentista = d.id_dentista
+                  AND c.fecha = @fecha
+                  AND c.hora = @hora
+                  AND c.estado = 'PROGRAMADA'
+            )
+            ORDER BY d.id_dentista;
+        END
+
+        IF @id_dentista_final IS NULL
+        BEGIN
+            RAISERROR('No hay dentistas disponibles en ese turno para la fecha y hora seleccionadas.', 16, 1);
+            RETURN;
+        END
     END
 
-    -- Validar disponibilidad (Fecha, Hora y Médico)
-    IF EXISTS (SELECT 1 FROM Citas WHERE id_dentista = @id_dentista_final AND fecha = @fecha AND hora = @hora AND estado <> 'CANCELADA')
-    BEGIN
-        RAISERROR('El dentista ya tiene una cita ocupada en esa fecha y hora.', 16, 1);
-        RETURN;
-    END
-
-    -- Insertar la cita
-    INSERT INTO Citas (id_paciente, id_dentista, fecha, hora, estado)
+    -- 5. Insertar cita como PROGRAMADA
+    INSERT INTO dbo.Citas (id_paciente, id_dentista, fecha, hora, estado)
     VALUES (@id_paciente, @id_dentista_final, @fecha, @hora, 'PROGRAMADA');
 END
 GO
+-- ====================================================================
 --procedure cancelar citas
+-- ====================================================================
 -- SP: Cancelar Citas
-CREATE PROCEDURE sp_CancelarCita
+CREATE OR ALTER PROCEDURE sp_CancelarCita
     @id_cita INT
 AS
 BEGIN
-    UPDATE Citas SET estado = 'CANCELADA' WHERE id_cita = @id_cita;
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.Citas WHERE id_cita = @id_cita AND estado = 'PROGRAMADA')
+    BEGIN
+        RAISERROR('La cita no existe o ya no está programada.', 16, 1);
+        RETURN;
+    END
+
+    UPDATE dbo.Citas
+    SET estado = 'CANCELADA'
+    WHERE id_cita = @id_cita;
 END
 GO
---procedure reagendar citas
--- SP: Reagendar Citas (validando disponibilidad)
-CREATE PROCEDURE sp_ReagendarCita
+
+CREATE OR ALTER PROCEDURE sp_ReagendarCita
     @id_cita INT,
     @nueva_fecha DATE,
     @nueva_hora TIME
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     DECLARE @id_dentista INT;
-    SELECT @id_dentista = id_dentista FROM Citas WHERE id_cita = @id_cita;
+    DECLARE @turno_dentista VARCHAR(20);
+
+    SELECT @id_dentista = c.id_dentista,
+           @turno_dentista = LTRIM(RTRIM(d.turno))
+    FROM dbo.Citas c
+    INNER JOIN dbo.Dentistas d ON c.id_dentista = d.id_dentista
+    WHERE c.id_cita = @id_cita
+      AND c.estado = 'PROGRAMADA';
+
+    IF @id_dentista IS NULL
+    BEGIN
+        RAISERROR('La cita no existe o no se puede reagendar.', 16, 1);
+        RETURN;
+    END
+
+    -- Validar que la nueva hora corresponda al turno del dentista asignado
+    IF NOT (
+        (@turno_dentista = 'Matutino' AND @nueva_hora >= '08:00:00' AND @nueva_hora <= '14:00:00')
+        OR
+        (@turno_dentista = 'Vespertino' AND @nueva_hora >= '15:00:00' AND @nueva_hora <= '20:00:00')
+    )
+    BEGIN
+        RAISERROR('La nueva hora no corresponde al turno del dentista asignado (Matutino 08:00-14:00 / Vespertino 15:00-20:00).', 16, 1);
+        RETURN;
+    END
 
     -- Verificar disponibilidad excluyendo la propia cita actual
-    IF EXISTS (SELECT 1 FROM Citas WHERE id_dentista = @id_dentista AND fecha = @nueva_fecha AND hora = @nueva_hora AND estado <> 'CANCELADA' AND id_cita <> @id_cita)
+    IF EXISTS (
+        SELECT 1
+        FROM dbo.Citas
+        WHERE id_dentista = @id_dentista
+          AND fecha = @nueva_fecha
+          AND hora = @nueva_hora
+          AND estado = 'PROGRAMADA'
+          AND id_cita <> @id_cita
+    )
     BEGIN
         RAISERROR('El dentista no está disponible en el nuevo horario seleccionado.', 16, 1);
         RETURN;
     END
 
-    UPDATE Citas 
-    SET fecha = @nueva_fecha, hora = @nueva_hora, estado = 'REAGENDADA' 
+    UPDATE dbo.Citas
+    SET fecha = @nueva_fecha,
+        hora = @nueva_hora,
+        estado = 'PROGRAMADA'
     WHERE id_cita = @id_cita;
 END
 GO
 --procedure historico de citas (general y dentista especifico)
--- SP: Historial de citas flexible (General, por Dentista, o por Paciente)
-CREATE PROCEDURE sp_FiltrarHistorial
+SELECT 
+    DB_NAME() AS base_actual,
+    SCHEMA_NAME(schema_id) AS esquema,
+    name AS nombre_sp,
+    create_date,
+    modify_date
+FROM sys.procedures
+WHERE name LIKE '%FiltrarHistorial%';
+GO
+CREATE OR ALTER PROCEDURE sp_FiltrarHistorial
     @id_dentista INT = NULL,
-    @id_paciente INT = NULL
+    @id_paciente INT = NULL,
+    @fecha DATE = NULL,
+    @solo_pendientes BIT = 0
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     SELECT 
         c.id_cita,
         p.nombre + ' ' + p.APaterno AS Paciente,
@@ -555,38 +706,26 @@ BEGIN
         c.hora,
         c.estado,
         ISNULL(h.diagnostico, 'Pendiente / Sin diagnóstico') AS diagnostico
-    FROM Citas c
-    INNER JOIN Pacientes p ON c.id_paciente = p.id_paciente
-    INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
-    INNER JOIN Personal u ON d.usuario = u.usuario
-    LEFT JOIN Historial h ON c.id_cita = h.id_cita
+    FROM dbo.Citas c
+    INNER JOIN dbo.Pacientes p ON c.id_paciente = p.id_paciente
+    INNER JOIN dbo.Dentistas d ON c.id_dentista = d.id_dentista
+    INNER JOIN dbo.Personal u ON d.usuario = u.usuario
+    LEFT JOIN dbo.Historial h ON c.id_cita = h.id_cita
     WHERE (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
       AND (@id_paciente IS NULL OR c.id_paciente = @id_paciente)
+      AND (@fecha IS NULL OR c.fecha = @fecha)
+      AND (
+          (@solo_pendientes = 1 AND c.estado = 'PROGRAMADA')
+          OR
+          (@solo_pendientes = 0 AND c.estado IN ('ATENDIDA', 'CANCELADA'))
+      )
     ORDER BY c.fecha DESC, c.hora DESC;
 END
 GO
 
---PARA DENTISTAS
--- procedure Ver citas
--- SP: Ver citas de un dentista específico
-CREATE PROCEDURE sp_VerCitasDentista
-    @id_dentista INT,
-    @fecha DATE = NULL
-AS
-BEGIN
-    SELECT 
-        c.id_cita,
-        p.id_paciente,
-        p.nombre + ' ' + p.APaterno AS Paciente,
-        c.fecha,
-        c.hora,
-        c.estado
-    FROM Citas c
-    INNER JOIN Pacientes p ON c.id_paciente = p.id_paciente
-    WHERE c.id_dentista = @id_dentista 
-      AND (@fecha IS NULL OR c.fecha = @fecha)
-      AND c.estado IN ('PROGRAMADA', 'REAGENDADA');
-END
+SELECT * FROM Citas
+
+UPDATE Citas SET estado ='PROGRAMADA' WHERE estado='REAGENDADA'
 GO
 -- procedure atender cita x paciente (para ambos)
 -- SP: Atender cita (Guarda diagnóstico y cambia estado a ATENDIDA)
@@ -606,16 +745,18 @@ GO
 -- =========================================================
 -- Si @id_dentista es NULL, trae todas (para el Admin). 
 -- Si se le pasa un ID, trae solo las de ese doctor (para su panel).
-CREATE PROCEDURE sp_ListarCitasDelDia
+USE Consultorio
+GO
+CREATE OR ALTER PROCEDURE sp_ListarCitasDelDia
     @id_dentista INT = NULL
 AS
 BEGIN
     SELECT 
         c.id_cita,
         p.id_paciente,
-        p.nombre + ' ' + p.APaterno + ' ' + p.AMaterno AS Paciente,
+        LTRIM(RTRIM(CONCAT(ISNULL(p.nombre, ''), ' ', ISNULL(p.APaterno, ''), ' ', ISNULL(p.AMaterno, '')))) AS Paciente,
         p.telefono,
-        u.nombre + ' ' + u.APaterno AS Dentista,
+        LTRIM(RTRIM(CONCAT(ISNULL(u.nombre, ''), ' ', ISNULL(u.APaterno, '')))) AS Dentista,
         c.fecha,
         c.hora,
         c.estado
@@ -625,7 +766,7 @@ BEGIN
     INNER JOIN Personal u ON d.usuario = u.usuario
     WHERE c.fecha = CAST(GETDATE() AS DATE)
       AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
-      AND c.estado IN ('PROGRAMADA', 'REAGENDADA', 'ATENDIDA')
+      AND c.estado IN ('PROGRAMADA')
     ORDER BY c.hora ASC;
 END
 GO

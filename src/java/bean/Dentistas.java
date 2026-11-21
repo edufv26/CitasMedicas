@@ -234,4 +234,42 @@ public class Dentistas extends Personal {
 
         respuesta = html.toString();
     }
+    
+    public String generarFilasDentistasHtml(List<Dentistas> lista) {
+        StringBuilder sb = new StringBuilder();
+
+        if (lista != null && !lista.isEmpty()) {
+            for (Dentistas den : lista) {
+                String usr = den.getUsuario() != null ? den.getUsuario() : "";
+                String nom = den.getNombre() != null ? den.getNombre() : "";
+                String pat = den.getPaterno() != null ? den.getPaterno() : "";
+                String mat = den.getMaterno() != null ? den.getMaterno() : "";
+                String esp = den.getEspecialidad() != null ? den.getEspecialidad() : "";
+                String ced = den.getCedula() != null ? den.getCedula() : "";
+                String tur = den.getTurno() != null ? den.getTurno() : "";
+                String tel = (den.getTelefono() != null && !den.getTelefono().isEmpty()) ? den.getTelefono() : "-";
+                String cor = (den.getCorreo() != null && !den.getCorreo().isEmpty()) ? den.getCorreo() : "-";
+
+                sb.append("<tr>")
+                  .append("<td>").append(den.getIdDentista()).append("</td>")
+                  .append("<td><b>").append(usr).append("</b></td>")
+                  .append("<td>").append(nom).append(" ").append(pat).append(" ").append(mat).append("</td>")
+                  .append("<td>").append(esp).append("</td>")
+                  .append("<td>").append(ced).append("</td>")
+                  .append("<td>").append(tur).append("</td>")
+                  .append("<td>").append(tel).append("</td>")
+                  .append("<td>").append(cor).append("</td>")
+                  .append("<td class=\"text-center\">")
+                  .append("<a href=\"Control?accion=editarPersonal&usuario=").append(usr).append("&tipo=2\" class=\"btn-icon-tabla editar\" title=\"Editar\"><span class=\"fa fa-pencil\"></span></a>")
+                  .append("<button type=\"button\" class=\"btn-icon-tabla\" title=\"Cambiar contraseña\" onclick=\"abrirModalPassword('").append(usr).append("')\"><span class=\"fa fa-key\"></span></button>")
+                  .append("<a href=\"#\" onclick=\"abrirModalEliminar('").append(usr).append("')\" class=\"btn-icon-tabla eliminar\" title=\"Eliminar\"><span class=\"fa fa-trash\"></span></a>")
+                  .append("</td>")
+                  .append("</tr>");
+            }
+        } else {
+            sb.append("<tr><td colspan=\"9\" class=\"text-center\" style=\"padding: 16px; color: #666;\">No hay dentistas registrados.</td></tr>");
+        }
+
+        return sb.toString();
+    }
 }

@@ -40,7 +40,6 @@
             <!-- Cabecera: Botón Volver + Título (Izquierda) -->
             <div class="header-seccion">
                 <div class="header-left">
-                    <!-- Botón de Volver -->
                     <a href="<%= request.getContextPath()%>/Control?accion=menu" class="btn-regresar">
                         <span class="fa fa-chevron-left"></span> Volver
                     </a>
@@ -49,17 +48,10 @@
             </div>
 
             <!-- Pestañas: citas pendientes / historial -->
-            <div class="tabs-citas">
-                <a href="<%= request.getContextPath()%>/Control?accion=citas&vista=pendientes" class="tab-cita <%= citasVista.isHistorial() ? "" : "activo"%>">
-                    <span class="fa fa-clock-o"></span> Pendientes
-                </a>
-                <a href="<%= request.getContextPath()%>/Control?accion=citas&vista=historial" class="tab-cita <%= citasVista.isHistorial() ? "activo" : ""%>">
-                    <span class="fa fa-history"></span> Historial
-                </a>
-            </div>
+            <jsp:getProperty name="citasVista" property="pestanasHtml"/>
 
             <!-- Filtros por fecha y paciente -->
-            <form action="Control" method="get" class="filtros-citas">
+            <form action="Control" method="get" class="filtros-citas" data-seccion-cita="filtros">
                 <input type="hidden" name="accion" value="citas">
                 <input type="hidden" name="vista" value="<jsp:getProperty name="citasVista" property="vista"/>">
 
@@ -82,16 +74,12 @@
                     <a href="<%= request.getContextPath()%>/Control?accion=citas&vista=<jsp:getProperty name="citasVista" property="vista"/>" class="btn-limpiar">
                         <span class="fa fa-eraser"></span> Limpiar
                     </a>
-                    <% if (citasVista.isHistorial()) {%>
-                    <a href="<%= request.getContextPath()%>/Control?accion=pdfCitas<jsp:getProperty name="citasVista" property="queryFiltros"/>" target="_blank" class="btn-pdf">
-                        <span class="fa fa-file-pdf-o"></span> Exportar PDF
-                    </a>
-                    <% }%>
+                    <jsp:getProperty name="citasVista" property="botonPdfDentistaHtml"/>
                 </div>
             </form>
 
             <!-- Tabla de Citas -->
-            <div class="table-responsive">
+            <div class="table-responsive" data-seccion-cita="tabla">
                 <table class="tabla-clinica">
                     <thead>
                         <tr>
@@ -101,11 +89,7 @@
                             <th>Fecha</th>
                             <th>Hora</th>
                             <th>Estado</th>
-                            <% if (citasVista.isHistorial()) { %>
-                            <th>Diagnóstico</th>
-                            <% } else { %>
-                            <th class="text-center">Acciones</th>
-                            <% }%>
+                            <jsp:getProperty name="citasVista" property="encabezadoDinamicoHtml"/>
                         </tr>
                     </thead>
                     <tbody>

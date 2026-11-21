@@ -176,7 +176,7 @@ body {
 .btn-salir {
     padding: 9px 15px;
 
-    background-color: #dc2626; /* Rojo elegante y moderno */
+    background-color: #dc2626;
     color: #ffffff;
 
     font-size: 13px;
@@ -188,7 +188,7 @@ body {
 }
 
 .btn-salir:hover {
-    background-color: #b91c1c; /* Tono más oscuro al pasar el cursor */
+    background-color: #b91c1c;
 }
 
 /* ================================
@@ -209,12 +209,10 @@ body {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Efecto al pasar el mouse idéntico al de los menús */
 .btn-theme-toggle:hover {
     background-color: #f3edfa !important;
 }
 
-/* Adaptación para el modo oscuro */
 body.dark-mode .btn-theme-toggle {
     color: #d8b4fe;
 }
@@ -222,6 +220,131 @@ body.dark-mode .btn-theme-toggle {
 body.dark-mode .btn-theme-toggle:hover {
     background-color: #2d2442 !important;
 }
+
+/* ================================
+   MINI TABLA DE CITAS DEL DÍA
+================================ */
+.contenedor-citashoy {
+    width: 100%;
+    max-width: 780px;
+    margin-top: 12px;
+    margin-right: auto;
+    margin-left: 0;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.tabla-citashoy {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 12.5px;
+}
+
+.tabla-citashoy th {
+    background-color: #542b83;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    font-size: 12px;
+}
+
+.tabla-citashoy td {
+    padding: 7px 12px;
+    color: #333333;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tabla-citashoy .col-hora,
+.tabla-citashoy .col-tel {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tabla-citashoy tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla-citashoy tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.tabla-citashoy .text-center {
+    text-align: center;
+    padding: 12px;
+}
+
+.badge-citashoy {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    background-color: rgba(84, 43, 131, 0.12);
+    color: #542b83;
+}
+
+.badge-citashoy.programada {
+    background-color: rgba(168, 85, 247, 0.16);
+    color: #7e22ce;
+}
+
+.badge-citashoy.reagendada {
+    background-color: rgba(234, 179, 8, 0.18);
+    color: #a16207;
+}
+
+.badge-citashoy.atendida {
+    background-color: rgba(34, 197, 94, 0.16);
+    color: #15803d;
+}
+
+body.dark-mode .contenedor-citashoy {
+    background: #1e1b2e;
+    border: 1px solid #2d2442;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .tabla-citashoy th {
+    background-color: #2d2442;
+    color: #d8b4fe;
+}
+
+body.dark-mode .tabla-citashoy td {
+    color: #cbd5e1;
+    border-bottom: 1px solid #2d2442;
+}
+
+body.dark-mode .tabla-citashoy tbody tr:hover {
+    background-color: #251f38;
+}
+
+body.dark-mode .badge-citashoy {
+    background-color: rgba(216, 180, 254, 0.14);
+    color: #d8b4fe;
+}
+
+body.dark-mode .badge-citashoy.programada {
+    background-color: rgba(168, 85, 247, 0.22);
+    color: #e9d5ff;
+}
+
+body.dark-mode .badge-citashoy.reagendada {
+    background-color: rgba(234, 179, 8, 0.2);
+    color: #fde047;
+}
+
+body.dark-mode .badge-citashoy.atendida {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+}
+
 /* ================================
    ANIMACIÓN
 ================================ */
@@ -253,7 +376,6 @@ body.dark-mode .navbar-clinica {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* Hacer que el saludo (h2 y textos de bienvenida) cambie a claro en modo oscuro */
 body.dark-mode .navbar-clinica h2,
 body.dark-mode .navbar-clinica div {
     color: #d8b4fe !important;
@@ -296,7 +418,6 @@ body.dark-mode .btn-theme-toggle:hover {
     background-color: #2d2442;
 }
 
-
 /* ================================
    DISEÑO RESPONSIVO
 ================================ */
@@ -331,7 +452,12 @@ body.dark-mode .btn-theme-toggle:hover {
         margin-left: auto;
     }
 
+    .contenedor-citashoy {
+        max-width: 100%;
+    }
+
 }
+
 /* --- Pantalla de Carga --- */
 #loading-overlay {
     position: fixed;
@@ -361,7 +487,7 @@ body.dark-mode .btn-theme-toggle:hover {
     width: 55px;
     height: 55px;
     border: 4px solid rgba(168, 85, 247, 0.15);
-    border-top: 4px solid #a855f7; /* El tono morado institucional de Vitalis */
+    border-top: 4px solid #a855f7;
     border-radius: 50%;
     animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
 }

@@ -9,7 +9,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Menú Principal - Administrador</title>
-        
+
         <!-- Favicon e Iconos -->
         <link rel="icon" type="image/svg+xml" href="<%= request.getContextPath()%>/icons/favicon.svg">
         <link rel="stylesheet" href="<%= request.getContextPath()%>/css/font-awesome.css">
@@ -23,7 +23,7 @@
         <!-- Pantalla de carga (Loader) -->
         <div id="loading-overlay">
             <div class="spinner"></div>
-            <div class="loading-text">Cargando Sistema...</div>
+            <div class="loading-text">Cargando...</div>
         </div>
 
         <!-- Barra de navegación del Admin -->
@@ -35,6 +35,26 @@
             <p>Selecciona una opción en el menú superior para administrar pacientes, personal o citas.</p>
             <br><br>
             <h2> Citas del día de hoy</h2>
+            <jsp:useBean id="citasHoy" class="bean.Citas" scope="page"/>
+            <jsp:setProperty name="citasHoy" property="usuarioLogin" value="${sessionScope.usuarioLogin}"/>
+            <jsp:setProperty name="citasHoy" property="tipoRol" value="${sessionScope.tipo != null ? sessionScope.tipo : 1}"/>
+
+            <div class="contenedor-citashoy">
+                <table class="tabla-citashoy">
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Teléfono</th>
+                            <th>Doctor</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <jsp:getProperty name="citasHoy" property="miniTablaCitasHoy"/>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </body>
 </html>
