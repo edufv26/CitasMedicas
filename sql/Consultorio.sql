@@ -573,7 +573,7 @@ BEGIN
             SELECT TOP 1 @id_dentista_final = d.id_dentista
             FROM dbo.Dentistas d
             WHERE (
-                (LTRIM(RTRIM(d.turno)) = 'Matutino' AND @hora >= '08:00:00' AND @hora <= '14:00:00')
+                (LTRIM(RTRIM(d.turno)) = 'Matutino' AND @hora >= '08:00:00' AND @hora <= '13:00:00')
                 OR
                 (LTRIM(RTRIM(d.turno)) = 'Vespertino' AND @hora >= '15:00:00' AND @hora <= '20:00:00')
             )
@@ -648,7 +648,7 @@ BEGIN
 
     -- Validar que la nueva hora corresponda al turno del dentista asignado
     IF NOT (
-        (@turno_dentista = 'Matutino' AND @nueva_hora >= '08:00:00' AND @nueva_hora <= '14:00:00')
+        (@turno_dentista = 'Matutino' AND @nueva_hora >= '08:00:00' AND @nueva_hora <= '13:00:00')
         OR
         (@turno_dentista = 'Vespertino' AND @nueva_hora >= '15:00:00' AND @nueva_hora <= '20:00:00')
     )
