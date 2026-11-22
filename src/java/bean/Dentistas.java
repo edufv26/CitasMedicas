@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package bean;
 
 import java.sql.Connection;
@@ -10,10 +6,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author edu
- */
 public class Dentistas extends Personal {
 
     private String especialidad, cedula, turno, telefono, correo, respuesta;

@@ -1,0 +1,508 @@
+/* ================================
+   CONFIGURACIÓN GENERAL
+================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f5f6fa;
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ================================
+   BARRA DE NAVEGACIÓN
+================================ */
+
+.navbar-clinica {
+    width: 100%;
+    min-height: 60px;
+    background-color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 25px;
+
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+
+    position: relative;
+    z-index: 1000;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ================================
+   IDENTIDAD DE LA CLÍNICA
+================================ */
+
+.nav-brand a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    color: #542b83;
+    font-size: 17px;
+    font-weight: bold;
+
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.brand-icon {
+    font-size: 22px;
+}
+
+/* ================================
+   MENÚ PRINCIPAL
+================================ */
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    list-style: none;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.drop-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 12px 13px;
+
+    border: none;
+    background: transparent;
+
+    color: #542b83;
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.drop-toggle:hover,
+.nav-item.active .drop-toggle {
+    background-color: #f3edfa;
+    border-radius: 6px;
+}
+
+.nav-icon {
+    font-size: 17px;
+}
+
+.arrow {
+    font-size: 11px;
+    transition: transform 0.2s;
+}
+
+.nav-item.active .arrow {
+    transform: rotate(180deg);
+}
+
+/* ================================
+   MENÚ DESPLEGABLE
+================================ */
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+
+    min-width: 220px;
+
+    display: none;
+    flex-direction: column;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+
+    padding: 6px;
+
+    z-index: 1001;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.nav-item.active .dropdown-menu {
+    display: flex;
+    animation: aparecer 0.18s ease;
+}
+
+.dropdown-menu a {
+    display: block;
+
+    padding: 11px 12px;
+
+    color: #444;
+    font-size: 13px;
+
+    text-decoration: none;
+    border-radius: 5px;
+
+    transition: background 0.2s, color 0.2s;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f3edfa;
+    color: #542b83;
+}
+
+/* ================================
+    BOTÓN CERRAR SESIÓN Y ACCIONES
+================================ */
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-salir {
+    padding: 9px 15px;
+
+    background-color: #dc2626;
+    color: #ffffff;
+
+    font-size: 13px;
+    text-decoration: none;
+
+    border-radius: 5px;
+
+    transition: background 0.2s;
+}
+
+.btn-salir:hover {
+    background-color: #b91c1c;
+}
+
+/* ================================
+   BOTÓN MODO OSCURO (LIMPIO Y INTEGRADO)
+================================ */
+.btn-theme-toggle {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #542b83;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-theme-toggle:hover {
+    background-color: #f3edfa !important;
+}
+
+body.dark-mode .btn-theme-toggle {
+    color: #d8b4fe;
+}
+
+body.dark-mode .btn-theme-toggle:hover {
+    background-color: #2d2442 !important;
+}
+
+/* ================================
+   MINI TABLA DE CITAS DEL DÍA
+================================ */
+.contenedor-citashoy {
+    width: 100%;
+    max-width: 780px;
+    margin-top: 12px;
+    margin-right: auto;
+    margin-left: 0;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.tabla-citashoy {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 12.5px;
+}
+
+.tabla-citashoy th {
+    background-color: #542b83;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    font-size: 12px;
+}
+
+.tabla-citashoy td {
+    padding: 7px 12px;
+    color: #333333;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tabla-citashoy .col-hora,
+.tabla-citashoy .col-tel {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tabla-citashoy tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla-citashoy tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.tabla-citashoy .text-center {
+    text-align: center;
+    padding: 12px;
+}
+
+.badge-citashoy {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    background-color: rgba(84, 43, 131, 0.12);
+    color: #542b83;
+}
+
+.badge-citashoy.programada {
+    background-color: rgba(168, 85, 247, 0.16);
+    color: #7e22ce;
+}
+
+.badge-citashoy.reagendada {
+    background-color: rgba(234, 179, 8, 0.18);
+    color: #a16207;
+}
+
+.badge-citashoy.atendida {
+    background-color: rgba(34, 197, 94, 0.16);
+    color: #15803d;
+}
+
+body.dark-mode .contenedor-citashoy {
+    background: #1e1b2e;
+    border: 1px solid #2d2442;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .tabla-citashoy th {
+    background-color: #2d2442;
+    color: #d8b4fe;
+}
+
+body.dark-mode .tabla-citashoy td {
+    color: #cbd5e1;
+    border-bottom: 1px solid #2d2442;
+}
+
+body.dark-mode .tabla-citashoy tbody tr:hover {
+    background-color: #251f38;
+}
+
+body.dark-mode .badge-citashoy {
+    background-color: rgba(216, 180, 254, 0.14);
+    color: #d8b4fe;
+}
+
+body.dark-mode .badge-citashoy.programada {
+    background-color: rgba(168, 85, 247, 0.22);
+    color: #e9d5ff;
+}
+
+body.dark-mode .badge-citashoy.reagendada {
+    background-color: rgba(234, 179, 8, 0.2);
+    color: #fde047;
+}
+
+body.dark-mode .badge-citashoy.atendida {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+}
+
+/* ================================
+   ANIMACIÓN
+================================ */
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   MODO OSCURO (Integrado directamente en el mismo CSS)
+   ========================================================================== */
+
+body.dark-mode {
+    background-color: #0f172a;
+    color: #e2e8f0;
+}
+
+body.dark-mode .navbar-clinica {
+    background-color: #1e1b2e;
+    border-bottom: 1px solid #2d2442;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .navbar-clinica h2,
+body.dark-mode .navbar-clinica div {
+    color: #d8b4fe !important;
+}
+
+body.dark-mode .nav-brand a {
+    color: #d8b4fe;
+}
+
+body.dark-mode .drop-toggle {
+    color: #d8b4fe;
+}
+
+body.dark-mode .drop-toggle:hover,
+body.dark-mode .nav-item.active .drop-toggle {
+    background-color: #2d2442;
+    color: #ffffff;
+}
+
+body.dark-mode .dropdown-menu {
+    background-color: #1e1b2e;
+    border: 1px solid #2d2442;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .dropdown-menu a {
+    color: #cbd5e1;
+}
+
+body.dark-mode .dropdown-menu a:hover {
+    background-color: #2d2442;
+    color: #d8b4fe;
+}
+
+body.dark-mode .btn-theme-toggle {
+    color: #d8b4fe;
+}
+
+body.dark-mode .btn-theme-toggle:hover {
+    background-color: #2d2442;
+}
+
+/* ================================
+   DISEÑO RESPONSIVO
+================================ */
+
+@media (max-width: 700px) {
+
+    .navbar-clinica {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .nav-brand {
+        width: 100%;
+    }
+
+    .nav-menu {
+        flex-wrap: wrap;
+        gap: 3px;
+    }
+
+    .drop-toggle {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+
+    .dropdown-menu {
+        min-width: 200px;
+    }
+
+    .nav-actions {
+        margin-left: auto;
+    }
+
+    .contenedor-citashoy {
+        max-width: 100%;
+    }
+
+}
+
+/* --- Pantalla de Carga --- */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.spinner {
+    width: 55px;
+    height: 55px;
+    border: 4px solid rgba(168, 85, 247, 0.15);
+    border-top: 4px solid #a855f7;
+    border-radius: 50%;
+    animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.loading-text {
+    margin-top: 18px;
+    color: #f3f4f6;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

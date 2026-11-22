@@ -1,9 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 import bean.Citas;
+import bean.Datos;
 import bean.Dentistas;
 import bean.Pacientes;
 import bean.Personal;
@@ -21,10 +17,6 @@ import javax.servlet.http.HttpSession;
 @WebServlet(urlPatterns = {"/Control"})
 public class Control extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -38,7 +30,7 @@ public class Control extends HttpServlet {
         System.out.println("ACCIÓN ORIGINAL: " + accion);
         System.out.println("USUARIO: " + request.getParameter("usuario"));
         System.out.println("================================");
-        
+
         if (accion == null || accion.trim().isEmpty()) {
             accion = "inicio";
         }
@@ -68,6 +60,7 @@ public class Control extends HttpServlet {
 
             //redirección a respuesta
             response.sendRedirect(p.getRespuesta());
+            return;
         }
 
         // 3. Módulo de pacientes
@@ -118,6 +111,101 @@ public class Control extends HttpServlet {
             System.out.println("Servlet: redirigiendo a -> " + vistaDestino);
 
             request.getRequestDispatcher(vistaDestino).forward(request, response);
+            return;
+        }
+
+        // 3b. Módulo de gráficas de pacientes por médico
+        if (accion.equals("graficas")) {
+            System.out.println("Servlet: acción graficas detectada");
+
+            String periodo = request.getParameter("periodo");
+            String generar = request.getParameter("generar");
+            String idDentistaParam = request.getParameter("idDentista");
+
+            int idDentistaSel = 0;
+            if (idDentistaParam != null && !idDentistaParam.trim().isEmpty()) {
+                try {
+                    idDentistaSel = Integer.parseInt(idDentistaParam.trim());
+                } catch (NumberFormatException e) {
+                    idDentistaSel = 0;
+                }
+            }
+
+            List<Dentistas> listaDoctores = d.llenarListaDentistas();
+            String nombreDoctorSel = "Todos los doctores";
+
+            if (idDentistaSel > 0 && listaDoctores != null) {
+                for (Dentistas doc : listaDoctores) {
+                    if (doc.getIdDentista() == idDentistaSel) {
+                        String nom = doc.getNombre() != null ? doc.getNombre().trim() : "";
+                        String pat = doc.getPaterno() != null ? doc.getPaterno().trim() : "";
+                        String mat = doc.getMaterno() != null ? doc.getMaterno().trim() : "";
+                        nombreDoctorSel = ("Dr(a). " + nom + " " + pat + " " + mat).trim().replaceAll("\\s+", " ");
+                        break;
+                    }
+                }
+            }
+
+            Datos datosGraficas = new Datos();
+            datosGraficas.setPeriodo((periodo != null && !periodo.trim().isEmpty()) ? periodo : "mensual");
+            datosGraficas.setIdDentistaSeleccionado(idDentistaSel);
+            datosGraficas.setNombreDoctorSeleccionado(nombreDoctorSel);
+
+            if ("1".equals(generar)) {
+                String rutaReal = getServletContext().getRealPath("/");
+                datosGraficas.generarGraficas(rutaReal, datosGraficas.getPeriodo(), idDentistaSel, nombreDoctorSel);
+            }
+
+            request.setAttribute("listaDoctores", listaDoctores);
+            request.setAttribute("datosGraficas", datosGraficas);
+            request.getRequestDispatcher("graficas.jsp").forward(request, response);
+            return;
+        }
+
+        // 3c. Exportar gráficas y tabla de pacientes del periodo a PDF
+        if (accion.equals("pdfGraficas")) {
+            System.out.println("Servlet: acción pdfGraficas detectada");
+
+            String periodo = request.getParameter("periodo");
+            String idDentistaParam = request.getParameter("idDentista");
+            String tipoGraficaPdf = request.getParameter("tipoGraficaPdf");
+
+            int idDentistaSel = 0;
+            if (idDentistaParam != null && !idDentistaParam.trim().isEmpty()) {
+                try {
+                    idDentistaSel = Integer.parseInt(idDentistaParam.trim());
+                } catch (NumberFormatException e) {
+                    idDentistaSel = 0;
+                }
+            }
+
+            List<Dentistas> listaDoctores = d.llenarListaDentistas();
+            String nombreDoctorSel = "Todos los doctores";
+            if (idDentistaSel > 0 && listaDoctores != null) {
+                for (Dentistas doc : listaDoctores) {
+                    if (doc.getIdDentista() == idDentistaSel) {
+                        String nom = doc.getNombre() != null ? doc.getNombre().trim() : "";
+                        String pat = doc.getPaterno() != null ? doc.getPaterno().trim() : "";
+                        String mat = doc.getMaterno() != null ? doc.getMaterno().trim() : "";
+                        nombreDoctorSel = ("Dr(a). " + nom + " " + pat + " " + mat).trim().replaceAll("\\s+", " ");
+                        break;
+                    }
+                }
+            }
+
+            String perFinal = (periodo != null && !periodo.trim().isEmpty()) ? periodo : "mensual";
+            String tipoFinal = (tipoGraficaPdf != null && !tipoGraficaPdf.trim().isEmpty()) ? tipoGraficaPdf : "ambos";
+
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=Graficas_Pacientes_" + perFinal + ".pdf");
+
+            Datos datosPdf = new Datos();
+            String rutaReal = getServletContext().getRealPath("/");
+            try {
+                datosPdf.generarPdfGraficas(response.getOutputStream(), rutaReal, perFinal, idDentistaSel, nombreDoctorSel, tipoFinal);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return;
         }
 
@@ -510,7 +598,7 @@ public class Control extends HttpServlet {
 
         if (accion.equals("logout")) {
             response.sendRedirect("index.html");
-
+            return;
         }
 
         // 6. Procesamiento de las demás acciones
@@ -558,7 +646,6 @@ public class Control extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         processRequest(request, response);
-
     }
 
     @Override

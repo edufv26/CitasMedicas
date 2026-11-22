@@ -1,0 +1,767 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 19 nov 2026
+    Author     : edu
+    Descripción: Estilos del módulo de Citas con modo oscuro.
+*/
+
+/* ================================
+   ANIMACIÓN DE ENTRADA PARA LA VISTA
+================================ */
+.container-contenido {
+    animation: entradaVista 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@keyframes entradaVista {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================================
+   ANIMACIÓN DE SALIDA PARA LA VISTA
+================================ */
+.container-contenido.saliendo {
+    animation: salidaVista 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes salidaVista {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+}
+
+/* ================================
+   ESTILOS GENERALES DE LA VISTA
+================================ */
+.header-seccion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-seccion h2 {
+    color: #542b83;
+    font-size: 22px;
+    margin: 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Botón principal (agendar / filtrar) */
+.btn-accion-principal {
+    background-color: #542b83;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-accion-principal:hover {
+    background-color: #3e1e65;
+}
+
+/* ================================
+   PESTAÑAS (PENDIENTES / HISTORIAL)
+================================ */
+.tabs-citas {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+    border-bottom: 2px solid #e5e7eb;
+    transition: border-color 0.3s ease;
+}
+
+.tab-cita {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    margin-bottom: -2px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.tab-cita:hover {
+    color: #542b83;
+}
+
+.tab-cita.activo {
+    color: #542b83;
+    border-bottom-color: #542b83;
+}
+
+/* ================================
+   FILTROS (FECHA / DOCTOR / PACIENTE)
+================================ */
+.filtros-citas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 16px;
+    margin-bottom: 18px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.filtros-citas .campo-grupo {
+    flex: 1 1 180px;
+    margin-bottom: 0;
+}
+
+.filtros-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-limpiar,
+.btn-pdf {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid #d1d5db;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-limpiar {
+    background-color: #e5e7eb;
+    color: #333;
+}
+
+.btn-limpiar:hover {
+    background-color: #d4d4d8;
+}
+
+.btn-pdf {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.btn-pdf:hover {
+    background-color: #fecaca;
+}
+
+/* ================================
+   TABLA DE DATOS
+================================ */
+.table-responsive {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.tabla-clinica {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+.tabla-clinica th {
+    background-color: #542b83;
+    color: white;
+    padding: 14px 16px;
+    font-weight: 600;
+}
+
+.tabla-clinica td {
+    padding: 12px 16px;
+    color: #333;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tabla-clinica td.diagnostico {
+    max-width: 280px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.tabla-clinica tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Estado de la cita */
+.badge-estado {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.badge-estado.programada {
+    background: #ede9fe;
+    color: #542b83;
+}
+
+.badge-estado.reagendada {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-estado.atendida {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-estado.cancelada {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Botones de acción dentro de la tabla (Reagendar / Cancelar / Atender) */
+.btn-icon-tabla {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+    transition: transform 0.1s ease;
+    display: inline-block;
+    padding: 4px 6px;
+    color: #542b83;
+}
+
+.btn-icon-tabla:hover {
+    transform: scale(1.15);
+}
+
+.btn-icon-tabla.reagendar {
+    color: #3b82f6;
+    margin-right: 8px;
+}
+
+.btn-icon-tabla.atender {
+    color: #16a34a;
+}
+
+.btn-icon-tabla.eliminar {
+    color: #ef4444;
+}
+
+/* ================================
+   BOTÓN REGRESAR / VOLVER
+================================ */
+.btn-regresar {
+    text-decoration: none;
+    background-color: var(--bg-card, #e5e7eb);
+    color: var(--text-color, #333);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    width: fit-content;
+}
+
+.btn-regresar:hover {
+    background-color: #d4d4d8;
+}
+
+/* ================================
+   ESTILOS DE LOS MODALES (GENERAL)
+   modal-citas: agendar, reagendar, cancelar, atender
+   modalRespuesta: aviso que crea modal-global.js
+================================ */
+dialog.modal-citas,
+dialog#modalRespuesta {
+    margin: auto;
+    inset: 0;
+    border: none;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    background-color: var(--bg-card, #ffffff);
+    color: var(--text-color, #333);
+}
+
+dialog#modalRespuesta {
+    max-width: 450px;
+}
+
+dialog.modal-citas:not([open]),
+dialog#modalRespuesta:not([open]) {
+    display: none;
+}
+
+/* Backdrop difuminado */
+dialog.modal-citas::backdrop,
+dialog#modalRespuesta::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+/* Cabecera y campos de los modales de captura */
+.modal-header-registro {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal-header-registro h3 {
+    color: #542b83;
+    margin: 0;
+}
+
+.modal-btn-x {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.modal-btn-x:hover {
+    color: #ef4444;
+}
+
+.campo-grupo {
+    margin-bottom: 12px;
+}
+
+.campo-grupo label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.campo-grupo input,
+.campo-grupo select,
+.campo-grupo textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #333;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.campo-grupo textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+.btn-submit-modal {
+    width: 100%;
+    background: #542b83;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-submit-modal:hover {
+    background: #3e1e65;
+}
+
+/* ================================
+   MODAL DE CANCELAR Y AVISO
+================================ */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal-titulo-peligro {
+    color: #ef4444;
+    font-size: 18px;
+    margin: 0;
+}
+
+.modal-titulo-aviso {
+    color: #542b83;
+    font-size: 18px;
+    margin: 0;
+}
+
+.modal-btn-cerrar {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.modal-btn-cerrar:hover {
+    color: #ef4444;
+}
+
+.modal-texto {
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.modal-acciones {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-modal-cancelar {
+    background: #e5e7eb;
+    color: #333;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-modal-cancelar:hover {
+    background: #d1d5db;
+    transform: translateY(-1px);
+}
+
+.btn-modal-peligro {
+    background: #ef4444;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: inherit;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.btn-modal-peligro:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* ================================
+   ANIMACIONES FLUIDAS DE LOS MODALES
+================================ */
+dialog.modal-citas[open],
+dialog#modalRespuesta[open] {
+    animation: modalEntrada 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+dialog.modal-citas[open]::backdrop,
+dialog#modalRespuesta[open]::backdrop {
+    animation: backdropEntrada 0.3s ease forwards;
+}
+
+dialog.modal-citas.cerrando,
+dialog#modalRespuesta.cerrando {
+    animation: modalSalida 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+dialog.modal-citas.cerrando::backdrop,
+dialog#modalRespuesta.cerrando::backdrop {
+    animation: backdropSalida 0.25s ease forwards;
+}
+
+@keyframes modalEntrada {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes modalSalida {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+    }
+}
+
+@keyframes backdropEntrada {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to { opacity: 1; backdrop-filter: blur(4px); }
+}
+
+@keyframes backdropSalida {
+    from { opacity: 1; backdrop-filter: blur(4px); }
+    to { opacity: 0; backdrop-filter: blur(0px); }
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+    .container-contenido {
+        padding: 16px;
+    }
+
+    .header-left {
+        flex-wrap: wrap;
+    }
+
+    .filtros-citas .campo-grupo {
+        flex-basis: 100%;
+    }
+}
+
+/* ================================
+   ADAPTACIÓN A MODO OSCURO
+   (la clase dark-mode la agrega modoOscuro.js al body)
+================================ */
+body.dark-mode .header-seccion h2 {
+    color: #d8b4fe;
+}
+
+/* Pestañas */
+body.dark-mode .tabs-citas {
+    border-bottom-color: #2d2442;
+}
+
+body.dark-mode .tab-cita {
+    color: #94a3b8;
+}
+
+body.dark-mode .tab-cita:hover,
+body.dark-mode .tab-cita.activo {
+    color: #d8b4fe;
+}
+
+body.dark-mode .tab-cita.activo {
+    border-bottom-color: #d8b4fe;
+}
+
+/* Filtros */
+body.dark-mode .filtros-citas {
+    background: #1e1b2e;
+    border: 1px solid #2d2442;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .btn-limpiar {
+    background-color: #2d2442;
+    color: #cbd5e1;
+    border-color: #4a3b6e;
+}
+
+body.dark-mode .btn-limpiar:hover {
+    background-color: #3b2f54;
+}
+
+body.dark-mode .btn-pdf {
+    background-color: rgba(248, 113, 113, 0.15);
+    color: #fca5a5;
+    border-color: rgba(248, 113, 113, 0.35);
+}
+
+body.dark-mode .btn-pdf:hover {
+    background-color: rgba(248, 113, 113, 0.28);
+}
+
+/* Tabla */
+body.dark-mode .table-responsive {
+    background: #1e1b2e;
+    border: 1px solid #2d2442;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .tabla-clinica th {
+    background-color: #2d2442;
+    color: #d8b4fe;
+}
+
+body.dark-mode .tabla-clinica tr {
+    background-color: #1e1b2e;
+}
+
+body.dark-mode .tabla-clinica td {
+    color: #cbd5e1;
+    background-color: transparent;
+    border-bottom: 1px solid #2d2442;
+}
+
+body.dark-mode .tabla-clinica tbody tr:hover {
+    background-color: #251f38;
+}
+
+/* Estados */
+body.dark-mode .badge-estado.programada {
+    background: rgba(216, 180, 254, 0.15);
+    color: #d8b4fe;
+}
+
+body.dark-mode .badge-estado.reagendada {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fcd34d;
+}
+
+body.dark-mode .badge-estado.atendida {
+    background: rgba(74, 222, 128, 0.15);
+    color: #86efac;
+}
+
+body.dark-mode .badge-estado.cancelada {
+    background: rgba(248, 113, 113, 0.15);
+    color: #fca5a5;
+}
+
+/* Botones de acción */
+body.dark-mode .btn-icon-tabla {
+    color: #d8b4fe;
+}
+
+body.dark-mode .btn-icon-tabla.reagendar {
+    color: #60a5fa;
+}
+
+body.dark-mode .btn-icon-tabla.atender {
+    color: #4ade80;
+}
+
+body.dark-mode .btn-icon-tabla.eliminar {
+    color: #f87171;
+}
+
+body.dark-mode .btn-regresar {
+    background-color: #1e1b2e;
+    color: #d8b4fe;
+    border: 1px solid #2d2442;
+}
+
+/* Modales en Modo Oscuro */
+body.dark-mode dialog.modal-citas,
+body.dark-mode dialog#modalRespuesta {
+    background-color: #1e1b2e !important;
+    color: #cbd5e1 !important;
+    border: 1px solid #2d2442 !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8) !important;
+}
+
+body.dark-mode .modal-header-registro h3,
+body.dark-mode dialog.modal-citas h3,
+body.dark-mode .modal-titulo-aviso,
+body.dark-mode dialog#modalRespuesta h3 {
+    color: #d8b4fe !important;
+}
+
+body.dark-mode dialog.modal-citas .modal-titulo-peligro {
+    color: #f87171 !important;
+}
+
+body.dark-mode .campo-grupo label,
+body.dark-mode dialog.modal-citas label {
+    color: #e2e8f0 !important;
+    font-weight: 500;
+}
+
+body.dark-mode .campo-grupo input,
+body.dark-mode .campo-grupo select,
+body.dark-mode .campo-grupo textarea {
+    background-color: #251f38 !important;
+    color: #ffffff !important;
+    border: 1px solid #4a3b6e !important;
+    color-scheme: dark;
+}
+
+body.dark-mode .campo-grupo input:focus,
+body.dark-mode .campo-grupo select:focus,
+body.dark-mode .campo-grupo textarea:focus {
+    background-color: #2d2442 !important;
+    border-color: #d8b4fe !important;
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(216, 180, 254, 0.25) !important;
+}
+
+body.dark-mode .modal-btn-cerrar,
+body.dark-mode .modal-btn-x {
+    color: #94a3b8;
+}
+
+body.dark-mode .modal-btn-cerrar:hover,
+body.dark-mode .modal-btn-x:hover {
+    color: #ef4444;
+}
+
+body.dark-mode .btn-modal-cancelar {
+    background: #2d2442 !important;
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .btn-modal-cancelar:hover {
+    background: #3b2f54 !important;
+}

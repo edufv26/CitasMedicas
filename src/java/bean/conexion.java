@@ -1,21 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package bean;
 
 import java.io.IOException;
 import java.sql.*;
 
-/**
- *
- * @author edu
- */
 public class conexion {
     String USER = "sa";
-    //en caso de ocupar la bd cambiar // por la de tu contraseña
-    String PASS = "Edu260604";
-    //String PASS = "sasa";
+    String PASS = "sasa";
     String respuesta;
     
     public Connection conecta(){

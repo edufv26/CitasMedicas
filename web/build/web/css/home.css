@@ -1,0 +1,282 @@
+body {
+    margin: 0;
+    font-family: Roboto, Arial, sans-serif;
+    background-color: #0f0f0f; /* Estilo modo oscuro moderno tipo YouTube */
+    color: #f1f1f1;
+}
+
+/* Barra Superior */
+.yt-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 56px;
+    background-color: #212121;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    box-sizing: border-box;
+    z-index: 1000;
+    border-bottom: 1px solid #383838;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.menu-icon {
+    font-size: 20px;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    font-size: 18px;
+    color: #fff;
+}
+
+/* Buscador central */
+.header-center {
+    display: flex;
+    flex: 0 1 600px;
+    justify-content: center;
+}
+
+.search-box {
+    display: flex;
+    width: 100%;
+    background: #121212;
+    border: 1px solid #303030;
+    border-radius: 40px 0 0 40px;
+    overflow: hidden;
+}
+
+.search-box input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-btn {
+    background: #222;
+    border: 1px solid #303030;
+    border-left: none;
+    padding: 0 20px;
+    border-radius: 0 40px 40px 0;
+    cursor: pointer;
+}
+
+/* Círculo de perfil derecho en gris oscuro (Lleva al Login) */
+.profile-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #272727; /* Gris oscuro elegante */
+    color: #aaa; /* Color del ícono interior */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #3f3f3f;
+}
+
+.profile-circle:hover {
+    background-color: #3f3f3f;
+    color: #fff;
+    transform: scale(1.05);
+    border-color: #555;
+}
+
+/* Layout Principal */
+.main-layout {
+    display: flex;
+    margin-top: 56px;
+}
+
+/* Sidebar */
+.yt-sidebar {
+    width: 240px;
+    height: calc(100vh - 56px);
+    position: fixed;
+    background-color: #0f0f0f;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.sidebar-item {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 4px;
+    transition: background 0.2s;
+}
+
+.sidebar-item:hover, .sidebar-item.active {
+    background-color: #272727;
+}
+
+.sidebar-divider {
+    border: 0;
+    border-top: 1px solid #3f3f3f;
+    margin: 12px 0;
+}
+
+.sidebar-title {
+    font-size: 12px;
+    color: #aaa;
+    padding: 6px 12px;
+    font-weight: bold;
+}
+
+/* Área de Contenido */
+.content-area {
+    margin-left: 240px;
+    padding: 24px;
+    width: calc(100% - 240px);
+    box-sizing: border-box;
+}
+
+/* Chips de categorías */
+.filter-chips {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.chip {
+    background-color: #272727;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.chip.active, .chip:hover {
+    background-color: #f1f1f1;
+    color: #0f0f0f;
+}
+
+/* Banner Principal */
+.hero-banner {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.hero-text h1 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+    color: #fff;
+}
+
+.hero-text p {
+    color: #d1d5db;
+    font-size: 15px;
+    max-width: 600px;
+    margin-bottom: 20px;
+}
+
+.hero-btn {
+    display: inline-block;
+    background-color: #3ea6ff;
+    color: #0f0f0f;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.hero-btn:hover {
+    background-color: #65b8ff;
+}
+
+/* Títulos de sección */
+.section-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: #fff;
+}
+
+/* Cuadrícula de Tarjetas (Estilo Videos) */
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.video-card {
+    background: transparent;
+    cursor: pointer;
+}
+
+.card-thumbnail {
+    height: 160px;
+    border-radius: 12px;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Fondos ilustrativos para las tarjetas dentales */
+.dental-bg-1 { background: linear-gradient(45deg, #11998e, #38ef7d); }
+.dental-bg-2 { background: linear-gradient(45deg, #f857a6, #ff5858); }
+.dental-bg-3 { background: linear-gradient(45deg, #4facfe, #00f2fe); }
+
+.badge-tag {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 2px 6px;
+    font-size: 11px;
+    border-radius: 4px;
+}
+
+.card-details h3 {
+    margin: 0 0 6px 0;
+    font-size: 15px;
+    color: #fff;
+    line-height: 1.3;
+}
+
+.channel-name {
+    margin: 0 0 4px 0;
+    font-size: 13px;
+    color: #aaa;
+}
+
+.metadata {
+    margin: 0;
+    font-size: 12px;
+    color: #888;
+}
+

@@ -1,9 +1,3 @@
-<%--
-    Document   : Citas (ADMIN)
-    Created on : 19 nov 2026
-    Author     : edu
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="bean.Citas"%>
 
@@ -37,7 +31,7 @@
         <!-- Contenedor Principal Unificado -->
         <div class="container-contenido">
 
-            <!-- Cabecera: Botón Volver + Título (Izquierda) | Botón Agendar (Derecha) -->
+            <!-- Cabecera: Botón Volver + Título (Izquierda) | Botones Gráficas y Agendar (Derecha) -->
             <div class="header-seccion">
                 <div class="header-left">
                     <!-- Botón de Volver -->
@@ -47,10 +41,16 @@
                     <h2><span class="fa fa-calendar"></span> Gestión de Citas</h2>
                 </div>
 
-                <!-- Botón de Agendar -->
-                <button type="button" data-abrir="modalAgendar" class="btn-accion-principal">
-                    <span class="fa fa-calendar-plus-o"></span> Agendar cita
-                </button>
+                <!-- Botones de Gráficas y Agendar -->
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <a href="<%= request.getContextPath()%>/Control?accion=graficas" class="btn-accion-principal" style="text-decoration: none;">
+                        <span class="fa fa-bar-chart"></span> Ver / Crear Gráficas
+                    </a>
+
+                    <button type="button" data-abrir="modalAgendar" class="btn-accion-principal">
+                        <span class="fa fa-calendar-plus-o"></span> Agendar cita
+                    </button>
+                </div>
             </div>
 
             <!-- Pestañas: citas pendientes / historial -->

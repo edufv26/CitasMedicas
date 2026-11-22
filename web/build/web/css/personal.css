@@ -1,0 +1,692 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 18 nov 2026
+    Author     : edu
+*/
+
+/* ================================
+   ANIMACIÓN DE ENTRADA PARA LA VISTA
+================================ */
+.container-contenido {
+    animation: entradaVista 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@keyframes entradaVista {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================================
+   ANIMACIÓN DE SALIDA PARA LA VISTA
+================================ */
+.container-contenido.saliendo {
+    animation: salidaVista 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes salidaVista {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+}
+
+/* ================================
+   ENCABEZADO Y SECCIONES DE PERSONAL
+================================ */
+.header-seccion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.header-seccion h2,
+.container-contenido h3 {
+    color: #542b83;
+}
+
+.header-seccion h2 {
+    font-size: 22px;
+    margin: 0;
+}
+
+.container-contenido h3 {
+    font-size: 17px;
+    margin: 24px 0 10px 0;
+}
+
+/* Botón principal de alta */
+.btn-accion-principal {
+    background-color: #542b83;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-accion-principal:hover {
+    background-color: #3e1e65;
+}
+
+/* ================================
+   MODALES (<dialog>)
+================================ */
+dialog#modalRegistro,
+dialog#modalPassword,
+dialog#modalEliminar {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    border: none;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
+    background-color: var(--bg-card, #ffffff);
+    color: var(--text-color, #333);
+    box-sizing: border-box;
+    overflow: auto;
+    max-height: 90vh;
+}
+
+dialog#modalPassword {
+    max-width: 440px;
+}
+
+dialog#modalRegistro:not([open]),
+dialog#modalPassword:not([open]),
+dialog#modalEliminar:not([open]) {
+    display: none;
+}
+
+dialog#modalRegistro::backdrop,
+dialog#modalPassword::backdrop,
+dialog#modalEliminar::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.modal-header-registro {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modal-header-registro h3 {
+    margin: 0;
+    color: #542b83;
+    font-size: 18px;
+}
+
+.modal-btn-x {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+}
+
+.modal-btn-x:hover {
+    color: #ef4444;
+}
+
+.campo-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 12px;
+}
+
+.campo-grupo label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.campo-grupo input,
+.campo-grupo select,
+.campo-grupo textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #fff;
+    color: #1e293b;
+}
+
+.btn-submit-modal {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+    background-color: #542b83;
+    color: #fff;
+    border: none;
+    padding: 11px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-submit-modal:hover {
+    background-color: #3e1e65;
+}
+
+/* ================================
+   TABLAS
+================================ */
+.table-responsive {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.tabla-clinica {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+.tabla-clinica th {
+    background-color: #542b83;
+    color: white;
+    padding: 14px 16px;
+    font-weight: 600;
+}
+
+.tabla-clinica td {
+    padding: 12px 16px;
+    color: #333;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tabla-clinica tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Botones de acción dentro de la tabla */
+.btn-icon-tabla {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+    transition: transform 0.1s ease;
+    display: inline-block;
+    padding: 4px 6px;
+    color: #542b83;
+}
+
+.btn-icon-tabla:hover {
+    transform: scale(1.15);
+}
+
+.btn-icon-tabla.editar {
+    color: #3b82f6;
+    margin-right: 6px;
+}
+
+.btn-icon-tabla.eliminar {
+    color: #ef4444;
+    margin-left: 6px;
+}
+
+/* ================================
+   BOTÓN REGRESAR / VOLVER
+================================ */
+.btn-regresar {
+    text-decoration: none;
+    background-color: var(--bg-card, #e5e7eb);
+    color: var(--text-color, #333);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    width: fit-content;
+}
+
+.btn-regresar:hover {
+    background-color: #d4d4d8;
+}
+
+/* ================================
+   ANIMACIONES DE MODALES
+================================ */
+dialog#modalRegistro[open],
+dialog#modalPassword[open],
+dialog#modalEliminar[open] {
+    animation: modalEntrada 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+dialog#modalRegistro[open]::backdrop,
+dialog#modalPassword[open]::backdrop,
+dialog#modalEliminar[open]::backdrop {
+    animation: backdropEntrada 0.3s ease forwards;
+}
+
+dialog#modalRegistro.cerrando,
+dialog#modalPassword.cerrando,
+dialog#modalEliminar.cerrando {
+    animation: modalSalida 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+dialog#modalRegistro.cerrando::backdrop,
+dialog#modalPassword.cerrando::backdrop,
+dialog#modalEliminar.cerrando::backdrop {
+    animation: backdropSalida 0.25s ease forwards;
+}
+
+@keyframes modalEntrada {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -42%) scale(0.85);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes modalSalida {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -44%) scale(0.9);
+    }
+}
+
+@keyframes backdropEntrada {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to { opacity: 1; backdrop-filter: blur(4px); }
+}
+
+@keyframes backdropSalida {
+    from { opacity: 1; backdrop-filter: blur(4px); }
+    to { opacity: 0; backdrop-filter: blur(0px); }
+}
+
+/* ================================
+   MODAL ELIMINAR
+================================ */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal-titulo-peligro {
+    color: #ef4444;
+    font-size: 18px;
+}
+
+.modal-btn-cerrar {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.modal-btn-cerrar:hover {
+    color: #ef4444;
+}
+
+.modal-texto {
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.modal-acciones {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-modal-cancelar {
+    background: #e5e7eb;
+    color: #333;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-modal-cancelar:hover {
+    background: #d1d5db;
+    transform: translateY(-1px);
+}
+
+.btn-modal-peligro {
+    background: #ef4444;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.btn-modal-peligro:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* ================================
+   FILTROS DE PERSONAL
+================================ */
+.filtros {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: flex-end !important;
+    gap: 14px !important;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 16px;
+    margin-bottom: 18px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.filtros .campo-grupo {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 200px !important;
+    min-width: 180px;
+    margin-bottom: 0 !important;
+}
+
+.filtros-acciones {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex: 0 0 auto !important;
+}
+
+.filtros-acciones .btn-accion-principal,
+.filtros-acciones .btn-limpiar {
+    white-space: nowrap;
+}
+
+.btn-limpiar {
+    text-decoration: none;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid #d1d5db;
+    background-color: #e5e7eb;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-limpiar:hover {
+    background-color: #d4d4d8;
+}
+
+body.dark-mode .filtros,
+html.dark-mode .filtros {
+    background: #1e1b2e !important;
+    border: 1px solid #2d2442 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .filtros .campo-grupo label,
+html.dark-mode .filtros .campo-grupo label {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .filtros .campo-grupo input,
+body.dark-mode .filtros .campo-grupo select,
+html.dark-mode .filtros .campo-grupo input,
+html.dark-mode .filtros .campo-grupo select {
+    background-color: #251f38 !important;
+    color: #ffffff !important;
+    border: 1px solid #4a3b6e !important;
+}
+
+body.dark-mode .btn-limpiar,
+html.dark-mode .btn-limpiar {
+    background-color: #2d2442 !important;
+    color: #cbd5e1 !important;
+    border-color: #4a3b6e !important;
+}
+
+body.dark-mode .btn-limpiar:hover,
+html.dark-mode .btn-limpiar:hover {
+    background-color: #3b2f54 !important;
+}
+
+@media (max-width: 768px) {
+    .filtros {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .filtros .campo-grupo {
+        flex: 1 1 100% !important;
+        min-width: 0;
+    }
+
+    .filtros-acciones {
+        flex-wrap: wrap !important;
+    }
+}
+
+@keyframes filaFiltroEntrada {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tabla-clinica tbody tr.fila-filtrada {
+    animation: filaFiltroEntrada 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.tabla-clinica td.sin-coincidencias,
+.tabla-clinica td.text-center {
+    text-align: center !important;
+}
+
+/* ================================
+   MODO OSCURO
+================================ */
+body.dark-mode .header-seccion h2,
+body.dark-mode .container-contenido h3,
+html.dark-mode .header-seccion h2,
+html.dark-mode .container-contenido h3 {
+    color: #d8b4fe;
+}
+
+body.dark-mode .table-responsive {
+    background: #1e1b2e;
+    border: 1px solid #2d2442;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .tabla-clinica th {
+    background-color: #2d2442;
+    color: #d8b4fe;
+}
+
+body.dark-mode .tabla-clinica tr {
+    background-color: #1e1b2e;
+}
+
+body.dark-mode .tabla-clinica td {
+    color: #cbd5e1;
+    background-color: transparent;
+    border-bottom: 1px solid #2d2442;
+}
+
+body.dark-mode .tabla-clinica tbody tr:hover {
+    background-color: #251f38;
+}
+
+body.dark-mode .btn-icon-tabla {
+    color: #d8b4fe;
+}
+
+body.dark-mode .btn-icon-tabla.editar {
+    color: #60a5fa;
+}
+
+body.dark-mode .btn-icon-tabla.eliminar {
+    color: #f87171;
+}
+
+body.dark-mode .btn-regresar {
+    background-color: #1e1b2e;
+    color: #d8b4fe;
+    border: 1px solid #2d2442;
+}
+
+body.dark-mode dialog#modalRegistro,
+html.dark-mode dialog#modalRegistro,
+body.dark-mode dialog#modalPassword,
+html.dark-mode dialog#modalPassword,
+body.dark-mode dialog#modalEliminar,
+html.dark-mode dialog#modalEliminar {
+    background-color: #1e1b2e !important;
+    color: #cbd5e1 !important;
+    border: 1px solid #2d2442 !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8) !important;
+}
+
+body.dark-mode dialog#modalRegistro h3,
+body.dark-mode dialog#modalPassword h3,
+html.dark-mode dialog#modalRegistro h3,
+html.dark-mode dialog#modalPassword h3 {
+    color: #d8b4fe !important;
+}
+
+body.dark-mode dialog#modalRegistro label,
+body.dark-mode dialog#modalPassword label,
+body.dark-mode dialog#modalPassword .modal-texto,
+html.dark-mode dialog#modalRegistro label,
+html.dark-mode dialog#modalPassword label,
+html.dark-mode dialog#modalPassword .modal-texto {
+    color: #e2e8f0 !important;
+    font-weight: 500;
+}
+
+body.dark-mode dialog#modalRegistro input,
+body.dark-mode dialog#modalRegistro select,
+body.dark-mode dialog#modalRegistro textarea,
+body.dark-mode dialog#modalPassword input,
+body.dark-mode dialog#modalPassword select,
+html.dark-mode dialog#modalRegistro input,
+html.dark-mode dialog#modalRegistro select,
+html.dark-mode dialog#modalRegistro textarea,
+html.dark-mode dialog#modalPassword input,
+html.dark-mode dialog#modalPassword select {
+    background-color: #251f38 !important;
+    color: #ffffff !important;
+    border: 1px solid #4a3b6e !important;
+}
+
+body.dark-mode dialog#modalRegistro input:focus,
+body.dark-mode dialog#modalRegistro select:focus,
+body.dark-mode dialog#modalRegistro textarea:focus,
+body.dark-mode dialog#modalPassword input:focus,
+html.dark-mode dialog#modalRegistro input:focus,
+html.dark-mode dialog#modalRegistro select:focus,
+html.dark-mode dialog#modalRegistro textarea:focus,
+html.dark-mode dialog#modalPassword input:focus {
+    background-color: #2d2442 !important;
+    border-color: #d8b4fe !important;
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(216, 180, 254, 0.25) !important;
+}
+
+body.dark-mode .modal-btn-cerrar,
+body.dark-mode .modal-btn-x,
+html.dark-mode .modal-btn-cerrar,
+html.dark-mode .modal-btn-x {
+    color: #94a3b8;
+}
+
+body.dark-mode .modal-btn-cerrar:hover,
+body.dark-mode .modal-btn-x:hover {
+    color: #ef4444;
+}
+
+body.dark-mode .btn-modal-cancelar,
+html.dark-mode .btn-modal-cancelar {
+    background: #2d2442 !important;
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .btn-modal-cancelar:hover,
+html.dark-mode .btn-modal-cancelar:hover {
+    background: #3b2f54 !important;
+}

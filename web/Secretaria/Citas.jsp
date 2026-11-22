@@ -1,9 +1,3 @@
-<%--
-    Document   : Citas (SECRETARIAS)
-    Created on : 19 nov 2026
-    Author     : edu
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="bean.Citas"%>
 

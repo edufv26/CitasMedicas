@@ -1,8 +1,3 @@
-<%-- 
-    Document   : Pacientes (SECRETARIAS)
-    Created on : 13 nov 2026, 10:38:27 a.m.
-    Author     : edu
---%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
@@ -53,7 +48,7 @@
             <!-- Contenedor Principal Unificado -->
             <div class="container-contenido">
 
-                <!-- Cabecera: Botón Volver + Título (Izquierda) | Botón Alta (Derecha) -->
+                <!-- Cabecera: Botón Volver + Título (Izquierda) | Botones Acción (Derecha) -->
                 <div class="header-seccion">
 
                     <div class="header-left">
@@ -64,10 +59,16 @@
                         <h2><span class="fa fa-users"></span> Lista de Pacientes</h2>
                     </div>
 
-                    <!-- Botón de Alta -->
-                    <button type="button" data-abrir="modalRegistro" class="btn-accion-principal">
-                        <span class="fa fa-user-plus"></span> Dar de alta a paciente
-                    </button>
+                    <!-- Botones de Gráficas y Alta -->
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <a href="<%= request.getContextPath()%>/Control?accion=graficas" class="btn-accion-principal" style="text-decoration: none;">
+                            <span class="fa fa-bar-chart"></span> Ver / Crear Gráficas
+                        </a>
+
+                        <button type="button" data-abrir="modalRegistro" class="btn-accion-principal">
+                            <span class="fa fa-user-plus"></span> Dar de alta a paciente
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Filtros de Pacientes (Búsqueda general + Doctor Asignado) -->

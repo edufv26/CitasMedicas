@@ -1,0 +1,128 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 12 nov 2026, 8:49:53 p.m.
+    Author     : edu
+*/
+/* ==========================================
+   ESTILOS PARA MÓDULO DE BAJAS Y SELECTORES
+   ========================================== */
+
+/* Contenedor principal de la tarjeta de baja */
+body {
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #1e293b;
+    margin: 0;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Tarjeta contenedora del formulario */
+.form-container {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Títulos */
+h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 10px;
+}
+
+/* Etiquetas de texto */
+label, p {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Estilo profesional para el selector (<select>) */
+select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    color: #334155;
+    font-size: 14px;
+    margin-bottom: 20px;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: #3b82f6;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Botón principal de acción (Dar de Baja - Tonos Rojizos/Alerta) */
+.btn-baja {
+    width: 100%;
+    background-color: #ef4444; /* Rojo principal de alerta */
+    color: #ffffff;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-baja:hover {
+    background-color: #dc2626; /* Rojo más obscuro al pasar el mouse */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+}
+
+/* Mensajes de error o estado de conexión */
+.error-conexion, option[disabled] {
+    color: #64748b;
+    font-style: italic;
+}
+/* ==========================================
+   BOTÓN DE REGRESO PERSONALIZADO
+   ========================================== */
+.btn-regresar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background-color: #f1f5f9;  /* Fondo gris suavecito y limpio */
+    color: #334155;             /* Texto oscuro formal */
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Si lo quieres con un toque rojizo elegante al pasar el mouse: */
+.btn-regresar:hover {
+    background-color: #fee2e2;  /* Rojito claro muy estético tipo alerta suave */
+    color: #991b1b;             /* Texto rojo oscuro */
+    border-color: #fca5a5;      /* Borde rojito */
+    transform: translateY(-1px);
+}
