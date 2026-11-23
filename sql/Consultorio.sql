@@ -474,6 +474,7 @@ BEGIN
 END;
 GO
 USE Consultorio
+SELECT * FROM Personal
 GO
 -- PARA ADMIN
 CREATE OR ALTER PROCEDURE dbo.sp_CambiarPasswordUsuario

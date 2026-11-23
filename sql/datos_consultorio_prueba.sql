@@ -145,5 +145,5 @@ SELECT * FROM Pacientes;
 SELECT * FROM Citas ORDER BY fecha DESC, hora DESC;
 SELECT * FROM Historial;
 GO
-
-DELETE FROM Pacientes WHERE estatus='D'
+USE Consultorio
+DELETE FROM Personal WHERE estatus='D'

@@ -238,7 +238,7 @@ public class Personal {
         return sb.toString();
     }
     
-    // Dar de alta al personal con transacción en sp_RegistrarPersonal
+    // Dar de alta al personal con transaccion en sp_RegistrarPersonal
     // tipo: 1 = Administrador, 2 = Secretaria, 3 = Dentista
     public void agregarUsuario(String especialidad, String cedula, String turno) {
         try {
