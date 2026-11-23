@@ -43,10 +43,6 @@
 
                 <!-- Botones de Gráficas y Agendar -->
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <a href="<%= request.getContextPath()%>/Control?accion=graficas" class="btn-accion-principal" style="text-decoration: none;">
-                        <span class="fa fa-bar-chart"></span> Ver / Crear Gráficas
-                    </a>
-
                     <button type="button" data-abrir="modalAgendar" class="btn-accion-principal">
                         <span class="fa fa-calendar-plus-o"></span> Agendar cita
                     </button>
@@ -115,11 +111,11 @@
                             <th>Fecha</th>
                             <th>Hora</th>
                             <th>Estado</th>
-                            <% if (citasVista.isHistorial()) { %>
+                                <% if (citasVista.isHistorial()) { %>
                             <th>Diagnóstico</th>
-                            <% } else { %>
+                                <% } else { %>
                             <th class="text-center">Acciones</th>
-                            <% }%>
+                                <% }%>
                         </tr>
                     </thead>
                     <tbody>

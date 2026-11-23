@@ -102,7 +102,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 ================================ */
 dialog#modalRegistro,
 dialog#modalPassword,
-dialog#modalEliminar {
+dialog#modalEliminar,
+dialog#modalRespuesta {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -121,19 +122,22 @@ dialog#modalEliminar {
     max-height: 90vh;
 }
 
-dialog#modalPassword {
-    max-width: 440px;
+dialog#modalPassword,
+dialog#modalRespuesta {
+    max-width: 450px;
 }
 
 dialog#modalRegistro:not([open]),
 dialog#modalPassword:not([open]),
-dialog#modalEliminar:not([open]) {
+dialog#modalEliminar:not([open]),
+dialog#modalRespuesta:not([open]) {
     display: none;
 }
 
 dialog#modalRegistro::backdrop,
 dialog#modalPassword::backdrop,
-dialog#modalEliminar::backdrop {
+dialog#modalEliminar::backdrop,
+dialog#modalRespuesta::backdrop {
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
 }
@@ -301,25 +305,29 @@ dialog#modalEliminar::backdrop {
 ================================ */
 dialog#modalRegistro[open],
 dialog#modalPassword[open],
-dialog#modalEliminar[open] {
+dialog#modalEliminar[open],
+dialog#modalRespuesta[open] {
     animation: modalEntrada 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 dialog#modalRegistro[open]::backdrop,
 dialog#modalPassword[open]::backdrop,
-dialog#modalEliminar[open]::backdrop {
+dialog#modalEliminar[open]::backdrop,
+dialog#modalRespuesta[open]::backdrop {
     animation: backdropEntrada 0.3s ease forwards;
 }
 
 dialog#modalRegistro.cerrando,
 dialog#modalPassword.cerrando,
-dialog#modalEliminar.cerrando {
+dialog#modalEliminar.cerrando,
+dialog#modalRespuesta.cerrando {
     animation: modalSalida 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
 dialog#modalRegistro.cerrando::backdrop,
 dialog#modalPassword.cerrando::backdrop,
-dialog#modalEliminar.cerrando::backdrop {
+dialog#modalEliminar.cerrando::backdrop,
+dialog#modalRespuesta.cerrando::backdrop {
     animation: backdropSalida 0.25s ease forwards;
 }
 
@@ -356,7 +364,7 @@ dialog#modalEliminar.cerrando::backdrop {
 }
 
 /* ================================
-   MODAL ELIMINAR
+   MODAL ELIMINAR Y AVISO
 ================================ */
 .modal-header {
     display: flex;
@@ -368,6 +376,13 @@ dialog#modalEliminar.cerrando::backdrop {
 .modal-titulo-peligro {
     color: #ef4444;
     font-size: 18px;
+    margin: 0;
+}
+
+.modal-titulo-aviso {
+    color: #542b83;
+    font-size: 18px;
+    margin: 0;
 }
 
 .modal-btn-cerrar {
@@ -614,7 +629,9 @@ html.dark-mode dialog#modalRegistro,
 body.dark-mode dialog#modalPassword,
 html.dark-mode dialog#modalPassword,
 body.dark-mode dialog#modalEliminar,
-html.dark-mode dialog#modalEliminar {
+html.dark-mode dialog#modalEliminar,
+body.dark-mode dialog#modalRespuesta,
+html.dark-mode dialog#modalRespuesta {
     background-color: #1e1b2e !important;
     color: #cbd5e1 !important;
     border: 1px solid #2d2442 !important;
@@ -623,17 +640,21 @@ html.dark-mode dialog#modalEliminar {
 
 body.dark-mode dialog#modalRegistro h3,
 body.dark-mode dialog#modalPassword h3,
+body.dark-mode .modal-titulo-aviso,
 html.dark-mode dialog#modalRegistro h3,
-html.dark-mode dialog#modalPassword h3 {
+html.dark-mode dialog#modalPassword h3,
+html.dark-mode .modal-titulo-aviso {
     color: #d8b4fe !important;
 }
 
 body.dark-mode dialog#modalRegistro label,
 body.dark-mode dialog#modalPassword label,
 body.dark-mode dialog#modalPassword .modal-texto,
+body.dark-mode dialog#modalRespuesta .modal-texto,
 html.dark-mode dialog#modalRegistro label,
 html.dark-mode dialog#modalPassword label,
-html.dark-mode dialog#modalPassword .modal-texto {
+html.dark-mode dialog#modalPassword .modal-texto,
+html.dark-mode dialog#modalRespuesta .modal-texto {
     color: #e2e8f0 !important;
     font-weight: 500;
 }
@@ -689,4 +710,34 @@ html.dark-mode .btn-modal-cancelar {
 body.dark-mode .btn-modal-cancelar:hover,
 html.dark-mode .btn-modal-cancelar:hover {
     background: #3b2f54 !important;
+}
+.input-password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-password-wrapper input {
+    padding-right: 72px;
+}
+
+.btn-ojito-pass {
+    position: absolute;
+    right: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #542b83;
+    font-size: 15px;
+    padding: 4px 6px;
+    line-height: 1;
+}
+
+.btn-regenerar-pass {
+    right: 36px;
+}
+
+body.dark-mode .btn-ojito-pass,
+html.dark-mode .btn-ojito-pass {
+    color: #d8b4fe;
 }

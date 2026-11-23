@@ -1,6 +1,7 @@
 import bean.Citas;
 import bean.Datos;
 import bean.Dentistas;
+import bean.EncriptarMD5;
 import bean.Pacientes;
 import bean.Personal;
 import bean.Secretarias;
@@ -118,6 +119,16 @@ public class Control extends HttpServlet {
         if (accion.equals("graficas")) {
             System.out.println("Servlet: acción graficas detectada");
 
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            if (tipoUsuario != 1 && tipoUsuario != 2) {
+                System.out.println("Servlet: Acceso no autorizado a graficas por rol: " + tipoUsuario);
+                response.sendRedirect(request.getContextPath() + "/Control?accion=menu");
+                return;
+            }
+
             String periodo = request.getParameter("periodo");
             String generar = request.getParameter("generar");
             String idDentistaParam = request.getParameter("idDentista");
@@ -150,15 +161,21 @@ public class Control extends HttpServlet {
             datosGraficas.setPeriodo((periodo != null && !periodo.trim().isEmpty()) ? periodo : "mensual");
             datosGraficas.setIdDentistaSeleccionado(idDentistaSel);
             datosGraficas.setNombreDoctorSeleccionado(nombreDoctorSel);
+            datosGraficas.setContextPath(request.getContextPath());
+            datosGraficas.setListaDoctores(listaDoctores);
 
             if ("1".equals(generar)) {
                 String rutaReal = getServletContext().getRealPath("/");
                 datosGraficas.generarGraficas(rutaReal, datosGraficas.getPeriodo(), idDentistaSel, nombreDoctorSel);
             }
 
+            String carpeta = (tipoUsuario == 2) ? "Secretaria/" : "Admin/";
+            String vistaDestino = carpeta + "graficas.jsp";
+
             request.setAttribute("listaDoctores", listaDoctores);
             request.setAttribute("datosGraficas", datosGraficas);
-            request.getRequestDispatcher("graficas.jsp").forward(request, response);
+            System.out.println("Servlet (graficas): redirigiendo a -> " + vistaDestino);
+            request.getRequestDispatcher(vistaDestino).forward(request, response);
             return;
         }
 
@@ -369,6 +386,78 @@ public class Control extends HttpServlet {
             return;
         }
 
+        if (accion.equals("registrarPersonal")) {
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            if (tipoUsuario != 1) {
+                response.sendRedirect("index.jsp");
+                return;
+            }
+
+            String nombre = request.getParameter("nombre");
+            String aPaterno = request.getParameter("APaterno");
+            String aMaterno = request.getParameter("AMaterno");
+            String telefono = request.getParameter("telefono");
+            String correo = request.getParameter("correo");
+            int nuevoTipo = Integer.parseInt(request.getParameter("tipo"));
+
+            String especialidad = request.getParameter("especialidad");
+            String cedula = request.getParameter("cedula");
+            String turno = "";
+            if (nuevoTipo == 3) {
+                turno = request.getParameter("turnoDentista");
+            } else if (nuevoTipo == 2) {
+                turno = request.getParameter("turnoSecretaria");
+            }
+
+            p.setNombre(nombre);
+            p.setPaterno(aPaterno);
+            p.setMaterno(aMaterno);
+            p.setTelefono(telefono);
+            p.setCorreo(correo);
+            p.setTipo(nuevoTipo);
+            p.agregarUsuario(especialidad, cedula, turno);
+
+            List<Personal> listaAdmins = p.llenarListaAdmins();
+            List<Dentistas> listaDentistas = d.llenarListaDentistas();
+            List<Secretarias> listaSecretarias = s.llenarListaSecretarias();
+
+            request.setAttribute("tablaAdminsHtml", p.generarFilasAdminsHtml(listaAdmins));
+            request.setAttribute("tablaDentistasHtml", d.generarFilasDentistasHtml(listaDentistas));
+            request.setAttribute("tablaSecretariasHtml", s.generarFilasSecretariasHtml(listaSecretarias));
+            request.setAttribute("mensajeRespuesta", p.getRespuesta());
+
+            request.getRequestDispatcher("Admin/Personal.jsp").forward(request, response);
+            return;
+        }
+        
+        // Dar de baja a personal
+        if (accion.equals("eliminarPersonal")) {
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            if (tipoUsuario != 1) {
+                response.sendRedirect("index.jsp");
+                return;
+            }
+
+            String usuarioParam = request.getParameter("usuario");
+            String usuarioBaja = (usuarioParam != null) ? usuarioParam.trim() : "";
+
+            if (!usuarioBaja.isEmpty()) {
+                p.baja(usuarioBaja);
+                session.setAttribute("mensajeDialog", p.getRespuesta());
+            } else {
+                session.setAttribute("mensajeDialog", "Usuario no válido");
+            }
+
+            response.sendRedirect(request.getContextPath() + "/Control?accion=personal");
+            return;
+        }
+
         // 4. Módulo de edición de personal
         if (accion.equals("editarPersonal")) {
             HttpSession session = request.getSession();
@@ -381,19 +470,34 @@ public class Control extends HttpServlet {
             }
 
             String usuarioEditar = request.getParameter("usuario");
-            int tipoEditar = Integer.parseInt(request.getParameter("tipo"));
+            String tipoParam = request.getParameter("tipo");
+            int tipoEditar = (tipoParam != null && !tipoParam.trim().isEmpty())
+                    ? Integer.parseInt(tipoParam.trim())
+                    : 1;
 
             Personal personalEncontrado = null;
-            if (tipoEditar == 2) {
-                Dentistas den = d.obtenerPorUsuario(usuarioEditar);
-                personalEncontrado = den;
-                request.setAttribute("dentistaEdit", den);
-            } else if (tipoEditar == 3) {
-                Secretarias sec = s.obtenerPorUsuario(usuarioEditar);
-                personalEncontrado = sec;
-                request.setAttribute("secretariaEdit", sec);
-            } else {
-                personalEncontrado = p.obtenerPorUsuario(usuarioEditar);
+            switch (tipoEditar) {
+                case 2:
+                    Secretarias sec = s.obtenerPorUsuario(usuarioEditar);
+                    personalEncontrado = (sec != null) ? sec : p.obtenerPorUsuario(usuarioEditar);
+                    if (sec != null) {
+                        request.setAttribute("secretariaEdit", sec);
+                    }
+                    break;
+                case 3:
+                    Dentistas den = d.obtenerPorUsuario(usuarioEditar);
+                    personalEncontrado = (den != null) ? den : p.obtenerPorUsuario(usuarioEditar);
+                    if (den != null) {
+                        request.setAttribute("dentistaEdit", den);
+                    }
+                    break;
+                default:
+                    personalEncontrado = p.obtenerPorUsuario(usuarioEditar);
+                    break;
+            }
+
+            if (personalEncontrado != null && personalEncontrado.getTipo() == 0) {
+                personalEncontrado.setTipo(tipoEditar);
             }
 
             List<Personal> listaAdmins = p.llenarListaAdmins();
@@ -427,6 +531,12 @@ public class Control extends HttpServlet {
             String correo = request.getParameter("correo");
             int nuevoTipo = Integer.parseInt(request.getParameter("tipo"));
 
+            String especialidad = request.getParameter("especialidad");
+            String cedula = request.getParameter("cedula");
+            String turno = (nuevoTipo == 3)
+                    ? request.getParameter("turnoDentista")
+                    : (nuevoTipo == 2 ? request.getParameter("turnoSecretaria") : "");
+
             p.setUsuario(usuario);
             p.setNombre(nombre);
             p.setPaterno(aPaterno);
@@ -434,28 +544,72 @@ public class Control extends HttpServlet {
             p.setTelefono(telefono);
             p.setCorreo(correo);
             p.setTipo(nuevoTipo);
-            p.actualizarPersonal();
+            p.actualizarPersonal(especialidad, cedula, turno);
 
-            if (nuevoTipo == 2) {
-                d.setUsuario(usuario);
-                d.setEspecialidad(request.getParameter("especialidad"));
-                d.setCedula(request.getParameter("cedula"));
-                d.setTurno(request.getParameter("turnoDentista"));
-                d.setTelefono(telefono);
-                d.setCorreo(correo);
-                d.actualizarDentista();
-            } else if (nuevoTipo == 3) {
-                s.setUsuario(usuario);
-                s.setTurno(request.getParameter("turnoSecretaria"));
-                s.setTelefono(telefono);
-                s.setCorreo(correo);
-                s.actualizarSecretaria();
+            List<Personal> listaAdmins = p.llenarListaAdmins();
+            List<Dentistas> listaDentistas = d.llenarListaDentistas();
+            List<Secretarias> listaSecretarias = s.llenarListaSecretarias();
+
+            request.setAttribute("tablaAdminsHtml", p.generarFilasAdminsHtml(listaAdmins));
+            request.setAttribute("tablaDentistasHtml", d.generarFilasDentistasHtml(listaDentistas));
+            request.setAttribute("tablaSecretariasHtml", s.generarFilasSecretariasHtml(listaSecretarias));
+            request.setAttribute("mensajeRespuesta", p.getRespuesta());
+
+            request.getRequestDispatcher("Admin/Personal.jsp").forward(request, response);
+            return;
+        }
+        
+        // Regenerar contraseña: solo recibe usuario, encripta y muestra en el modal
+        if (accion.equals("regenerarPassword")) {
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            if (tipoUsuario != 1) {
+                response.sendRedirect("index.jsp");
+                return;
             }
 
-            response.sendRedirect("Control?accion=personal");
+            String usuarioPass = request.getParameter("usuario");
+            String passNueva = p.regenerarPassword(usuarioPass);
+
+            request.setAttribute("passUsuarioModal", usuarioPass);
+            request.setAttribute("nuevaPassGenerada", passNueva);
+            request.setAttribute("abrirPasoPass", "true");
+
+            List<Personal> listaAdmins = p.llenarListaAdmins();
+            List<Dentistas> listaDentistas = d.llenarListaDentistas();
+            List<Secretarias> listaSecretarias = s.llenarListaSecretarias();
+
+            request.setAttribute("tablaAdminsHtml", p.generarFilasAdminsHtml(listaAdmins));
+            request.setAttribute("tablaDentistasHtml", d.generarFilasDentistasHtml(listaDentistas));
+            request.setAttribute("tablaSecretariasHtml", s.generarFilasSecretariasHtml(listaSecretarias));
+
+            request.getRequestDispatcher("Admin/Personal.jsp").forward(request, response);
             return;
         }
 
+        // Guardar contraseña al darle "Actualizar Contraseña"
+        if (accion.equals("cambiarPassword")) {
+            HttpSession session = request.getSession();
+            Integer tipoObj = (Integer) session.getAttribute("tipo");
+            int tipoUsuario = (tipoObj != null) ? tipoObj : 1;
+
+            if (tipoUsuario != 1) {
+                response.sendRedirect("index.jsp");
+                return;
+            }
+
+            String usuarioPass = request.getParameter("usuario");
+            String nuevaPass = request.getParameter("nuevaPassword");
+
+            p.cambiarPasswordUsuario(usuarioPass, nuevaPass);
+            session.setAttribute("mensajeDialog", p.getRespuesta());
+
+            response.sendRedirect(request.getContextPath() + "/Control?accion=personal");
+            return;
+        }
+        
         if (accion.equals("citas")) {
             System.out.println("Servlet: acción citas detectada");
 

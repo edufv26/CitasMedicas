@@ -14,10 +14,11 @@ CREATE TABLE Personal(
     AMaterno VARCHAR(30),
     telefono VARCHAR(15), -- Teléfono de contacto para el personal
     correo VARCHAR(50),   -- Correo electrónico institucional o personal
-    tipo INT CHECK(tipo >= 1 AND tipo <= 3) DEFAULT 3, -- 1 = ADMIN, 2 = DENTISTA, 3 = SECRETARIA
+    tipo INT CHECK(tipo >= 1 AND tipo <= 3) DEFAULT 3, -- 1 = ADMIN, 2 = SECRETARIA, 3 = DENTISTA
     estatus CHAR(1) CHECK(estatus IN ('A','D')) DEFAULT 'A'
 );
 GO
+SELECT * FROM Personal
 -- 2. Dentistas 
 CREATE TABLE Dentistas(
     id_dentista INT IDENTITY(1,1) PRIMARY KEY,
@@ -77,6 +78,7 @@ GO
 
 SELECT * FROM Citas
 SELECT * FROM Historial
+USE Consultorio
 GO
 -- =========================================================
 -- PROCEDURES
@@ -86,49 +88,88 @@ GO
 -- =========================================================
 --PARA ADMIN
 --procedure nuev@ admin, dentista, secretaria + usuario
--- SP: Registrar personal (Admin, Dentista o Secretaria + su usuario)
-CREATE PROCEDURE sp_RegistrarPersonal
+-- SP: Registrar personal (Admin, Dentista o Secretaria + su usuario
+USE Consultorio
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_RegistrarPersonal
     @usuario CHAR(12),
     @password CHAR(32),
     @nombre VARCHAR(30),
     @APaterno VARCHAR(30),
-    @AMaterno VARCHAR(30),
-    @tipo INT, -- 1: Administrador, 2: Dentista, 3: Secretaria
-    @especialidad VARCHAR(50) = NULL -- Solo aplica si es dentista
+    @AMaterno VARCHAR(30) = NULL,
+    @telefono VARCHAR(15) = NULL,
+    @correo VARCHAR(50) = NULL,
+    @tipo INT, -- 1: Administrador, 2: Secretaria, 3: Dentista
+    @especialidad VARCHAR(50) = NULL,
+    @cedula_profesional VARCHAR(20) = NULL,
+    @turno VARCHAR(20) = NULL,
+    @mensaje VARCHAR(200) OUTPUT
 AS
 BEGIN
-    -- 1. Insertar el registro principal en la tabla de Usuarios (aplica para los tres roles)
-    INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, tipo, estatus)
-    VALUES (@usuario, @password, @nombre, @APaterno, @AMaterno, @tipo, 'A');
+    SET NOCOUNT ON;
 
-    -- 2. Dependiendo del rol, insertar en su tabla correspondiente si la requiere
-    IF @tipo = 2
+    IF LTRIM(RTRIM(ISNULL(@usuario, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@password, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@nombre, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@APaterno, ''))) = ''
+        OR @tipo NOT IN (1, 2, 3)
     BEGIN
-        INSERT INTO Dentistas (usuario, especialidad) VALUES (@usuario, @especialidad);
-    END
-    ELSE IF @tipo = 3
+        SET @mensaje = 'Faltan campos obligatorios para registrar al personal.';
+        RETURN;
+    END;
+
+    IF @tipo = 3 AND (
+        LTRIM(RTRIM(ISNULL(@especialidad, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@cedula_profesional, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@turno, ''))) = ''
+    )
     BEGIN
-        INSERT INTO Secretarias (usuario) VALUES (@usuario);
-    END
-    -- Si el tipo es 1 (Admin), no hace falta insertar en otra tabla 
-    -- porque el administrador vive exclusivamente en la tabla Personal.
-END
+        SET @mensaje = 'Faltan especialidad, cédula profesional o turno para el dentista.';
+        RETURN;
+    END;
+
+    IF @tipo = 2 AND LTRIM(RTRIM(ISNULL(@turno, ''))) = ''
+    BEGIN
+        SET @mensaje = 'Falta el turno para la secretaria.';
+        RETURN;
+    END;
+
+    IF EXISTS (SELECT 1 FROM Personal WHERE usuario = @usuario)
+    BEGIN
+        SET @mensaje = 'El usuario ya se encuentra registrado: ' + LTRIM(RTRIM(@usuario));
+        RETURN;
+    END;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, telefono, correo, tipo, estatus)
+        VALUES (@usuario, @password, @nombre, @APaterno, @AMaterno, @telefono, @correo, @tipo, 'A');
+
+        IF @tipo = 3
+        BEGIN
+            INSERT INTO Dentistas (usuario, especialidad, cedula_profesional, turno, telefono, correo)
+            VALUES (@usuario, @especialidad, @cedula_profesional, @turno, @telefono, @correo);
+        END
+        ELSE IF @tipo = 2
+        BEGIN
+            INSERT INTO Secretarias (usuario, turno, telefono, correo)
+            VALUES (@usuario, @turno, @telefono, @correo);
+        END;
+
+        COMMIT TRANSACTION;
+        SET @mensaje = 'Personal registrado correctamente. Usuario: ' + LTRIM(RTRIM(@usuario));
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        SET @mensaje = 'Error en transacción: ' + ERROR_MESSAGE();
+    END CATCH
+END;
 GO
 USE Consultorio
--- 1. Ver si existe el stored procedure y en qué esquema está
-SELECT 
-    SCHEMA_NAME(schema_id) AS esquema,
-    name AS nombre_sp,
-    create_date,
-    modify_date
-FROM sys.procedures
-WHERE name = 'sp_RegistrarPaciente';
 GO
-
-IF OBJECT_ID('dbo.sp_RegistrarPaciente', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.sp_RegistrarPaciente;
-GO
-
 CREATE PROCEDURE dbo.sp_RegistrarPaciente
     @nombre        VARCHAR(30),
     @a_paterno     VARCHAR(30),
@@ -247,14 +288,44 @@ GO
 -- ===============================================================
 -- SP: Dar de baja lógica a cualquier Usuario del personal (Admin, Dentista o Secretaria)
 --PARA ADMIN
-CREATE PROCEDURE sp_BajaUsuario
-    @usuario CHAR(12)
+USE Consultorio
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_BajaUsuario
+    @usuario CHAR(12),
+    @mensaje VARCHAR(200) OUTPUT
 AS
 BEGIN
-    UPDATE Personal 
-    SET estatus = 'D' 
-    WHERE usuario = @usuario;
-END
+    SET NOCOUNT ON;
+
+    IF LTRIM(RTRIM(ISNULL(@usuario, ''))) = ''
+    BEGIN
+        SET @mensaje = 'Falta el usuario para dar de baja.';
+        RETURN;
+    END;
+
+    IF NOT EXISTS (SELECT 1 FROM Personal WHERE usuario = @usuario)
+    BEGIN
+        SET @mensaje = 'No existe el usuario indicado: ' + LTRIM(RTRIM(@usuario));
+        RETURN;
+    END;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        UPDATE Personal
+        SET estatus = 'D'
+        WHERE usuario = @usuario;
+
+        COMMIT TRANSACTION;
+        SET @mensaje = 'Personal dado de baja correctamente: ' + LTRIM(RTRIM(@usuario));
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        SET @mensaje = 'Error en transacción: ' + ERROR_MESSAGE();
+    END CATCH
+END;
 GO
 -- PROCEDURE - BAJA PACIENTES
 CREATE PROCEDURE sp_BajaPaciente
@@ -296,53 +367,153 @@ GO
 -- =========================================================
 -- CAMBIO
 -- =========================================================
---- SP: Actualizar datos de Personal (Admin, Dentista o Secretaria)
--- PARA ADMIN
-CREATE PROCEDURE sp_ActualizarPersonal
+-- SP - ACTUALIZAR INFO DEL PACIENTE
+CREATE OR ALTER PROCEDURE dbo.sp_ActualizarPersonal
     @usuario CHAR(12),
     @nombre VARCHAR(30),
     @APaterno VARCHAR(30),
-    @AMaterno VARCHAR(30),
-    @tipo INT, -- 1: Admin, 2: Dentista, 3: Secretaria
-    @especialidad VARCHAR(50) = NULL -- Solo aplica si es dentista
+    @AMaterno VARCHAR(30) = NULL,
+    @telefono VARCHAR(15) = NULL,
+    @correo VARCHAR(50) = NULL,
+    @tipo INT, -- 1: Administrador, 2: Secretaria, 3: Dentista
+    @especialidad VARCHAR(50) = NULL,
+    @cedula_profesional VARCHAR(20) = NULL,
+    @turno VARCHAR(20) = NULL,
+    @mensaje VARCHAR(200) OUTPUT
 AS
 BEGIN
-    -- 1. Actualizar los datos generales en la tabla Personal
-    UPDATE Personal 
-    SET nombre = @nombre,
-        APaterno = @APaterno,
-        AMaterno = @AMaterno,
-        tipo = @tipo
-    WHERE usuario = @usuario;
+    SET NOCOUNT ON;
 
-    -- 2. Si el rol es Dentista, actualizar su especialidad (o insertarla por si acaso)
-    IF @tipo = 2
+    IF LTRIM(RTRIM(ISNULL(@usuario, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@nombre, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@APaterno, ''))) = ''
+        OR @tipo NOT IN (1, 2, 3)
     BEGIN
-        IF EXISTS (SELECT 1 FROM Dentistas WHERE usuario = @usuario)
+        SET @mensaje = 'Faltan campos obligatorios para actualizar al personal.';
+        RETURN;
+    END;
+
+    IF @tipo = 3 AND (
+        LTRIM(RTRIM(ISNULL(@especialidad, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@cedula_profesional, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@turno, ''))) = ''
+    )
+    BEGIN
+        SET @mensaje = 'Faltan especialidad, cédula profesional o turno para el dentista.';
+        RETURN;
+    END;
+
+    IF @tipo = 2 AND LTRIM(RTRIM(ISNULL(@turno, ''))) = ''
+    BEGIN
+        SET @mensaje = 'Falta el turno para la secretaria.';
+        RETURN;
+    END;
+
+    IF NOT EXISTS (SELECT 1 FROM Personal WHERE usuario = @usuario)
+    BEGIN
+        SET @mensaje = 'No existe el usuario indicado: ' + LTRIM(RTRIM(@usuario));
+        RETURN;
+    END;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        UPDATE Personal
+        SET nombre = @nombre,
+            APaterno = @APaterno,
+            AMaterno = @AMaterno,
+            telefono = @telefono,
+            correo = @correo,
+            tipo = @tipo
+        WHERE usuario = @usuario;
+
+        IF @tipo = 3
         BEGIN
-            UPDATE Dentistas 
-            SET especialidad = @especialidad 
-            WHERE usuario = @usuario;
+            IF EXISTS (SELECT 1 FROM Dentistas WHERE usuario = @usuario)
+            BEGIN
+                UPDATE Dentistas
+                SET especialidad = @especialidad,
+                    cedula_profesional = @cedula_profesional,
+                    turno = @turno,
+                    telefono = @telefono,
+                    correo = @correo
+                WHERE usuario = @usuario;
+            END
+            ELSE
+            BEGIN
+                INSERT INTO Dentistas (usuario, especialidad, cedula_profesional, turno, telefono, correo)
+                VALUES (@usuario, @especialidad, @cedula_profesional, @turno, @telefono, @correo);
+            END;
         END
-        ELSE
+        ELSE IF @tipo = 2
         BEGIN
-            INSERT INTO Dentistas (usuario, especialidad) VALUES (@usuario, @especialidad);
-        END
-    END
-    -- Si es Secretaria o Admin, se actualiza su base en Personal y listo.
-END
+            IF EXISTS (SELECT 1 FROM Secretarias WHERE usuario = @usuario)
+            BEGIN
+                UPDATE Secretarias
+                SET turno = @turno,
+                    telefono = @telefono,
+                    correo = @correo
+                WHERE usuario = @usuario;
+            END
+            ELSE
+            BEGIN
+                INSERT INTO Secretarias (usuario, turno, telefono, correo)
+                VALUES (@usuario, @turno, @telefono, @correo);
+            END;
+        END;
+
+        COMMIT TRANSACTION;
+        SET @mensaje = 'Personal actualizado correctamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        SET @mensaje = 'Error en transacción: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+USE Consultorio
 GO
 -- PARA ADMIN
--- SP: Cambiar contraseña de un usuario (Exclusivo para el Administrador)
-CREATE PROCEDURE sp_CambiarPasswordUsuario
+CREATE OR ALTER PROCEDURE dbo.sp_CambiarPasswordUsuario
     @usuario CHAR(12),
-    @nuevo_password CHAR(32)
+    @nuevo_password CHAR(32),
+    @mensaje VARCHAR(200) OUTPUT
 AS
 BEGIN
-    UPDATE Personal 
-    SET password = @nuevo_password 
-    WHERE usuario = @usuario;
-END
+    SET NOCOUNT ON;
+
+    IF LTRIM(RTRIM(ISNULL(@usuario, ''))) = ''
+        OR LTRIM(RTRIM(ISNULL(@nuevo_password, ''))) = ''
+    BEGIN
+        SET @mensaje = 'Faltan datos para actualizar la contraseña.';
+        RETURN;
+    END;
+
+    IF NOT EXISTS (SELECT 1 FROM Personal WHERE usuario = @usuario)
+    BEGIN
+        SET @mensaje = 'No existe el usuario indicado: ' + LTRIM(RTRIM(@usuario));
+        RETURN;
+    END;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        UPDATE Personal
+        SET password = @nuevo_password
+        WHERE usuario = @usuario;
+
+        COMMIT TRANSACTION;
+        SET @mensaje = 'Contraseña actualizada correctamente para ' + LTRIM(RTRIM(@usuario));
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        SET @mensaje = 'Error en transacción: ' + ERROR_MESSAGE();
+    END CATCH
+END;
 GO
 --PARA SECRETARIAS Y ADMIN
 -- SP: Actualizar datos de un paciente (para corregir nombres, teléfonos, correo o preferencia)

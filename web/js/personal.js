@@ -1,6 +1,6 @@
 /* 
- - Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- - Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/JavaScript.js to edit this template
+- Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+- Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/JavaScript.js to edit this template
  */
 
 function mostrarCamposExtra() {
@@ -18,9 +18,9 @@ function mostrarCamposExtra() {
     divSecretaria.style.display = "none";
 
     if (tipo === "2") {
-        divDentista.style.display = "block";
-    } else if (tipo === "3") {
         divSecretaria.style.display = "block";
+    } else if (tipo === "3") {
+        divDentista.style.display = "block";
     }
 }
 
@@ -28,6 +28,7 @@ function resetModalPassword() {
     var pasoConfirmar = document.getElementById("paso-confirmar-pass");
     var pasoForm = document.getElementById("paso-form-pass");
     var inputPass = document.getElementById("nuevaPassword");
+    var icono = document.getElementById("iconoOjitoPass");
 
     if (pasoConfirmar) {
         pasoConfirmar.style.display = "block";
@@ -36,31 +37,26 @@ function resetModalPassword() {
         pasoForm.style.display = "none";
     }
     if (inputPass) {
+        inputPass.type = "password";
         inputPass.required = false;
         inputPass.value = "";
     }
+    if (icono) {
+        icono.className = "fa fa-eye";
+    }
+}
+
+function regenerarPasswordModal() {
+    var inputUsr = document.getElementById("passUsuario");
+    var usr = inputUsr ? inputUsr.value.trim() : "";
+    if (!usr) {
+        return;
+    }
+    window.location.href = "Control?accion=regenerarPassword&usuario=" + encodeURIComponent(usr);
 }
 
 function confirmarNuevaPassword() {
-    var pasoConfirmar = document.getElementById("paso-confirmar-pass");
-    var pasoForm = document.getElementById("paso-form-pass");
-    var inputPass = document.getElementById("nuevaPassword");
-    var usr = document.getElementById("passUsuario") ? document.getElementById("passUsuario").value : "";
-    var formTexto = document.getElementById("passUsuarioFormTexto");
-
-    if (formTexto) {
-        formTexto.textContent = usr;
-    }
-    if (pasoConfirmar) {
-        pasoConfirmar.style.display = "none";
-    }
-    if (pasoForm) {
-        pasoForm.style.display = "block";
-    }
-    if (inputPass) {
-        inputPass.required = true;
-        inputPass.focus();
-    }
+    regenerarPasswordModal();
 }
 
 function abrirModalPassword(usuario) {
@@ -85,6 +81,37 @@ function abrirModalPassword(usuario) {
             dlg.setAttribute("open", "");
         }
     }
+}
+
+function toggleVisibilidadPassword() {
+    var inputPass = document.getElementById("nuevaPassword");
+    var icono = document.getElementById("iconoOjitoPass");
+    if (!inputPass) {
+        return;
+    }
+
+    var esPassword = (inputPass.type === "password");
+    inputPass.type = esPassword ? "text" : "password";
+
+    if (icono) {
+        icono.className = esPassword ? "fa fa-eye-slash" : "fa fa-eye";
+    }
+}
+
+function cerrarModalRespuesta() {
+    var dlg = document.getElementById("modalRespuesta");
+    if (!dlg || !dlg.open) {
+        return;
+    }
+    dlg.classList.add("cerrando");
+    setTimeout(function () {
+        dlg.classList.remove("cerrando");
+        if (typeof dlg.close === "function") {
+            dlg.close();
+        } else {
+            dlg.removeAttribute("open");
+        }
+    }, 240);
 }
 
 function aplicarFiltroPersonal() {
@@ -190,13 +217,109 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    mostrarCamposExtra();
-
     var dlgRegistro = document.getElementById("modalRegistro");
     if (dlgRegistro && dlgRegistro.hasAttribute("open") && typeof dlgRegistro.showModal === "function") {
         dlgRegistro.removeAttribute("open");
         dlgRegistro.showModal();
-        mostrarCamposExtra();
+    }
+
+    mostrarCamposExtra();
+
+    var dlgPass = document.getElementById("modalPassword");
+    if (dlgPass && dlgPass.getAttribute("data-abrir-paso") === "true") {
+        var pasoConfirmar = document.getElementById("paso-confirmar-pass");
+        var pasoForm = document.getElementById("paso-form-pass");
+        var formTexto = document.getElementById("passUsuarioFormTexto");
+        var usrVal = document.getElementById("passUsuario") ? document.getElementById("passUsuario").value.trim() : "";
+
+        if (formTexto && usrVal) {
+            formTexto.textContent = usrVal;
+        }
+        if (pasoConfirmar) {
+            pasoConfirmar.style.display = "none";
+        }
+        if (pasoForm) {
+            pasoForm.style.display = "block";
+        }
+        if (typeof dlgPass.showModal === "function" && !dlgPass.open) {
+            dlgPass.showModal();
+        }
+    }
+
+    var mensajeResp = bodyEl ? (bodyEl.getAttribute("data-mensaje-respuesta") || "").trim() : "";
+    var dlgResp = document.getElementById("modalRespuesta");
+    var txtResp = document.getElementById("mensajeRespuestaTexto");
+
+    if (mensajeResp && dlgResp) {
+        if (txtResp) {
+            txtResp.textContent = mensajeResp;
+        }
+        if (typeof dlgResp.showModal === "function") {
+            if (!dlgResp.open) {
+                dlgResp.showModal();
+            }
+        } else {
+            dlgResp.setAttribute("open", "");
+        }
+    }
+
+    var formRegistro = dlgRegistro ? dlgRegistro.querySelector("form") : null;
+    if (formRegistro) {
+        formRegistro.addEventListener("submit", function (e) {
+            var accionInput = formRegistro.querySelector("input[name='accion']");
+            var accion = accionInput ? accionInput.value : "";
+
+            if (accion !== "registrarPersonal") {
+                return;
+            }
+
+            var nombreEl = document.getElementById("nombre");
+            var paternoEl = document.getElementById("APaterno");
+            var tipoEl = document.getElementById("tipo");
+
+            var nombre = nombreEl ? nombreEl.value.trim() : "";
+            var paterno = paternoEl ? paternoEl.value.trim() : "";
+            var tipo = tipoEl ? tipoEl.value.trim() : "";
+
+            if (!nombre || !paterno || !tipo) {
+                e.preventDefault();
+                alert("Completa los campos obligatorios: nombre, apellido paterno y tipo de personal.");
+                var focoBase = !nombre ? nombreEl : (!paterno ? paternoEl : tipoEl);
+                if (focoBase) {
+                    focoBase.focus();
+                }
+                return;
+            }
+
+            if (tipo === "2") {
+                var turnoSecEl = document.getElementById("turnoSecretaria");
+                var turnoSec = turnoSecEl ? turnoSecEl.value.trim() : "";
+                if (!turnoSec) {
+                    e.preventDefault();
+                    alert("Selecciona el turno para Secretaria.");
+                    if (turnoSecEl) {
+                        turnoSecEl.focus();
+                    }
+                }
+            } else if (tipo === "3") {
+                var espEl = document.getElementById("especialidad");
+                var cedEl = document.getElementById("cedula");
+                var turnoDenEl = document.getElementById("turnoDentista");
+
+                var esp = espEl ? espEl.value.trim() : "";
+                var ced = cedEl ? cedEl.value.trim() : "";
+                var turnoDen = turnoDenEl ? turnoDenEl.value.trim() : "";
+
+                if (!esp || !ced || !turnoDen) {
+                    e.preventDefault();
+                    alert("Para Dentista debes capturar especialidad, cédula profesional y turno.");
+                    var focoDen = !esp ? espEl : (!ced ? cedEl : turnoDenEl);
+                    if (focoDen) {
+                        focoDen.focus();
+                    }
+                }
+            }
+        });
     }
 
     var btnFiltrar = document.getElementById("btnFiltrarPersonal");

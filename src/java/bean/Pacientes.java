@@ -406,7 +406,7 @@ public class Pacientes {
         Dentistas d = new Dentistas().obtenerPorUsuario(usuarioLogin != null ? usuarioLogin.trim() : "");
         this.filtroIdDentista = (d != null) ? d.getIdDentista() : -1;
     }
-
+    //para el menu de pacientes del dentista
     public List<Pacientes> llenarTablaDentista() {
         List<Pacientes> lista = new ArrayList<>();
         if (filtroIdDentista <= 0) {
@@ -528,38 +528,3 @@ public class Pacientes {
         this.opcionesPacientesFiltro = sb.toString();
     }
 }
-
-//este lo guardamos para cambiar contraseña de parte del admin :)
-/*
-    public void llenarSelectorPacientes() {
-        try {
-            Connection cn = Conexion.conecta();
-            if (cn != null) {
-                PreparedStatement ps = cn.prepareStatement("SELECT id_paciente, APaterno, AMaterno, nombre FROM Pacientes WHERE estatus = 'A' ORDER BY id_paciente");
-                ResultSet rs = ps.executeQuery();
-
-                if (rs.next()) {
-                    respuesta = "<select name='id_paciente' required>";
-                    respuesta += "<option value='' disabled selected>-- Seleccione un paciente --</option>";
-                    do {
-                        idP = rs.getInt("id_paciente");
-                        String nombreCompleto = rs.getString("nombre") + " " + rs.getString("APaterno") + " " + rs.getString("AMaterno");
-                        respuesta += "<option value='" + idP + "'>" + nombreCompleto + "</option>";
-                    } while (rs.next());
-                    respuesta += "</select>";
-                } else {
-                    respuesta = "<select name='id_paciente' required><option disabled selected>No hay pacientes activos</option></select>";
-                }
-
-                rs.close();
-                ps.close();
-                cn.close();
-            } else {
-                respuesta = "<select name='id_paciente' required><option disabled selected>No hay conexion a la base</option></select>";
-            }
-        } catch (Exception e) {
-            respuesta = "<select name='id_paciente' required><option disabled selected>Error al cargar datos</option></select>";
-            e.printStackTrace();
-        }
-    }
- */

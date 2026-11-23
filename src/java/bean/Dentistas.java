@@ -252,7 +252,7 @@ public class Dentistas extends Personal {
                   .append("<td>").append(tel).append("</td>")
                   .append("<td>").append(cor).append("</td>")
                   .append("<td class=\"text-center\">")
-                  .append("<a href=\"Control?accion=editarPersonal&usuario=").append(usr).append("&tipo=2\" class=\"btn-icon-tabla editar\" title=\"Editar\"><span class=\"fa fa-pencil\"></span></a>")
+                  .append("<a href=\"Control?accion=editarPersonal&usuario=").append(usr).append("&tipo=3\" class=\"btn-icon-tabla editar\" title=\"Editar\"><span class=\"fa fa-pencil\"></span></a>")
                   .append("<button type=\"button\" class=\"btn-icon-tabla\" title=\"Cambiar contraseña\" onclick=\"abrirModalPassword('").append(usr).append("')\"><span class=\"fa fa-key\"></span></button>")
                   .append("<a href=\"#\" onclick=\"abrirModalEliminar('").append(usr).append("')\" class=\"btn-icon-tabla eliminar\" title=\"Eliminar\"><span class=\"fa fa-trash\"></span></a>")
                   .append("</td>")

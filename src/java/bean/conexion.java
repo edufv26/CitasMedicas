@@ -5,7 +5,7 @@ import java.sql.*;
 
 public class conexion {
     String USER = "sa";
-    String PASS = "sasa";
+    String PASS = "Edu260604";
     String respuesta;
     
     public Connection conecta(){

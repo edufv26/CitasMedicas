@@ -6,9 +6,9 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
-<jsp:useBean id="perEdit" class="bean.Personal" scope="request"/>
-<jsp:useBean id="denEdit" class="bean.Dentistas" scope="request"/>
-<jsp:useBean id="secEdit" class="bean.Secretarias" scope="request"/>
+<jsp:useBean id="personalEdit" class="bean.Personal" scope="request"/>
+<jsp:useBean id="dentistaEdit" class="bean.Dentistas" scope="request"/>
+<jsp:useBean id="secretariaEdit" class="bean.Secretarias" scope="request"/>
 
 <jsp:useBean id="adminVista" class="bean.Personal" scope="page"/>
 <jsp:setProperty name="adminVista" property="respuesta" value="${requestScope.tablaAdminsHtml}"/>
@@ -20,7 +20,7 @@
 <jsp:setProperty name="secretariaVista" property="respuesta" value="${requestScope.tablaSecretariasHtml}"/>
 
 <%
-    boolean esEdicion = (perEdit.getUsuario() != null && !perEdit.getUsuario().trim().isEmpty());
+    boolean esEdicion = (personalEdit.getUsuario() != null && !personalEdit.getUsuario().trim().isEmpty());
 %>
 <!DOCTYPE html>
 <html>
@@ -40,7 +40,11 @@
         <script src="<%= request.getContextPath()%>/js/menu.js" defer></script>
         <script src="<%= request.getContextPath()%>/js/personal.js" defer></script>
     </head>
-    <body data-es-edicion="<%= esEdicion%>" data-tipo-edicion="<jsp:getProperty name="perEdit" property="tipo"/>" data-turno-dentista="<jsp:getProperty name="denEdit" property="turno"/>" data-turno-secretaria="<jsp:getProperty name="secEdit" property="turno"/>">
+    <body data-es-edicion="<%= esEdicion%>"
+          data-tipo-edicion="<jsp:getProperty name="personalEdit" property="tipo"/>"
+          data-turno-dentista="<jsp:getProperty name="dentistaEdit" property="turno"/>"
+          data-turno-secretaria="<jsp:getProperty name="secretariaEdit" property="turno"/>"
+          data-mensaje-respuesta="${requestScope.mensajeRespuesta}">
         <%@ include file="navbarAdmin.jsp" %>
         <div id="loading-overlay">
             <div class="spinner"></div>
@@ -161,45 +165,36 @@
 
         <!-- MODAL ALTA / EDICIÓN DE PERSONAL -->
         <dialog id="modalRegistro" <%= esEdicion ? "open" : ""%>>
-            <form action="Control" method="post">
+            <form action="Control" method="post" id="formPersonal">
                 <div class="modal-header-registro">
                     <h3><%= esEdicion ? "Editar Personal" : "Nuevo Personal"%></h3>
                     <button type="button" data-cerrar class="modal-btn-x">&times;</button>
                 </div>
 
-                <input type="hidden" name="accion" value="<%= esEdicion ? "actualizarPersonal" : "registrarPersonal"%>">
-
-                <div class="campo-grupo">
-                    <label for="usuario">Usuario:</label>
-                    <input type="text" id="usuario" name="usuario" maxlength="12" value="<jsp:getProperty name="perEdit" property="usuario"/>" <%= esEdicion ? "readonly" : "required"%>>
-                </div>
-
-                <% if (!esEdicion) { %>
-                <div class="campo-grupo">
-                    <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
+                <input type="hidden" id="accionPersonal" name="accion" value="<%= esEdicion ? "actualizarPersonal" : "registrarPersonal"%>">
+                <% if (esEdicion) { %>
+                <input type="hidden" name="usuario" value="<jsp:getProperty name="personalEdit" property="usuario"/>">
                 <% } %>
 
                 <div class="campo-grupo">
                     <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" value="<jsp:getProperty name="perEdit" property="nombre"/>" required>
+                    <input type="text" id="nombre" name="nombre" value="<jsp:getProperty name="personalEdit" property="nombre"/>" required>
                 </div>
                 <div class="campo-grupo">
                     <label for="APaterno">Apellido paterno:</label>
-                    <input type="text" id="APaterno" name="APaterno" value="<jsp:getProperty name="perEdit" property="paterno"/>" required>
+                    <input type="text" id="APaterno" name="APaterno" value="<jsp:getProperty name="personalEdit" property="paterno"/>" required>
                 </div>
                 <div class="campo-grupo">
                     <label for="AMaterno">Apellido materno:</label>
-                    <input type="text" id="AMaterno" name="AMaterno" value="<jsp:getProperty name="perEdit" property="materno"/>">
+                    <input type="text" id="AMaterno" name="AMaterno" value="<jsp:getProperty name="personalEdit" property="materno"/>">
                 </div>
                 <div class="campo-grupo">
                     <label for="telefono">Teléfono:</label>
-                    <input type="tel" id="telefono" name="telefono" maxlength="15" value="<jsp:getProperty name="perEdit" property="telefono"/>">
+                    <input type="tel" id="telefono" name="telefono" maxlength="15" value="<jsp:getProperty name="personalEdit" property="telefono"/>">
                 </div>
                 <div class="campo-grupo">
                     <label for="correo">Correo:</label>
-                    <input type="email" id="correo" name="correo" maxlength="50" value="<jsp:getProperty name="perEdit" property="correo"/>">
+                    <input type="email" id="correo" name="correo" maxlength="50" value="<jsp:getProperty name="personalEdit" property="correo"/>">
                 </div>
 
                 <div class="campo-grupo">
@@ -207,8 +202,8 @@
                     <select id="tipo" name="tipo" onchange="mostrarCamposExtra()" required>
                         <option value="">Seleccione un rol...</option>
                         <option value="1">Administrador</option>
-                        <option value="2">Dentista</option>
-                        <option value="3">Secretaria</option>
+                        <option value="2">Secretaria</option>
+                        <option value="3">Dentista</option>
                     </select>
                 </div>
 
@@ -216,11 +211,11 @@
                 <div id="seccion-dentista" class="seccion-extra" style="display: none;">
                     <div class="campo-grupo">
                         <label for="especialidad">Especialidad:</label>
-                        <input type="text" id="especialidad" name="especialidad" maxlength="50" value="<jsp:getProperty name="denEdit" property="especialidad"/>">
+                        <input type="text" id="especialidad" name="especialidad" maxlength="50" value="<jsp:getProperty name="dentistaEdit" property="especialidad"/>">
                     </div>
                     <div class="campo-grupo">
                         <label for="cedula">Cédula Profesional:</label>
-                        <input type="text" id="cedula" name="cedula" maxlength="20" value="<jsp:getProperty name="denEdit" property="cedula"/>">
+                        <input type="text" id="cedula" name="cedula" maxlength="20" value="<jsp:getProperty name="dentistaEdit" property="cedula"/>">
                     </div>
                     <div class="campo-grupo">
                         <label for="turnoDentista">Turno:</label>
@@ -242,14 +237,14 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit-modal">
+                <button type="submit" id="btnGuardarPersonal" name="accionBoton" value="<%= esEdicion ? "actualizarPersonal" : "registrarPersonal"%>" class="btn-submit-modal">
                     <%= esEdicion ? "Guardar Cambios" : "Guardar Personal"%>
                 </button>
             </form>
         </dialog>
 
-        <!-- MODAL CENTRALIZADO DE CAMBIO DE CONTRASEÑA (CONFIRMACIÓN + FORMULARIO) -->
-        <dialog id="modalPassword">
+       <!-- MODAL CENTRALIZADO DE CAMBIO DE CONTRASEÑA (CONFIRMACIÓN + FORMULARIO) -->
+        <dialog id="modalPassword" data-abrir-paso="${requestScope.abrirPasoPass}">
             <form action="Control" method="post" id="formPassword">
                 <div class="modal-header-registro">
                     <h3>Cambiar Contraseña</h3>
@@ -257,12 +252,12 @@
                 </div>
 
                 <input type="hidden" name="accion" value="cambiarPassword">
-                <input type="hidden" id="passUsuario" name="usuario" value="">
+                <input type="hidden" id="passUsuario" name="usuario" value="${requestScope.passUsuarioModal}">
 
                 <!-- Paso 1: Confirmación -->
                 <div id="paso-confirmar-pass">
                     <p class="modal-texto">
-                        ¿Segur@ que quieres crear una contraseña nueva para <b id="passUsuarioTexto"></b>?
+                        ¿Segur@ que quieres crear una contraseña nueva para <b id="passUsuarioTexto">${requestScope.passUsuarioModal}</b>?
                     </p>
                     <div class="modal-acciones">
                         <button type="button" data-cerrar onclick="resetModalPassword()" class="btn-modal-cancelar">Cancelar</button>
@@ -272,11 +267,19 @@
 
                 <!-- Paso 2: Campo de nueva contraseña -->
                 <div id="paso-form-pass" style="display: none;">
-                    <p class="modal-texto">Usuario: <b id="passUsuarioFormTexto"></b></p>
+                    <p class="modal-texto">Usuario: <b id="passUsuarioFormTexto">${requestScope.passUsuarioModal}</b></p>
 
                     <div class="campo-grupo">
                         <label for="nuevaPassword">Nueva contraseña:</label>
-                        <input type="password" id="nuevaPassword" name="nuevaPassword">
+                        <div class="input-password-wrapper">
+                            <input type="password" id="nuevaPassword" name="nuevaPassword" value="${requestScope.nuevaPassGenerada}">
+                            <button type="button" id="btnRegenerarPass" class="btn-ojito-pass btn-regenerar-pass" onclick="regenerarPasswordModal()" title="Generar contraseña (MD5 del usuario)">
+                                <span class="fa fa-refresh"></span>
+                            </button>
+                            <button type="button" id="btnTogglePass" class="btn-ojito-pass" onclick="toggleVisibilidadPassword()" title="Mostrar / ocultar contraseña">
+                                <span id="iconoOjitoPass" class="fa fa-eye"></span>
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn-submit-modal">Actualizar Contraseña</button>
@@ -290,10 +293,24 @@
                 <h3 class="modal-titulo-peligro"><span class="fa fa-exclamation-triangle"></span> Confirmar Baja</h3>
                 <button type="button" data-cerrar class="modal-btn-cerrar">&times;</button>
             </div>
-            <p class="modal-texto">¿Estás seguro de dar de baja a este usuario del personal?</p>
+            <p class="modal-texto">¿Estás seguro de dar de baja a <b id="eliminarUsuarioTexto">este usuario</b> del personal?</p>
             <div class="modal-acciones">
                 <button type="button" data-cerrar class="btn-modal-cancelar">Cancelar</button>
                 <a id="btnConfirmarEliminar" href="#" class="btn-modal-peligro">Sí, Dar de Baja</a>
+            </div>
+        </dialog>
+        
+        <!-- MODAL DE AVISO / CONFIRMACIÓN (ALTA, EDICIÓN, PASSWORD, BAJA) -->
+        <dialog id="modalRespuesta">
+            <div class="modal-header">
+                <h3 class="modal-titulo-aviso"><span class="fa fa-check-circle"></span> Aviso</h3>
+                <button type="button" data-cerrar onclick="cerrarModalRespuesta()" class="modal-btn-cerrar">&times;</button>
+            </div>
+
+            <p id="mensajeRespuestaTexto" class="modal-texto"></p>
+
+            <div class="modal-acciones">
+                <button type="button" data-cerrar onclick="cerrarModalRespuesta()" class="btn-accion-principal">Aceptar</button>
             </div>
         </dialog>
     </body>

@@ -33,16 +33,18 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 
-public class Datos {
+public class Datos extends Dentistas {
 
-    private final conexion Conexion = new conexion();
+    conexion Conexion = new conexion();
 
-    private String periodo; // semanal, mensual, anual
+    private String periodo = "mensual"; // semanal, mensual, anual
     private int idDentistaSeleccionado; // 0 = todos los doctores
     private String nombreDoctorSeleccionado;
     private String rutaBarras;
     private String rutaPie;
     private String mensaje;
+    private String contextPath;
+    private List<Dentistas> listaDoctores;
 
     // Completadas (ATENDIDA) = Rojo | Pendientes (PROGRAMADA / REAGENDADA) = Morado
     private static final Color COLOR_COMPLETADAS = new Color(220, 53, 69);
@@ -84,13 +86,134 @@ public class Datos {
         return mensaje;
     }
 
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+    public List<Dentistas> getListaDoctores() {
+        return listaDoctores;
+    }
+
+    public void setListaDoctores(List<Dentistas> listaDoctores) {
+        this.listaDoctores = listaDoctores;
+    }
+
+    public boolean isGraficasListas() {
+        return rutaBarras != null && !rutaBarras.trim().isEmpty() && rutaPie != null && !rutaPie.trim().isEmpty();
+    }
+
+    // Selector de doctores usando listaDoctores o llenarListaDentistas() heredado de Dentistas
+    public String getSelectDoctores() {
+        List<Dentistas> doctores = (this.listaDoctores != null)
+                ? this.listaDoctores
+                : llenarListaDentistas(); //[cite: 3]
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<select id=\"idDentista\" name=\"idDentista\">");
+        sb.append("<option value=\"0\"")
+                .append(this.idDentistaSeleccionado == 0 ? " selected" : "")
+                .append(">Todos los doctores</option>");
+
+        if (doctores != null) {
+            for (Dentistas doc : doctores) {
+                String nom = doc.getNombre() != null ? doc.getNombre().trim() : ""; //[cite: 3]
+                String pat = doc.getPaterno() != null ? doc.getPaterno().trim() : ""; //[cite: 3]
+                String mat = doc.getMaterno() != null ? doc.getMaterno().trim() : ""; //[cite: 3]
+                String esp = doc.getEspecialidad() != null ? doc.getEspecialidad().trim() : ""; //[cite: 3]
+                String nombreCompleto = ("Dr(a). " + nom + " " + pat + " " + mat).trim().replaceAll("\\s+", " ");
+                String texto = nombreCompleto + (!esp.isEmpty() ? " - " + esp : "");
+                String selected = (this.idDentistaSeleccionado == doc.getIdDentista()) ? " selected" : ""; //[cite: 3]
+
+                sb.append("<option value=\"").append(doc.getIdDentista()).append("\"") //[cite: 3]
+                        .append(selected).append(">")
+                        .append(texto)
+                        .append("</option>");
+            }
+        }
+        sb.append("</select>");
+        setRespuesta(sb.toString()); //[cite: 3]
+        return sb.toString();
+    }
+
+    // Selector de periodo para <jsp:getProperty name="datosGraficas" property="selectPeriodo"/>
+    public String getSelectPeriodo() {
+        String perActual = (this.periodo == null || this.periodo.trim().isEmpty())
+                ? "mensual"
+                : this.periodo.trim().toLowerCase();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<select id=\"periodo\" name=\"periodo\">");
+        sb.append("<option value=\"semanal\"").append("semanal".equals(perActual) ? " selected" : "").append(">Semanal</option>");
+        sb.append("<option value=\"mensual\"").append("mensual".equals(perActual) ? " selected" : "").append(">Mensual</option>");
+        sb.append("<option value=\"anual\"").append("anual".equals(perActual) ? " selected" : "").append(">Anual</option>");
+        sb.append("</select>");
+        return sb.toString();
+    }
+
+    // Mensaje + tarjetas de gráficas (o aviso inicial) para <jsp:getProperty name="datosGraficas" property="bloqueGraficas"/>
+    public String getBloqueGraficas() {
+        StringBuilder sb = new StringBuilder();
+
+        if (this.mensaje != null && !this.mensaje.trim().isEmpty()) {
+            sb.append("<div class=\"mensaje\">").append(this.mensaje).append("</div>");
+        }
+
+        if (isGraficasListas()) {
+            String ctx = (this.contextPath != null) ? this.contextPath : "";
+            sb.append("<div class=\"grid-graficas\">")
+                    .append("<div class=\"tarjeta-grafica\">")
+                    .append("<h3>Gráfica de Barras</h3>")
+                    .append("<img src=\"").append(ctx).append("/").append(this.rutaBarras).append("\" alt=\"Gráfica de Barras\">")
+                    .append("</div>")
+                    .append("<div class=\"tarjeta-grafica\">")
+                    .append("<h3>Gráfica de Pastel (Pie)</h3>")
+                    .append("<img src=\"").append(ctx).append("/").append(this.rutaPie).append("\" alt=\"Gráfica de Pastel\">")
+                    .append("</div>")
+                    .append("</div>");
+        } else {
+            sb.append("<div class=\"tarjeta-grafica\">")
+                    .append("<p>Selecciona un doctor y un periodo, y haz clic en <strong>Crear Gráficas</strong> para generar las imágenes.</p>")
+                    .append("</div>");
+        }
+
+        return sb.toString();
+    }
+
+    public String getBloquePdf() {
+        boolean listas = isGraficasListas();
+        String attrDisabled = !listas ? " disabled=\"disabled\"" : "";
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<label for=\"tipoGraficaPdf\">Exportar a PDF:</label>")
+                .append("<select id=\"tipoGraficaPdf\" name=\"tipoGraficaPdf\"").append(attrDisabled).append(">")
+                .append("<option value=\"ambos\">Ambos (Barras y Pie)</option>")
+                .append("<option value=\"barras\">Solo Barras</option>")
+                .append("<option value=\"pie\">Solo Pie</option>")
+                .append("</select>")
+                .append("<button type=\"submit\" class=\"btn btn-pdf\"").append(attrDisabled).append(">")
+                .append("<span class=\"fa fa-file-pdf-o\"></span> Exportar PDF")
+                .append("</button>");
+
+        if (!listas) {
+            sb.append("<span class=\"mensaje-grafica-pendiente\">")
+                    .append("Primero genera las gráficas para habilitar el PDF.")
+                    .append("</span>");
+        }
+
+        return sb.toString();
+    }
+
     /**
-     * Consulta pacientes (vía citas) por médico según periodo (semanal, mensual, anual)
-     * y opcionalmente filtrado por id_dentista (0 = todos).
+     * Consulta pacientes (vía citas) por médico según periodo (semanal,
+     * mensual, anual) y opcionalmente filtrado por id_dentista (0 = todos).
      *
-     * Clave = Nombre del médico
-     * int[0] = Completadas (estado = 'ATENDIDA') -> Rojo
-     * int[1] = Pendientes (estado IN ('PROGRAMADA', 'REAGENDADA')) -> Morado
+     * Clave = Nombre del médico int[0] = Completadas (estado = 'ATENDIDA') ->
+     * Rojo int[1] = Pendientes (estado IN ('PROGRAMADA', 'REAGENDADA')) ->
+     * Morado
      */
     public Map<String, int[]> obtenerPacientesPorEstado(String periodoSeleccionado, int idDentista) {
         Map<String, int[]> datos = new LinkedHashMap<>();
@@ -122,8 +245,7 @@ public class Datos {
                 + "GROUP BY d.id_dentista, per.nombre, per.APaterno, per.AMaterno "
                 + "ORDER BY medico ASC";
 
-        try (Connection con = Conexion.conecta();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = Conexion.conecta(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             if (idDentista > 0) {
                 ps.setInt(1, idDentista);
@@ -150,8 +272,8 @@ public class Datos {
     }
 
     /**
-     * Consulta los pacientes (vía citas) correspondientes al periodo
-     * (semanal, mensual, anual) y doctor seleccionado para la tabla del PDF.
+     * Consulta los pacientes (vía citas) correspondientes al periodo (semanal,
+     * mensual, anual) y doctor seleccionado para la tabla del PDF.
      */
     public List<String[]> obtenerDetallePacientesPeriodo(String periodoSeleccionado, int idDentista) {
         List<String[]> lista = new ArrayList<>();
@@ -182,8 +304,7 @@ public class Datos {
                 + where.toString()
                 + "ORDER BY c.fecha DESC, c.hora DESC";
 
-        try (Connection con = Conexion.conecta();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = Conexion.conecta(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             if (idDentista > 0) {
                 ps.setInt(1, idDentista);
