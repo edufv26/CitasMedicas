@@ -260,29 +260,6 @@ BEGIN
     END CATCH
 END
 GO
-
--- SP: Alta Dentista
-CREATE PROCEDURE sp_RegistrarDentista
-    @usuario CHAR(12),
-    @password CHAR(32),
-    @nombre VARCHAR(30),
-    @APaterno VARCHAR(30),
-    @AMaterno VARCHAR(30),
-    @telefono VARCHAR(15),
-    @correo VARCHAR(50),
-    @especialidad VARCHAR(50),
-    @cedula_profesional VARCHAR(20)
-AS
-BEGIN
-    -- 1. Insertar en Personal incluyendo teléfono y correo
-    INSERT INTO Personal (usuario, password, nombre, APaterno, AMaterno, telefono, correo, tipo, estatus)
-    VALUES (@usuario, @password, @nombre, @APaterno, @AMaterno, @telefono, @correo, 2, 'A');
-
-    -- 2. Insertar en Dentistas con su especialidad y cédula
-    INSERT INTO Dentistas (usuario, especialidad, cedula_profesional) 
-    VALUES (@usuario, @especialidad, @cedula_profesional);
-END
-GO
 -- ==============================================================
 --  BAJAS (cambiar a INACTIVO) con UPDATE
 -- ===============================================================
@@ -685,7 +662,7 @@ BEGIN
             SELECT TOP 1 @id_dentista_final = d.id_dentista
             FROM dbo.Dentistas d
             WHERE (
-                (LTRIM(RTRIM(d.turno)) = 'Matutino' AND @hora >= '08:00:00' AND @hora <= '13:00:00')
+                (LTRIM(RTRIM(d.turno)) = 'Matutino' AND @hora >= '08:00:00' AND @hora <= '14:00:00')
                 OR
                 (LTRIM(RTRIM(d.turno)) = 'Vespertino' AND @hora >= '15:00:00' AND @hora <= '20:00:00')
             )
@@ -733,7 +710,10 @@ BEGIN
     WHERE id_cita = @id_cita;
 END
 GO
-
+-- ====================================================================
+--procedure reagendar citas
+-- ====================================================================
+-- SP: Cancelar Citas
 CREATE OR ALTER PROCEDURE sp_ReagendarCita
     @id_cita INT,
     @nueva_fecha DATE,
@@ -760,12 +740,12 @@ BEGIN
 
     -- Validar que la nueva hora corresponda al turno del dentista asignado
     IF NOT (
-        (@turno_dentista = 'Matutino' AND @nueva_hora >= '08:00:00' AND @nueva_hora <= '13:00:00')
+        (@turno_dentista = 'Matutino' AND @nueva_hora >= '08:00:00' AND @nueva_hora <= '14:00:00')
         OR
         (@turno_dentista = 'Vespertino' AND @nueva_hora >= '15:00:00' AND @nueva_hora <= '20:00:00')
     )
     BEGIN
-        RAISERROR('La nueva hora no corresponde al turno del dentista asignado (Matutino 08:00-14:00 / Vespertino 15:00-20:00).', 16, 1);
+        RAISERROR('La nueva hora no corresponde al turno del dentista asignado (Matutino 08:00-14:00 / Vespertino 14:00-20:00).', 16, 1);
         RETURN;
     END
 
@@ -792,15 +772,6 @@ BEGIN
 END
 GO
 --procedure historico de citas (general y dentista especifico)
-SELECT 
-    DB_NAME() AS base_actual,
-    SCHEMA_NAME(schema_id) AS esquema,
-    name AS nombre_sp,
-    create_date,
-    modify_date
-FROM sys.procedures
-WHERE name LIKE '%FiltrarHistorial%';
-GO
 CREATE OR ALTER PROCEDURE sp_FiltrarHistorial
     @id_dentista INT = NULL,
     @id_paciente INT = NULL,
@@ -833,11 +804,6 @@ BEGIN
       )
     ORDER BY c.fecha DESC, c.hora DESC;
 END
-GO
-
-SELECT * FROM Citas
-
-UPDATE Citas SET estado ='PROGRAMADA' WHERE estado='REAGENDADA'
 GO
 -- procedure atender cita x paciente (para ambos)
 -- SP: Atender cita (Guarda diagnóstico y cambia estado a ATENDIDA)
@@ -880,124 +846,5 @@ BEGIN
       AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
       AND c.estado IN ('PROGRAMADA')
     ORDER BY c.hora ASC;
-END
-GO
--- DISCLAIMER: EN PROCESO NO USAR
--- =========================================================
--- GRAFICAS
--- =========================================================
--- REPORTE SEMANAL
--- CITAS POR DIA DE LA SEMANA
-CREATE PROCEDURE sp_DatosBarrasSemanal
-    @fecha_inicio DATE,
-    @fecha_fin DATE,
-    @id_dentista INT = NULL
-AS
-BEGIN
-    SELECT 
-        c.fecha AS PeriodoFecha,
-        DATENAME(WEEKDAY, c.fecha) AS DiaSemana,
-        COUNT(c.id_cita) AS TotalCitas
-    FROM Citas c
-    WHERE c.fecha BETWEEN @fecha_inicio AND @fecha_fin
-      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
-    GROUP BY c.fecha, DATENAME(WEEKDAY, c.fecha)
-    ORDER BY c.fecha ASC;
-END
-GO
--- PASTEL = PARTICIPACION DOCTOR X SEMANA
-CREATE PROCEDURE sp_DatosPastelSemanal
-    @fecha_inicio DATE,
-    @fecha_fin DATE,
-    @id_dentista INT = NULL
-AS
-BEGIN
-    SELECT 
-        d.id_dentista,
-        u.nombre + ' ' + u.APaterno AS Dentista,
-        COUNT(c.id_cita) AS TotalCitas
-    FROM Citas c
-    INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
-    INNER JOIN Personal u ON d.usuario = u.usuario
-    WHERE c.fecha BETWEEN @fecha_inicio AND @fecha_fin
-      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
-    GROUP BY d.id_dentista, u.nombre, u.APaterno
-    ORDER BY TotalCitas DESC;
-END
-GO
--- REPORTE MENSUAL
--- BARRAS - X SEMANA DEL MES
-CREATE PROCEDURE sp_DatosBarrasMensual
-    @mes INT,
-    @anio INT,
-    @id_dentista INT = NULL
-AS
-BEGIN
-    SELECT 
-        ((DAY(c.fecha) - 1) / 7) + 1 AS PeriodoSemana,
-        COUNT(c.id_cita) AS TotalCitas
-    FROM Citas c
-    WHERE MONTH(c.fecha) = @mes 
-      AND YEAR(c.fecha) = @anio
-      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
-    GROUP BY ((DAY(c.fecha) - 1) / 7) + 1
-    ORDER BY PeriodoSemana;
-END
-GO
--- PASTEL - QUE DR. ATENDIO MAS
-CREATE PROCEDURE sp_DatosPastelMensual
-    @mes INT,
-    @anio INT,
-    @id_dentista INT = NULL
-AS
-BEGIN
-    SELECT 
-        d.id_dentista,
-        u.nombre + ' ' + u.APaterno AS Dentista,
-        COUNT(c.id_cita) AS TotalCitas
-    FROM Citas c
-    INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
-    INNER JOIN Personal u ON d.usuario = u.usuario
-    WHERE MONTH(c.fecha) = @mes 
-      AND YEAR(c.fecha) = @anio
-      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
-    GROUP BY d.id_dentista, u.nombre, u.APaterno
-    ORDER BY TotalCitas DESC;
-END
-GO
--- REPORTE ANUAL
--- BARRAS - CITAS X MES DEL AÑO
-CREATE PROCEDURE sp_DatosBarrasAnual
-    @anio INT,
-    @id_dentista INT = NULL
-AS
-BEGIN
-    SELECT 
-        MONTH(c.fecha) AS PeriodoMes,
-        COUNT(c.id_cita) AS TotalCitas
-    FROM Citas c
-    WHERE YEAR(c.fecha) = @anio
-      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
-    GROUP BY MONTH(c.fecha)
-    ORDER BY PeriodoMes ASC;
-END
-GO
--- PASTEL - PARTICIPACION DEL DENTISTA EN TODO EL AÑO
-CREATE PROCEDURE sp_DatosPastelAnual
-    @anio INT,
-    @id_dentista INT = NULL
-AS
-BEGIN
-    SELECT 
-        d.id_dentista,
-        u.nombre + ' ' + u.APaterno AS Dentista,
-        COUNT(c.id_cita) AS TotalCitas
-    FROM Citas c
-    INNER JOIN Dentistas d ON c.id_dentista = d.id_dentista
-    INNER JOIN Personal u ON d.usuario = u.usuario
-    WHERE YEAR(c.fecha) = @anio
-      AND (@id_dentista IS NULL OR c.id_dentista = @id_dentista)
-    GROUP BY d.id_dentista, u.nombre, u.APaterno
-    ORDER BY TotalCitas DESC;
 END
 GO

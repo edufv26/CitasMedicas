@@ -82,7 +82,7 @@ INSERT INTO Pacientes (nombre, APaterno, AMaterno, telefono, correo, direccion, 
 GO
 
 -- =========================================================
--- 3. CITAS VARIADAS (ATENDIDA, PROGRAMADA [pendiente], REAGENDADA, CANCELADA)
+-- 3. CITAS VARIADAS (ATENDIDA, PROGRAMADA [pendiente], CANCELADA)
 -- =========================================================
 -- Obtenemos IDs de forma dinámica para evitar errores si tu tabla ya tenía otros registros
 DECLARE @p1 INT = (SELECT TOP 1 id_paciente FROM Pacientes WHERE correo = 'juan@mail.com');
